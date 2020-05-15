@@ -2,6 +2,8 @@
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/beckerbenj/eatFDZ.svg?branch=master)](https://travis-ci.org/beckerbenj/eatFDZ)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/beckerbenj/eatFDZ?branch=master&svg=true)](https://ci.appveyor.com/project/beckerbenj/eatFDZ)
+[![codecov](https://codecov.io/github/beckerbenj/eatFDZ/branch/master/graphs/badge.svg)](https://codecov.io/github/beckerbenj/eatFDZ)
 <!-- badges: end -->
 
 ## Workflow
