@@ -21,7 +21,16 @@ remotes::install_github("beckerbenj/eatFDZ")
 ## Usage
 
 ```R
+library(eatFDZ)
 ### Check if all variables in the data set are mentioned in the codebook
-check_docu(sav_path = "example_data.sav", 
+out <- check_docu(sav_path = "example_data.sav", 
            pdf_path = "example_codebook.pdf", )
+```
+
+## Writing to Excel
+
+```R
+# Install eatAnalysis from GitHub via
+remotes::install_github("beckerbenj/eatAnalysis")
+eatAnalysis::write_xlsx(out, filePath = "codebook_checks.xlsx", row.names = FALSE)
 ```
