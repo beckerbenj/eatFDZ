@@ -1,7 +1,7 @@
 Package: eatFDZ
 Type: Package
 Title: Forschungsdatenzentrum utility functions
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person("Benjamin", "Becker", email = "b.becker@iqb.hu-berlin.de", role = c("aut", "cre"))
 Description: Checking codebooks and anonymizing data.
 License: GPL (>= 2)

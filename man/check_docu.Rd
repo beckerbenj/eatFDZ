@@ -2,27 +2,36 @@
 % Please edit documentation in R/check_docu.R
 \name{check_docu}
 \alias{check_docu}
-\title{Check documentation of a data set.}
+\title{Check documentation of data sets.}
 \usage{
 check_docu(sav_path, pdf_path, post_words = 2)
 }
 \arguments{
-\item{sav_path}{Path to the \code{.sav} file.}
+\item{sav_path}{Character vector with paths to the \code{.sav} files.}
 
-\item{pdf_path}{Path to the \code{.pdf} file.}
+\item{pdf_path}{Character vector with paths to the \code{.pdf} files.}
 
 \item{post_words}{Number of words after the variable names that should be extracted from the PDF.}
 }
 \value{
-A \code{data.frame} with the variable names, count of mentions in the PDF and words after the variable names.
+A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
 }
 \description{
-Check if all variables of a data set saved as \code{.sav} are included in the \code{.pdf} documentation.
+Check if all variables of one or multiple data sets saved as \code{sav} are included in the \code{pdf} documentation.
 }
 \details{
-tbd
+A common requirement for data documentation is a complete codebook. The \code{check_docu} function can be used to check, whether all variables (column names) in one or multiple \code{sav} data sets are mentioned in the documentation, provided as \code{pdf} files. Multiple \code{pdf} files are treated as one single \code{pdf} file. For multiple data sets the output is sorted by data set and the \code{data_set} column indicates to which data set the variable name belongs.
+
+For easier reading of the output, the output can be written to an excel file, for example using the \code{\link[openxlsx]{write.xlsx}} function from the \code{openxlsx} package or the \code{\link[eatAnalysis]{write_xlsx}} function from the \code{eatAnalysis} package.
 }
 \examples{
-# tbd
+# File pathes
+sav_path1 <- system.file("extdata", "helper_spss_p1.sav", package = "eatFDZ")
+sav_path2 <- system.file("extdata", "helper_spss_p2.sav", package = "eatFDZ")
+pdf_path1 <- system.file("extdata", "helper_codebook_p1.pdf", package = "eatFDZ")
+pdf_path2 <- system.file("extdata", "helper_codebook_p2.pdf", package = "eatFDZ")
+
+check_df <- check_docu(sav_path = c(sav_path1, sav_path2),
+                       pdf_path = c(pdf_path1, pdf_path2), post_words = 2)
 
 }
