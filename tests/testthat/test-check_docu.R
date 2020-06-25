@@ -57,6 +57,35 @@ test_that("Multiple pdf, one .sav data set", {
 })
 
 
+### write new sav for testing
+#df_case <- data.frame(VAR2 = 1, id = 1, Var1 = 1, Var3 = 4)
+#haven::write_sav(df_case, "tests/testthat/helper_spss_uplowcase.sav")
+
+# out <- check_docu(sav_path = c("tests/testthat/helper_spss_uplowcase.sav"), pdf_path = c("tests/testthat/helper_codebook.pdf"))
+test_that("Upper and lower case insensitive", {
+  out <- check_docu(sav_path = c("helper_spss_uplowcase.sav"),
+                    pdf_path = c("helper_codebook.pdf"))
+  expect_equal(out[out$variable == "id", "count"], 1)
+  expect_equal(out[3, "count"], 2)
+  expect_equal(out[out$variable == "Var3", "count"], 0)
+
+  expect_equal(out[out$variable == "id", "post"], "ID-Variable Var1")
+  expect_equal(out$data_set[1], "helper_spss_uplowcase.sav")
+  expect_equal(length(unique(out$data_set)), 1)
+})
+
+# out <- check_docu(sav_path = c("tests/testthat/helper_spss_uplowcase.sav"), pdf_path = c("tests/testthat/helper_codebook.pdf"), case_sensitive = TRUE)
+test_that("Upper and lower case sensitive", {
+  out <- check_docu(sav_path = c("helper_spss_uplowcase.sav"),
+                    pdf_path = c("helper_codebook.pdf"), case_sensitive = TRUE)
+  expect_equal(out[out$variable == "id", "count"], 0)
+  expect_equal(out[out$variable == "VAR2", "count"], 0)
+  expect_equal(out[out$variable == "Var3", "count"], 0)
+  expect_equal(out[out$variable == "Var1", "count"][1], 2)
+
+  expect_equal(out$data_set[1], "helper_spss_uplowcase.sav")
+})
+
 
 test_that("Rbind with name column", {
   l <- lapply(1:3, function(x) data.frame(v1 = x))

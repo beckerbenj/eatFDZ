@@ -11,6 +11,7 @@
 #'@param sav_path Character vector with paths to the \code{.sav} files.
 #'@param pdf_path Character vector with paths to the \code{.pdf} files.
 #'@param post_words Number of words after the variable names that should be extracted from the PDF.
+#'@param case_sensitive If \code{TRUE}, upper and lower case are differentiated for variable name matching. If \code{FALSE}, case is ignored.
 #'
 #'@return A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
 #'
@@ -25,7 +26,7 @@
 #'                        pdf_path = c(pdf_path1, pdf_path2), post_words = 2)
 #'
 #'@export
-check_docu <- function(sav_path, pdf_path, post_words = 2) {
+check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE) {
   if(!is.character(sav_path) || length(sav_path) < 1) stop("sav_path needs to be at least one path to a .sav file.")
   if(!is.character(pdf_path) || length(pdf_path) < 1) stop("pdf_path needs to be at least one path to a .pdf file.")
 
@@ -42,7 +43,7 @@ check_docu <- function(sav_path, pdf_path, post_words = 2) {
     tok_docu <- quanteda::tokens(corp_docu)
     # test
     test <- lapply(nams, function(nam) {
-      out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words)
+      out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words, case_insensitive = !case_sensitive)
       post <- out$post
       if(nrow(out) == 0) post <- NA
       data.frame(variable = nam,

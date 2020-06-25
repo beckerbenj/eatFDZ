@@ -4,7 +4,7 @@
 \alias{check_docu}
 \title{Check documentation of data sets.}
 \usage{
-check_docu(sav_path, pdf_path, post_words = 2)
+check_docu(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE)
 }
 \arguments{
 \item{sav_path}{Character vector with paths to the \code{.sav} files.}
@@ -12,6 +12,8 @@ check_docu(sav_path, pdf_path, post_words = 2)
 \item{pdf_path}{Character vector with paths to the \code{.pdf} files.}
 
 \item{post_words}{Number of words after the variable names that should be extracted from the PDF.}
+
+\item{case_sensitive}{If \code{TRUE}, upper and lower case are differentiated for variable name matching. If \code{FALSE}, case is ignored.}
 }
 \value{
 A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
