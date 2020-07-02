@@ -20,21 +20,19 @@
 #'@return SPSS syntax snippet
 #'
 #'@examples
-#'\dontrun{
-#'dat    <- data.frame ( foreign::read.spss ( "q:/BT2016/BT/50_Daten/03_Aufbereitet/
-#'      06_Gesamtdatensatz/BS_LV_Primar_2016_Matchingvorlaeufig_09_erweiterteGadsversion.sav",
-#'                       to.data.frame = FALSE, use.value.labels = FALSE, use.missings = TRUE))
+#'sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
+#'out_folder <- tempdir()
+#'dat    <- data.frame ( foreign::read.spss ( sav_path, to.data.frame = FALSE,
+#'          use.value.labels = FALSE, use.missings = TRUE))
 #'classes<- sapply(dat, class)
 #'nCat   <- sapply(dat, FUN = function ( x ) { length(unique(x))})
-#'exclude<- intersect(which(classes=="factor"), which(nCat>90))
+#'exclude<- intersect(which(classes=="factor"), which(nCat>200))
 #'exclude<- colnames(dat)[exclude]
-#'syntax <- data_clean(fileName = "q:/BT2016/BT/50_Daten/03_Aufbereitet/06_Gesamtdatensatz/
-#'             BS_LV_Primar_2016_Matchingvorlaeufig_09_erweiterteGadsversion.sav",
-#'             saveFolder = "N:/archiv/temp/20_fdz", nameListe = "liste2.csv",
+#'syntax <- data_clean(fileName = sav_path,
+#'             saveFolder = tempdir(), nameListe = "liste2.csv",
 #'             nameSyntax = "syntax2.txt", exclude=exclude)
 #'
 #'
-#'}
 #'
 #'@export
 data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL) {
