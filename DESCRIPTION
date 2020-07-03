@@ -1,7 +1,7 @@
 Package: eatFDZ
 Type: Package
 Title: Forschungsdatenzentrum utility functions
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
     person("Benjamin", "Becker", email = "b.becker@iqb.hu.berlin.de", role = c("aut", "cre")),
     person("Sebastian", "Weirich", role = c("aut", "ctb")))

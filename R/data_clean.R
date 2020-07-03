@@ -21,13 +21,12 @@
 #'
 #'@examples
 #'sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
+#'
+#'## if ID variable is a labeled variable, protect it from anonymization (here not necessary)
+#'exclude<- c("idstud_FDZ", "idsch_FDZ")
+#'
+#'##
 #'out_folder <- tempdir()
-#'dat    <- data.frame ( foreign::read.spss ( sav_path, to.data.frame = FALSE,
-#'          use.value.labels = FALSE, use.missings = TRUE))
-#'classes<- sapply(dat, class)
-#'nCat   <- sapply(dat, FUN = function ( x ) { length(unique(x))})
-#'exclude<- intersect(which(classes=="factor"), which(nCat>200))
-#'exclude<- colnames(dat)[exclude]
 #'syntax <- data_clean(fileName = sav_path,
 #'             saveFolder = tempdir(), nameListe = "liste2.csv",
 #'             nameSyntax = "syntax2.txt", exclude=exclude)
