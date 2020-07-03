@@ -90,9 +90,9 @@ data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NU
   }
   snipp  <- c(snipp1, snipp2)
   if(is.null(nameSyntax)) { nameSyntax <- "syntaxbaustein.txt" }
-  if(!is.na(saveFolder)) { write(snipp,  file.path(eatTools::crop(saveFolder,"/"), nameSyntax)) }
+  if(!is.na(saveFolder)) { write(snipp,  file.path(saveFolder, nameSyntax)) }
   if(is.null(nameListe))  { nameListe <- "Liste_komplett.csv"}
-  utils::write.csv2(liste, file.path(eatTools::crop(saveFolder,"/"), nameListe), na="")
+  utils::write.csv2(liste, file.path(saveFolder, nameListe), na="")
   return(snipp)  }
 
 
