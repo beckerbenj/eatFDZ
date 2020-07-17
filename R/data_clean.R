@@ -35,58 +35,42 @@
 #'
 #'@export
 data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL) {
-  df     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE)
-  df     <- eatGADS::checkMissings(df, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
-  #cat("\nRead data set with labels ... \n"); flush.console()
-  #     mitLab <- read.spss ( fileName, to.data.frame = FALSE, use.value.labels = TRUE, use.missings = TRUE)
-  #     varLab <- attr(mitLab, "variable.labels")
-  #     mitLab <- data.frame ( mitLab )
-  #     cat("\nRead data set without labels ... \n"); flush.console()
-  #     ohnLab <- data.frame ( read.spss ( fileName, to.data.frame = FALSE, use.value.labels = FALSE, use.missings = TRUE))
-  #     cat("\nRead missing definition ... \n"); flush.console()
-  #     mitMis <- data.frame ( read.spss ( fileName, to.data.frame = FALSE, use.value.labels = TRUE, use.missings = FALSE) )
-  skala  <- sapply(df[["dat"]], class)
-  # to do: Funktion schreiben, die in dem data.frame die missingwerte (z.B. -9994) auf basis der labels in NA umwandelt
-  # folgende Zeilen braucht einen Datensatz mit NAs statt -9994
-  datOM  <- eatGADS::miss2NA(df)                                                    # datensatz ohne missings
-  tab    <- lapply(datOM, FUN = function (y ) { table(as.character(y)) } )
-  nKatOM <- sapply(tab, FUN = function ( y ) { length(y)})                 ### Anzahl Kategorien (ohne Missingkategorien)
-  nValid <- sapply(tab, FUN = function ( y ) { sum(y)})                    ### untere Zeile: Kategorien mit Haeufigkeit kleiner gleich 5, aber groesser als 0!
-  freq5  <- sapply(tab, FUN = function ( y ) { length(which(y < (boundary + 1) & y > 0 ))>0 })
-  grenze <- ifelse(nrow(datOM) < 100, nrow(datOM)/2, 100)
-  varLab <- unique(df[["labels"]][, c("varName", "varLabel")])
-  existVarLab <- nchar(varLab[,"varLabel"])>0 & !is.na(varLab[,"varLabel"])
-  existValLab <- as.logical(by(data = df[["labels"]], INDICES = df[["labels"]][,"varName"], FUN = function (x ) { any(!is.na(x[,"valLabel"]))  }))
-  liste  <- data.frame ( variable = varLab[,"varName"], varLab = varLab[,"varLabel"], existVarLab = existVarLab,
-                         existValLab = existValLab, skala = unlist(skala), nKatOhneMissings = nKatOM, nValid = nValid,
-                         nKl5 = freq5, makeAnonymous = FALSE, recodeToNumeric = FALSE, exclude = FALSE)
+  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE)
+  GADSdat     <- eatGADS::checkMissings(GADSdat, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
+  datOM  <- eatGADS::miss2NA(GADSdat)
+  varLab <- unique(GADSdat[["labels"]][, c("varName", "varLabel")])
+  liste <- create_overview(GADSdat, boundary = boundary)
+
   if (!is.null(exclude) ) {
     chk <- setdiff(exclude,liste[,"variable"])
     if ( length(chk)>0) {
-      cat(paste0("Warning: Variables '",paste(chk, collapse="', '"), "' from the 'exclude' argument are not available in the data set and will be ignored.\n"))
+      warning("Variables '",paste(chk, collapse="', '"), "' from the 'exclude' argument are not available in the data set and will be ignored.")
     }
     liste[stats::na.omit(match(exclude, liste[,"variable"])),"exclude"] <- TRUE
   }
-  recode1<- intersect ( which ( liste[,"exclude"] == FALSE), intersect( intersect( which(freq5==TRUE), which ( nKatOM < grenze)), which(liste[,"skala"] %in% c("numeric", "integer" ))))
+
+  if(boundary == 1) browser()
+  grenze <- ifelse(nrow(datOM) < 100, nrow(datOM)/2, 100)
+  recode1<- intersect ( which ( liste[,"exclude"] == FALSE), intersect( intersect( which(liste$nKl5==TRUE), which ( liste$nKatOhneMissings < grenze)), which(liste[,"skala"] %in% c("numeric", "integer" ))))
   recode2<- intersect ( which ( liste[,"exclude"] == FALSE), setdiff ( 1:nrow(liste), which(liste[,"skala"] %in% c("numeric", "integer" ))))
   if (length(recode1)==0 && length(recode2)==0) {
-    cat("\nNo recoding necessary.\n")
+    message("No recoding necessary.")
     return(liste)
   }  else  {
     if(!is.na(saveFolder)) {
       if(dir.exists(saveFolder) == FALSE) {                           ### das Verzeichnis aber nicht existiert, wird es jetzt erzeugt
-        cat(paste("Warning: Specified folder '",saveFolder,"' does not exist. Create folder ... \n",sep="")); utils::flush.console()
+        warning("Specified folder '",saveFolder,"' does not exist. Create folder ... ", sep="")
         dir.create(saveFolder, recursive = TRUE)
       }
     }
   }
   snipp1 <- snipp2 <- NULL                                                 ### initialisieren
   if ( length(recode1)>0) {
-    snipp1 <- makeAnonymous ( x = recode1, liste=liste, boundary = boundary, datOM = datOM, df=df, varLab = varLab)
+    snipp1 <- makeAnonymous ( x = recode1, liste=liste, boundary = boundary, datOM = datOM, df=GADSdat, varLab = varLab)
   }
   ### jetzt werden die nicht-numerischen Variablen zu numerisch umcodiert
   if ( length(recode2)>0) {                                                ### untere zeile: missingwerte auslesen
-    snipp2 <- makeNumeric( x = recode2, df_labels=df$labels, liste=liste, datOM = datOM)
+    snipp2 <- makeNumeric( x = recode2, df_labels=GADSdat$labels, liste=liste, datOM = datOM)
   }
   snipp  <- c(snipp1, snipp2)
   if(is.null(nameSyntax)) { nameSyntax <- "syntaxbaustein.txt" }
@@ -96,8 +80,31 @@ data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NU
   return(snipp)  }
 
 
+create_overview <- function(GADSdat, boundary) {
+  skala  <- sapply(GADSdat[["dat"]], class)
+  datOM  <- eatGADS::miss2NA(GADSdat)
+  # to do: Funktion schreiben, die in dem data.frame die missingwerte (z.B. -9994) auf basis der labels in NA umwandelt
+  # folgende Zeilen braucht einen Datensatz mit NAs statt -9994                                                  # datensatz ohne missings
+  tab    <- lapply(datOM, FUN = function (y ) { table(as.character(y)) } )
+  nKatOM <- sapply(tab, FUN = function ( y ) { length(y)})                 ### Anzahl Kategorien (ohne Missingkategorien)
+  nValid <- sapply(tab, FUN = function ( y ) { sum(y)})                    ### untere Zeile: Kategorien mit Haeufigkeit kleiner gleich 5, aber groesser als 0!
+  freq5  <- sapply(tab, FUN = function ( y ) { length(which(y < (boundary + 1) & y > 0 ))>0 })
+  varLab <- unique(GADSdat[["labels"]][, c("varName", "varLabel")])
+  existVarLab <- nchar(varLab[,"varLabel"])>0 & !is.na(varLab[,"varLabel"])
+  existValLab <- do.call(rbind, by(data = GADSdat[["labels"]], INDICES = GADSdat[["labels"]][,"varName"], FUN = function (x ) {
+    data.frame(variable = unique(x[, "varName"]), existValLab = any(!is.na(x[,"valLabel"])), stringsAsFactors = FALSE)
+    }))
+  out1 <- data.frame ( variable = varLab[,"varName"], varLab = varLab[,"varLabel"], existVarLab = existVarLab,
+                         skala = unlist(skala), nKatOhneMissings = nKatOM, nValid = nValid,
+                         nKl5 = freq5, makeAnonymous = FALSE, recodeToNumeric = FALSE, exclude = FALSE, stringsAsFactors = FALSE)
+  out2 <- merge(out1, existValLab, all = TRUE, by = "variable", sort = FALSE)
+  out2[, c("variable", "varLab", "existVarLab", "existValLab", "skala", "nKatOhneMissings", "nValid", "nKl5", "makeAnonymous",
+           "recodeToNumeric", "exclude")]
+}
+
+
 makeAnonymous <- function (x, liste, boundary, datOM, df, varLab) {
-  cat(paste0("\n   ",length(x), " numeric variables with category size <= ",boundary," will be recoded anonymously.\n")); utils::flush.console()
+  message(length(x), " numeric variables with category size <= ", boundary," will be recoded anonymously.")
   liste[x, "makeAnonymous"] <- TRUE
   toRec <- liste[which(liste[,"makeAnonymous"]==TRUE),]
   snipp1<- unlist(by(toRec, INDICES = toRec[,"variable"], FUN = function ( tr ) {
@@ -178,7 +185,7 @@ makeAnonymous <- function (x, liste, boundary, datOM, df, varLab) {
 
 
 makeNumeric <- function (x, df_labels, liste, datOM) {
-  cat(paste0("\n   Recode ",length(x), " non-numeric variables into numeric variables.\n")); utils::flush.console()
+  message("Recode ", length(x), " non-numeric variables into numeric variables.")
   liste[x, "recodeToNumeric"] <- TRUE
   toRec <- liste[which(liste[,"recodeToNumeric"]==TRUE),]
   snipp2<- unlist(by(toRec, INDICES = toRec[,"variable"], FUN = function ( tr ) {
