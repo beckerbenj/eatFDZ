@@ -8,7 +8,7 @@
 #'
 #' Generate SPSS syntax to make individual data anonymous
 #'
-#' Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels als value labels.
+#' Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels as value labels.
 #'
 #'@param fileName Character string of the SPSS file
 #'@param boundary Integer number: categories with less observations than [boundary] will be summarized to guarantee anonymity

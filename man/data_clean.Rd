@@ -33,7 +33,7 @@ SPSS syntax snippet
 Generate SPSS syntax to make individual data anonymous
 }
 \details{
-Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels als value labels.
+Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels as value labels.
 }
 \examples{
 sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
