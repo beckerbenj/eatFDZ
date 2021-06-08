@@ -36,6 +36,7 @@
 #'@export
 data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL) {
   GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE)
+  # load("t:/Sebastian/gd.rda")
   GADSdat     <- eatGADS::checkMissings(GADSdat, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
   datOM  <- eatGADS::miss2NA(GADSdat)
   varLab <- unique(GADSdat[["labels"]][, c("varName", "varLabel")])
@@ -193,11 +194,12 @@ makeNumeric <- function (x, df_labels, liste, datOM) {
     if ( length(setdiff(werte, ""))==0 ) {
       recSt <- NULL
     }  else  {
-      miss  <- df_labels[which(df_labels[,"varName"] == as.character(tr[["variable"]])),]
+      miss  <- df_labels[intersect(which(df_labels[,"varName"] == as.character(tr[["variable"]])), which(df_labels[,"missings"] == "miss")),]
       wom   <- setdiff ( setdiff (werte, miss[,"value"]), "")## werte ohne missings
+      # if (length(wom)==0) {browser()}
       recSt1<- c("RECODE", as.character(tr[["variable"]]) ) ### erster Teil des Recodierungsstatements
       oldnew<- data.frame ( old = wom, new = 1:length(wom), stringsAsFactors = FALSE)
-      recSt2<- unlist(by ( data = oldnew, INDICES = oldnew[,"old"], FUN = function (z) { paste0("(",z[["old"]], " = ", z[["new"]], ")") }))
+      recSt2<- unlist(by ( data = oldnew, INDICES = oldnew[,"old"], FUN = function (z) { paste0("('",z[["old"]], "' = ", z[["new"]], ")") }))
       recSt3<- c("INTO" , paste0(as.character(tr[["variable"]]), "_FDZ."))
       recSt4<- paste0("VARIABLE LABELS ", as.character(tr[["variable"]]), "_FDZ '",as.character(tr[["varLab"]]), "'.")
       recSt5<- paste0("VALUE LABELS ", as.character(tr[["variable"]]), "_FDZ '", paste(oldnew[,"new"], paste0("'",oldnew[,"old"], "'") , collapse=" "), ".")
