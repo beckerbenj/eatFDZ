@@ -2,7 +2,7 @@
 #############################################################################
 #' Reverse check documentation of data sets.
 #'
-#' Diese Funktion nimmt das Skalenhandbuch, extrahiert alle Wörter, sortiert die aus, die als Variablennamen im Datensatz vorkommen und diejenigen, die auf einer "whitelist" stehen. Dann gibt sie eine Liste derjenigen Begriffe aus, bei denen es sich möglicherweise um Variablennamen handelt, die nicht im Datensatz auffindbar sind.
+#' Diese Funktion nimmt das Skalenhandbuch, extrahiert alle Wörter, sortiert die aus, die als Variablennamen in einem oder mehreren Datensätzen vorkommen und diejenigen, die auf einer "whitelist" stehen. Dann gibt sie eine Liste derjenigen Begriffe aus, bei denen es sich möglicherweise um Variablennamen handelt, die nicht im Datensatz auffindbar sind.
 #'
 #' Die Formel benötigt folgenden Input:
 #'
@@ -14,6 +14,7 @@
 #'\code{venn_docu} ist ein Objekt der Klasse "venn"; der Output von gplots::venn.
 #' \code{unique_tokens} ist ein String-Vektor, der die Wörter enthält, die im Skalenhandbuch, aber weder im Datensatz, noch im externen Korpus enthalten sind.
 #' \code{ext_corpus} ist der externe Korpus, der im ersten Schritt eingelesen wurde und die bisherige "whitelist" umfasst.
+#' \code{variables} ist eine Liste der Variablen, die aus den Datensätzen extrahiert wurden.
 #'
 #'@examples
 #'
@@ -46,7 +47,7 @@ reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path ) {
   setwd(corpuspath)
   corpfiles <- list.files(getwd(), recursive = T, pattern="corpus*", full.names = T)
   filedates <- gsubfn::strapplyc(corpfiles, "[0-9-]{8,}", simplify = TRUE)
-  load(paste0("corpus", max(unlist(filedates)), ".rdata"))
+  corpus <- ifelse(length(corpfiles), load(paste0("corpus", max(unlist(filedates)), ".rdata")),  quanteda::corpus(""))
 
   summary(corpus)
   tok_ext <- quanteda::tokens(corpus, remove_punct = T, remove_numbers=T, remove_url=TRUE)
@@ -56,9 +57,10 @@ reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path ) {
   nams <- lapply(sav_path_list, function(sav_path) {
     gads <- suppressWarnings(eatGADS::import_spss(sav_path, checkVarNames = FALSE))
     nams <- eatGADS::namesGADS(gads)
-    names(nams) <- nams})
-  names(nams)<- basename(sav_path_list)
-  nams <- unlist(nams)
+    #names(nams) <- nams
+    nams})
+  names(nams)<- unlist(lapply(sav_path_list, basename))
+  #nams <- unlist(nams)
 
   # Skalendoku einlesen, in Korpus umwandeln und Text in Token umwandeln
   corp_docu <- quanteda::corpus(readtext::readtext(pdf_path))
@@ -67,13 +69,13 @@ reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path ) {
   tok_docu <- quanteda::tokens(corp_docu, remove_punct = T, remove_numbers=T, remove_url=TRUE, remove_symbols=T)
 
   ## Alle Woerter, die keine Variablen im Datensatz sind extrahieren
-  inv_docu <- setdiff(tok_docu[[1]], nams)
+  inv_docu <- setdiff(tok_docu[[1]], unlist(nams))
 
 
   ## Schnittmenge aus externem Korpus und Skalenhandbuch darstellen
   venn_docu <-gplots::venn(list("Skalenhandbuch" = inv_docu, "externer Korpus" = tok_ext))
   docu_unique <- setdiff(inv_docu, tok_ext)
 
-  res <- list ("venn_docu" = venn_docu, "unique_tokens" = docu_unique, "ext_corpus" = corpus)
+  res <- list ("venn_docu" = venn_docu, "unique_tokens" = docu_unique, "ext_corpus" = corpus, "variables" = nams)
   res
 }
