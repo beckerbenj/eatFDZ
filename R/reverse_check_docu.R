@@ -44,6 +44,9 @@
 #'@export
 
 reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path ) {
+  current_path <- getwd()
+  on.exit(setwd(current_path))
+
   setwd(corpuspath)
   corpfiles <- list.files(getwd(), recursive = T, pattern="corpus*", full.names = T)
   filedates <- gsubfn::strapplyc(corpfiles, "[0-9-]{8,}", simplify = TRUE)
