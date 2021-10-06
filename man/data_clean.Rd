@@ -10,7 +10,8 @@ data_clean(
   saveFolder = NA,
   nameListe = NULL,
   nameSyntax = NULL,
-  exclude = NULL
+  exclude = NULL,
+  encoding = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ data_clean(
 \item{nameSyntax}{File name of the SPSS syntax file}
 
 \item{exclude}{Optional: character vector of variable which should be excluded from summarizing and transformation}
+
+\item{encoding}{Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
 SPSS syntax snippet

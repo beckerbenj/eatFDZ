@@ -16,6 +16,7 @@
 #'@param nameListe File name of the csv-type variable information file
 #'@param nameSyntax File name of the SPSS syntax file
 #'@param exclude Optional: character vector of variable which should be excluded from summarizing and transformation
+#'@param encoding Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.
 #'
 #'@return SPSS syntax snippet
 #'
@@ -34,8 +35,8 @@
 #'
 #'
 #'@export
-data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL) {
-  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE)
+data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL, encoding = NULL) {
+  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE, encoding = encoding)
   # load("t:/Sebastian/gd.rda")
   GADSdat     <- eatGADS::checkMissings(GADSdat, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
   datOM  <- eatGADS::miss2NA(GADSdat)
