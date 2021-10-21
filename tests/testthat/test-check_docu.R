@@ -1,8 +1,7 @@
 
 
-#out <- check_docu(sav_path = "tests/testthat/helper_spss.sav", pdf_path = "tests/testthat/helper_codebook.pdf")
-
 test_that("One pdf, one .sav data set", {
+  #out <- check_docu(sav_path = "tests/testthat/helper_spss.sav", pdf_path = "tests/testthat/helper_codebook.pdf")
   out <- check_docu(sav_path = "helper_spss.sav",
              pdf_path = "helper_codebook.pdf")
   expect_equal(names(out), c("variable", "count", "post", "data_set"))
@@ -84,6 +83,19 @@ test_that("Upper and lower case sensitive", {
   expect_equal(out[out$variable == "Var1", "count"][1], 2)
 
   expect_equal(out$data_set[1], "helper_spss_uplowcase.sav")
+})
+
+test_that("Change encoding", {
+  # tbd: rather hotfix, could include actual example of .sav file with special character
+  out <- check_docu(sav_path = c("helper_spss_uplowcase.sav"),
+                    pdf_path = c("helper_codebook.pdf"), encoding = "latin1")
+  expect_equal(out[out$variable == "id", "count"], 1)
+  expect_equal(out[3, "count"], 2)
+  expect_equal(out[out$variable == "Var3", "count"], 0)
+
+  expect_equal(out[out$variable == "id", "post"], "ID-Variable Var1")
+  expect_equal(out$data_set[1], "helper_spss_uplowcase.sav")
+  expect_equal(length(unique(out$data_set)), 1)
 })
 
 

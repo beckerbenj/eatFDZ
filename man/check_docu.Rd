@@ -4,7 +4,13 @@
 \alias{check_docu}
 \title{Check documentation of data sets.}
 \usage{
-check_docu(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE)
+check_docu(
+  sav_path,
+  pdf_path,
+  post_words = 2,
+  case_sensitive = FALSE,
+  encoding = NULL
+)
 }
 \arguments{
 \item{sav_path}{Character vector with paths to the \code{.sav} files.}
@@ -14,6 +20,8 @@ check_docu(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE)
 \item{post_words}{Number of words after the variable names that should be extracted from the PDF.}
 
 \item{case_sensitive}{If \code{TRUE}, upper and lower case are differentiated for variable name matching. If \code{FALSE}, case is ignored.}
+
+\item{encoding}{Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
 A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).

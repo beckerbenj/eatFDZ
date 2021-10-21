@@ -12,6 +12,7 @@
 #'@param pdf_path Character vector with paths to the \code{.pdf} files.
 #'@param post_words Number of words after the variable names that should be extracted from the PDF.
 #'@param case_sensitive If \code{TRUE}, upper and lower case are differentiated for variable name matching. If \code{FALSE}, case is ignored.
+#'@param encoding Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.
 #'
 #'@return A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
 #'
@@ -26,12 +27,12 @@
 #'                        pdf_path = c(pdf_path1, pdf_path2), post_words = 2)
 #'
 #'@export
-check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE) {
+check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALSE, encoding = NULL) {
   if(!is.character(sav_path) || length(sav_path) < 1) stop("sav_path needs to be at least one path to a .sav file.")
   if(!is.character(pdf_path) || length(pdf_path) < 1) stop("pdf_path needs to be at least one path to a .pdf file.")
 
   out_list <- lapply(sav_path, function(single_sav_path) {
-    gads <- suppressWarnings(eatGADS::import_spss(single_sav_path, checkVarNames = FALSE))
+    gads <- suppressWarnings(eatGADS::import_spss(single_sav_path, checkVarNames = FALSE, encoding = encoding))
     nams <- eatGADS::namesGADS(gads)
     names(nams) <- nams
 
