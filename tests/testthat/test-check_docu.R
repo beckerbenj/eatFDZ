@@ -99,14 +99,6 @@ test_that("Change encoding", {
 })
 
 
-test_that("Rbind with name column", {
-  l <- lapply(1:3, function(x) data.frame(v1 = x))
-  out <- do_call_rbind_withName(l, name = c("one", "two", "three"), colName = "df")
-
-  expect_equal(out$v1, 1:3)
-  expect_equal(out$df, c("one", "two", "three"))
-})
-
 
 
 

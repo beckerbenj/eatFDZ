@@ -54,26 +54,9 @@ check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALS
     do.call(rbind, test)
   })
   #if(length(sav_path) > 1) browser()
-  do_call_rbind_withName(out_list, name = basename(sav_path), colName = "data_set")
+  out_df <- eatTools::do_call_rbind_withName(out_list, name = basename(sav_path), colName = "data_set")
+  out_df[, c("variable", "count", "post", "data_set")]
 }
-
-
-do_call_rbind_withName <- function (label_list, name = names(label_list), colName){
-  label_list <- Map(function(df, name) {
-    if (is.null(df)) return(df)
-    data.frame(df, placeHolder = rep(name, nrow(df)), stringsAsFactors = FALSE)
-  }, df = label_list, name = name)
-  label_df <- do.call(rbind, label_list)
-  rownames(label_df) <- NULL
-  names(label_df)[ncol(label_df)] <- colName
-
-  label_df
-}
-
-
-
-### open to do: move do_call_rbind_withName to eatGADS (replace inside mergeLabels)
-# import here
 
 
 
