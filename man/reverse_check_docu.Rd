@@ -4,42 +4,49 @@
 \alias{reverse_check_docu}
 \title{Reverse check documentation of data sets.}
 \usage{
-reverse_check_docu(corpuspath, sav_path_list, pdf_path)
+reverse_check_docu(corpuspath, sav_path_list, pdf_path, encoding = NULL)
 }
 \arguments{
-\item{corpuspath}{Pfad, unter dem der externe Korpus (die "whitelist") als \code{.rdata} file abgelegt ist. (Die Funktion zieht sich automatisch den aktuellsten Korpus, der in dem Ordner liegt.)}
+\item{corpuspath}{Path to the folder, in which the external corups (the \code{white list}) is stored as \code{.rdata} file. The function extracts automatically the newest file available.}
 
-\item{sav_path_list}{Liste der Datensatznamen inklusive ihrer Speicherpfade.}
+\item{sav_path_list}{Character vector of all data set paths.}
 
 \item{pdf_path}{Character vector with paths to the \code{.pdf} files.}
+
+\item{encoding}{The character encoding used for the file. The default, \code{NULL}, use the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
-Die Funktion gibt eine Liste mit den Objekten \code{venn_docu}, \code{unique_tokens} und \code{ext_corpus} aus.
-\code{venn_docu} ist ein Objekt der Klasse "venn"; der Output von gplots::venn.
-\code{unique_tokens} ist ein String-Vektor, der die Wörter enthält, die im Skalenhandbuch, aber weder im Datensatz, noch im externen Korpus enthalten sind.
-\code{ext_corpus} ist der externe Korpus, der im ersten Schritt eingelesen wurde und die bisherige "whitelist" umfasst.
-\code{variables} ist eine Liste der Variablen, die aus den Datensätzen extrahiert wurden.
+A list with the entries \code{venn_docu}, \code{unique_tokens} and \code{ext_corpus}:
+\code{venn_docu}, an object of class \code{venn}; the output of \code{gplots::venn}.
+\code{unique_tokens}, a character vector containing the words found in the codebook but neither in the data sets nor in the corpus
+\code{ext_corpus}, the external corpus as imported containing all white listed words.
+\code{variables}, a character vector including all variable names in the data sets
 }
 \description{
-Diese Funktion nimmt das Skalenhandbuch, extrahiert alle Wörter, sortiert die aus, die als Variablennamen in einem oder mehreren Datensätzen vorkommen und diejenigen, die auf einer "whitelist" stehen. Dann gibt sie eine Liste derjenigen Begriffe aus, bei denen es sich möglicherweise um Variablennamen handelt, die nicht im Datensatz auffindbar sind.
-}
-\details{
-Die Formel benötigt folgenden Input:
+This function extracts all words from the \code{pdf} file and discards all words which are variables in the data set and all words
+which are white listed. Based on this a list of words is returned, which might be listed as variables in the documentation but not
+in the data set.
 }
 \examples{
-
 studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
 studienpath <- "" # Hier den output-Pfad angeben
 setwd(studienpath)
 
-out <- reverse_check_docu(corpuspath = corpuspath, sav_path_list = sav_path_list, pdf_path = pdf_path)
+out <- reverse_check_docu(corpuspath = corpuspath, sav_path_list = sav_path_list,
+                          pdf_path = pdf_path)
 
 plot(out$venn_docu)
 corpus_alt <- out$ext_corpus
 # 3. Ergebnis rausschreiben
-write.csv(docu_unique, file=paste0(studienpath, "/", studie, "Skalenhandbuch_unique_words.csv"))
+write.csv(docu_unique,
+          file=paste0(studienpath, "/", studie, "Skalenhandbuch_unique_words.csv"))
 
-### # Dieses csv muss haendisch durchgegangen werden und verbliebene Variablennamen muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku, aber nicht im Datensatz vorkommen und nochmals detailliert geprueft werden muessen. Diese werden in ein anderes Dokument kopiert und im Original geloescht. Das Original wird im nÃ¤chsten Schritt wieder hier eingelesen, um den externen Korpus zu updaten
+### # Dieses csv muss haendisch durchgegangen werden und verbliebene Variablennamen
+muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
+# aber nicht im Datensatz vorkommen und nochmals detailliert geprueft werden muessen.
+# Diese werden in ein anderes Dokument kopiert und im Original geloescht.
+# Das Original wird im nÃ¤chsten Schritt wieder hier eingelesen,
+# um den externen Korpus zu updaten
 
 ## 4.  externen Korpus aktualisieren fuer spaetere Verwendung, Namen der Quelle einfuegen
 add_corp <- read.csv(paste0(studie, "Skalenhandbuch_unique_words.csv"), header=F, sep=";")
