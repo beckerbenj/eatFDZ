@@ -28,6 +28,7 @@ which are white listed. Based on this a list of words is returned, which might b
 in the data set.
 }
 \examples{
+#'\dontrun{
 studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
 studienpath <- "" # Hier den output-Pfad angeben
 setwd(studienpath)
@@ -42,7 +43,7 @@ write.csv(docu_unique,
           file=paste0(studienpath, "/", studie, "Skalenhandbuch_unique_words.csv"))
 
 ### # Dieses csv muss haendisch durchgegangen werden und verbliebene Variablennamen
-muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
+# muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
 # aber nicht im Datensatz vorkommen und nochmals detailliert geprueft werden muessen.
 # Diese werden in ein anderes Dokument kopiert und im Original geloescht.
 # Das Original wird im nÃ¤chsten Schritt wieder hier eingelesen,
@@ -56,5 +57,6 @@ add_corp <- quanteda::corpus(add_corp)
 
 corpus <- corpus_alt + add_corp
 save(corpus, file=paste0("corpus", Sys.Date(), ".rdata"))
+}
 
 }

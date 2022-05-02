@@ -18,6 +18,7 @@
 #' \code{variables}, a character vector including all variable names in the data sets
 #'
 #'@examples
+#'#'\dontrun{
 #'studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
 #'studienpath <- "" # Hier den output-Pfad angeben
 #'setwd(studienpath)
@@ -33,7 +34,7 @@
 #'           file=paste0(studienpath, "/", studie, "Skalenhandbuch_unique_words.csv"))
 #'
 #' ### # Dieses csv muss haendisch durchgegangen werden und verbliebene Variablennamen
-#' muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
+#' # muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
 #' # aber nicht im Datensatz vorkommen und nochmals detailliert geprueft werden muessen.
 #' # Diese werden in ein anderes Dokument kopiert und im Original geloescht.
 #' # Das Original wird im nächsten Schritt wieder hier eingelesen,
@@ -47,6 +48,7 @@
 #'
 #' corpus <- corpus_alt + add_corp
 #' save(corpus, file=paste0("corpus", Sys.Date(), ".rdata"))
+#'}
 #'
 #'@export
 reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path, encoding = NULL) {
