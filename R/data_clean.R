@@ -36,7 +36,7 @@
 #'
 #'@export
 data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL, encoding = NULL) {
-  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE, encoding = encoding)
+  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, encoding = encoding)
   # load("t:/Sebastian/gd.rda")
   GADSdat     <- eatGADS::checkMissings(GADSdat, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
   datOM  <- eatGADS::miss2NA(GADSdat)
