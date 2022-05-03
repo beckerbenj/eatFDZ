@@ -18,7 +18,7 @@
 #' \code{variables}, a character vector including all variable names in the data sets
 #'
 #'@examples
-#'#'\dontrun{
+#'\dontrun{
 #'studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
 #'studienpath <- "" # Hier den output-Pfad angeben
 #'setwd(studienpath)

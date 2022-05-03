@@ -28,7 +28,7 @@ which are white listed. Based on this a list of words is returned, which might b
 in the data set.
 }
 \examples{
-#'\dontrun{
+\dontrun{
 studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
 studienpath <- "" # Hier den output-Pfad angeben
 setwd(studienpath)
