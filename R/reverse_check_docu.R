@@ -30,6 +30,8 @@ reverse_check_docu <- function(white_list = c(english_words, german_words), pdf_
   if(!is.character(sav_path) || length(sav_path) == 0) stop("'sav_path' must be a character vector of at least length 1.")
   if(!is.character(pdf_path) || length(pdf_path) == 0) stop("'pdf_path' must be a character vector of at least length 1.")
 
+  data("english_words")
+  data("german_words")
   all_words <- white_list
 
   ## extract variable names from data sets

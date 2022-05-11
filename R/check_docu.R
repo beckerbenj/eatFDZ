@@ -6,7 +6,7 @@
 #'
 #'A common requirement for data documentation is a complete codebook. The \code{check_docu} function can be used to check, whether all variables (column names) in one or multiple \code{sav} data sets are mentioned in the documentation, provided as \code{pdf} files. Multiple \code{pdf} files are treated as one single \code{pdf} file. For multiple data sets the output is sorted by data set and the \code{data_set} column indicates to which data set the variable name belongs.
 #'
-#'For easier reading of the output, the output can be written to an excel file, for example using the \code{\link[openxlsx]{write.xlsx}} function from the \code{openxlsx} package or the \code{\link[eatAnalysis]{write_xlsx}} function from the \code{eatAnalysis} package.
+#'For easier reading of the output, the output can be written to an excel file, for example using the \code{write.xlsx} function from the \code{openxlsx} package or the \code{write_xlsx} function from the \code{eatAnalysis} package.
 #'
 #'@param sav_path Character vector with paths to the \code{.sav} files.
 #'@param pdf_path Character vector with paths to the \code{.pdf} files.
