@@ -51,42 +51,47 @@
 #'}
 #'
 #'@export
-reverse_check_docu <- function (corpuspath, sav_path_list, pdf_path, encoding = NULL) {
-  current_path <- getwd()
-  on.exit(setwd(current_path))
+reverse_check_docu <- function(white_list = c(english_words, german_words), sav_path_list, pdf_path, encoding = NULL) {
+  all_words <- white_list
 
-  setwd(corpuspath)
-  corpfiles <- list.files(getwd(), recursive = T, pattern="corpus*", full.names = T)
-  filedates <- gsubfn::strapplyc(corpfiles, "[0-9-]{8,}", simplify = TRUE)
-  corpus <- ifelse(length(corpfiles), load(paste0("corpus", max(unlist(filedates)), ".rdata")),  quanteda::corpus(""))
-
-  summary(corpus)
-  tok_ext <- quanteda::tokens(corpus, remove_punct = T, remove_numbers=T, remove_url=TRUE)
-  tok_ext <- unlist(tok_ext)
-
-  # Variablennamen aus Datensatz extrahieren
+  ## extract variable names from data sets
   nams <- lapply(sav_path_list, function(sav_path) {
     gads <- suppressWarnings(eatGADS::import_spss(sav_path, checkVarNames = FALSE, encoding = encoding))
-    nams <- eatGADS::namesGADS(gads)
-    #names(nams) <- nams
-    nams})
-  names(nams)<- unlist(lapply(sav_path_list, basename))
-  #nams <- unlist(nams)
+    eatGADS::namesGADS(gads)
+  })
+  #names(nams)<- unlist(lapply(sav_path_list, basename))
 
-  # Skalendoku einlesen, in Korpus umwandeln und Text in Token umwandeln
+  ## read in codebook
+  #cat("reading ", pdf_path)
   corp_docu <- quanteda::corpus(readtext::readtext(pdf_path))
-  summary(corp_docu)
+  #summary(corp_docu)
+  tok_docu <- quanteda::tokens(corp_docu, remove_punct = TRUE, remove_numbers = TRUE,
+                               remove_url = TRUE, remove_symbols = TRUE)
 
-  tok_docu <- quanteda::tokens(corp_docu, remove_punct = T, remove_numbers=T, remove_url=TRUE, remove_symbols=T)
+  #cat("comparing ", pdf_path)
+  ## word set comparisons
+  words_not_in_data <- setdiff(tok_docu[[1]], unlist(nams)) ## which words in the documentation are in the data
+  words_not_in_data_or_whitelist <- setdiff(words_not_in_data, all_words) ## which words in the documentation are in the white-lists
+  # check if case was messing things up
+  words_not_in_data_or_whitelist_lc <- tolower(words_not_in_data_or_whitelist)
+  all_words_lc <- tolower(all_words)
+  words_not_in_data_or_whitelist_case_independent <-  words_not_in_data_or_whitelist[!words_not_in_data_or_whitelist_lc %in% all_words_lc]
 
-  ## Alle Woerter, die keine Variablen im Datensatz sind extrahieren
-  inv_docu <- setdiff(tok_docu[[1]], unlist(nams))
+  #browser()
+  ## separated words?
+  sep_words <- words_not_in_data_or_whitelist_case_independent[grepl("-$", words_not_in_data_or_whitelist_case_independent, ignore.case = TRUE)]
+  #if(length(sep_words) > 0) browser()
+  for(sep_word in sep_words) {
+   sep_word_part <- sub("-$", "", sep_word)
+   out <- grep(sep_word_part, all_words, fixed = TRUE)
+   if(length(out) > 0) words_not_in_data_or_whitelist_case_independent <- setdiff(words_not_in_data_or_whitelist_case_independent, sep_word)
+  }
 
+  #print(nams)
 
-  ## Schnittmenge aus externem Korpus und Skalenhandbuch darstellen
-  venn_docu <-gplots::venn(list("Skalenhandbuch" = inv_docu, "externer Korpus" = tok_ext))
-  docu_unique <- setdiff(inv_docu, tok_ext)
-
-  res <- list ("venn_docu" = venn_docu, "unique_tokens" = docu_unique, "ext_corpus" = corpus, "variables" = nams)
-  res
+  data.frame(suspicious_words = words_not_in_data_or_whitelist_case_independent, missing_documention = "", comment = "")
 }
+
+
+
+

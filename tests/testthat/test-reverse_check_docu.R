@@ -1,22 +1,32 @@
 
 
 test_that("One pdf, one .sav data set", {
-  #out <- reverse_check_docu(sav_path = "helper_spss.sav",
-  #                 pdf_path = "helper_codebook.pdf")
-
-  out <- reverse_check_docu(corpuspath = getwd(),
-                            sav_path_list = list("helper_spss_p1.sav"),
+  #out <- reverse_check_docu(sav_path = list("tests/testthat/helper_spss_p1.sav"), pdf_path = "tests/testthat/helper_codebook_p1.pdf")
+  out <- reverse_check_docu(sav_path_list = list("helper_spss_p1.sav"),
                             pdf_path = "helper_codebook_p1.pdf")
 
-  #expect_error(reverse_check_docu(), "Not yet implemented.")
-   expect_equal(names(out), c("venn_docu", "unique_tokens", "ext_corpus", "variables"))
+  #cat("What happens after test 1?")
+  expect_equal(names(out), c("suspicious_words", "missing_documention", "comment"))
+  expect_equal(out[["suspicious_words"]], c("P1", "Var1", "ID-Variable"))
+  #cat("What happens after test 1b?")
 })
 
 test_that("One pdf, two .sav data set", {
-  out <- reverse_check_docu(corpuspath = getwd(),
-                            sav_path_list = list("helper_spss_p1.sav", "helper_spss_p2.sav"),
+  #out <- reverse_check_docu(sav_path = list("tests/testthat/helper_spss_p1.sav", "tests/testthat/helper_spss_p2.sav"), pdf_path = "tests/testthat/helper_codebook_p1.pdf")
+  out <- reverse_check_docu(sav_path_list = list("helper_spss_p1.sav", "helper_spss_p2.sav"),
                             pdf_path = "helper_codebook_p1.pdf")
 
-  #expect_error(reverse_check_docu(), "Not yet implemented.")
-  expect_equal(names(out), c("venn_docu", "unique_tokens", "ext_corpus", "variables"))
+  expect_equal(names(out), c("suspicious_words", "missing_documention", "comment"))
+  expect_equal(out[["suspicious_words"]], c("P1", "ID-Variable"))
+})
+
+
+test_that("separated german words", {
+  #out <- reverse_check_docu(sav_path = list("tests/testthat/helper_spss_p1.sav", "tests/testthat/helper_spss_p2.sav"), pdf_path = "tests/testthat/helper_codebook_p3.pdf")
+  out <- reverse_check_docu(sav_path_list = list("helper_spss_p1.sav", "helper_spss_p2.sav"),
+                            pdf_path = "helper_codebook_p3.pdf")
+
+  #cat("What happens after the test?")
+  expect_equal(names(out), c("suspicious_words", "missing_documention", "comment"))
+  expect_equal(out[["suspicious_words"]], c("ID-Variable"))
 })

@@ -10,7 +10,9 @@ Description: Checking codebooks and anonymizing data.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: eatGADS, readtext, quanteda, eatTools, gsubfn, gplots
+Imports: eatGADS, readtext, quanteda, eatTools
 RoxygenNote: 7.1.1
 Suggests: 
     testthat (>= 2.1.0)
+Depends: 
+    R (>= 2.10)
