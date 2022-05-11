@@ -4,23 +4,24 @@
 \alias{reverse_check_docu}
 \title{Reverse check documentation of data sets.}
 \usage{
-reverse_check_docu(corpuspath, sav_path_list, pdf_path, encoding = NULL)
+reverse_check_docu(
+  white_list = c(english_words, german_words),
+  pdf_path,
+  sav_path,
+  encoding = NULL
+)
 }
 \arguments{
-\item{corpuspath}{Path to the folder, in which the external corups (the \code{white list}) is stored as \code{.rdata} file. The function extracts automatically the newest file available.}
-
-\item{sav_path_list}{Character vector of all data set paths.}
+\item{white_list}{A character vector containing all words which should not be flagged. Defaults to a combination of a German and English corpus.}
 
 \item{pdf_path}{Character vector with paths to the \code{.pdf} files.}
+
+\item{sav_path}{Character vector with paths to the \code{.sav} files.}
 
 \item{encoding}{The character encoding used for the file. The default, \code{NULL}, use the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
-A list with the entries \code{venn_docu}, \code{unique_tokens} and \code{ext_corpus}:
-\code{venn_docu}, an object of class \code{venn}; the output of \code{gplots::venn}.
-\code{unique_tokens}, a character vector containing the words found in the codebook but neither in the data sets nor in the corpus
-\code{ext_corpus}, the external corpus as imported containing all white listed words.
-\code{variables}, a character vector including all variable names in the data sets
+A \code{data.frame} with the columns \code{suspicious_words}, \code{missing_documentation} and \code{comment}.
 }
 \description{
 This function extracts all words from the \code{pdf} file and discards all words which are variables in the data set and all words
@@ -28,35 +29,14 @@ which are white listed. Based on this a list of words is returned, which might b
 in the data set.
 }
 \examples{
-\dontrun{
-studie <- "" # Hier den Ordnernamen der Studie in 01_Studien angeben (FDZ-intern)
-studienpath <- "" # Hier den output-Pfad angeben
-setwd(studienpath)
+# File pathes
+sav_path1 <- system.file("extdata", "helper_spss_p1.sav", package = "eatFDZ")
+sav_path2 <- system.file("extdata", "helper_spss_p2.sav", package = "eatFDZ")
+pdf_path1 <- system.file("extdata", "helper_codebook_p1.pdf", package = "eatFDZ")
+pdf_path2 <- system.file("extdata", "helper_codebook_p2.pdf", package = "eatFDZ")
+pdf_path3 <- system.file("extdata", "helper_codebook_p3.pdf", package = "eatFDZ")
 
-out <- reverse_check_docu(corpuspath = corpuspath, sav_path_list = sav_path_list,
-                          pdf_path = pdf_path)
-
-plot(out$venn_docu)
-corpus_alt <- out$ext_corpus
-# 3. Ergebnis rausschreiben
-write.csv(docu_unique,
-          file=paste0(studienpath, "/", studie, "Skalenhandbuch_unique_words.csv"))
-
-### # Dieses csv muss haendisch durchgegangen werden und verbliebene Variablennamen
-# muessen identifiziert werden. Dies sind Variablen, die vermutlich in der Doku,
-# aber nicht im Datensatz vorkommen und nochmals detailliert geprueft werden muessen.
-# Diese werden in ein anderes Dokument kopiert und im Original geloescht.
-# Das Original wird im nÃ¤chsten Schritt wieder hier eingelesen,
-# um den externen Korpus zu updaten
-
-## 4.  externen Korpus aktualisieren fuer spaetere Verwendung, Namen der Quelle einfuegen
-add_corp <- read.csv(paste0(studie, "Skalenhandbuch_unique_words.csv"), header=F, sep=";")
-add_corp <- paste(add_corp$V2, collapse = " ")
-names(add_corp) <- paste("Skalendokumentation", studie, sep=" ")
-add_corp <- quanteda::corpus(add_corp)
-
-corpus <- corpus_alt + add_corp
-save(corpus, file=paste0("corpus", Sys.Date(), ".rdata"))
-}
+check_df <- reverse_check_docu(sav_path = c(sav_path1, sav_path2),
+                       pdf_path = c(pdf_path1, pdf_path2, pdf_path3))
 
 }
