@@ -31,17 +31,18 @@ check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALS
   if(!is.character(sav_path) || length(sav_path) < 1) stop("sav_path needs to be at least one path to a .sav file.")
   if(!is.character(pdf_path) || length(pdf_path) < 1) stop("pdf_path needs to be at least one path to a .pdf file.")
 
+  docu <- readtext::readtext(pdf_path)
+  # to corpus
+  corp_docu <- quanteda::corpus(docu)
+  summary(corp_docu)
+  # to token
+  tok_docu <- quanteda::tokens(corp_docu)
+
   out_list <- lapply(sav_path, function(single_sav_path) {
     gads <- suppressWarnings(eatGADS::import_spss(single_sav_path, checkVarNames = FALSE, encoding = encoding))
     nams <- eatGADS::namesGADS(gads)
     names(nams) <- nams
 
-    docu <- readtext::readtext(pdf_path)
-    # to corpus
-    corp_docu <- quanteda::corpus(docu)
-    summary(corp_docu)
-    # to token
-    tok_docu <- quanteda::tokens(corp_docu)
     # test
     test <- lapply(nams, function(nam) {
       out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words, case_insensitive = !case_sensitive)

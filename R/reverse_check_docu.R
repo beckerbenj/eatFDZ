@@ -73,5 +73,5 @@ reverse_check_docu <- function(white_list = c(english_words, german_words), pdf_
 }
 
 
-
+# separate Tabellenlbaetter fuer Uebereinstimmungen mit a) Datensatz-Variablennamen und b) Korpus
 
