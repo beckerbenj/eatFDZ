@@ -3,3 +3,5 @@
 ^otherCode$
 ^\.travis\.yml$
 ^appveyor\.yml$
+^\.github$
+^data-raw$

@@ -10,7 +10,8 @@ data_clean(
   saveFolder = NA,
   nameListe = NULL,
   nameSyntax = NULL,
-  exclude = NULL
+  exclude = NULL,
+  encoding = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ data_clean(
 \item{nameSyntax}{File name of the SPSS syntax file}
 
 \item{exclude}{Optional: character vector of variable which should be excluded from summarizing and transformation}
+
+\item{encoding}{Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
 SPSS syntax snippet
@@ -33,7 +36,7 @@ SPSS syntax snippet
 Generate SPSS syntax to make individual data anonymous
 }
 \details{
-Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels als value labels.
+Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels as value labels.
 }
 \examples{
 sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")

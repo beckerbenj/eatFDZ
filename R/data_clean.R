@@ -8,7 +8,7 @@
 #'
 #' Generate SPSS syntax to make individual data anonymous
 #'
-#' Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels als value labels.
+#' Data from large-scale assessments often have to be non-identifiable on individual level. Function summarizes low-sized categories of polytomous variables to more general categories. Additionally, character variables are transformed into numeric factors, providing factor levels as value labels.
 #'
 #'@param fileName Character string of the SPSS file
 #'@param boundary Integer number: categories with less observations than [boundary] will be summarized to guarantee anonymity
@@ -16,6 +16,7 @@
 #'@param nameListe File name of the csv-type variable information file
 #'@param nameSyntax File name of the SPSS syntax file
 #'@param exclude Optional: character vector of variable which should be excluded from summarizing and transformation
+#'@param encoding Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.
 #'
 #'@return SPSS syntax snippet
 #'
@@ -34,8 +35,9 @@
 #'
 #'
 #'@export
-data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL) {
-  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, labeledStrings = FALSE)
+data_clean <- function ( fileName, boundary = 5, saveFolder = NA, nameListe = NULL, nameSyntax = NULL, exclude = NULL, encoding = NULL) {
+  GADSdat     <- eatGADS::import_spss(fileName, checkVarNames = FALSE, encoding = encoding)
+  # load("t:/Sebastian/gd.rda")
   GADSdat     <- eatGADS::checkMissings(GADSdat, missingLabel = "missing", addMissingCode = TRUE, addMissingLabel = TRUE)
   datOM  <- eatGADS::miss2NA(GADSdat)
   varLab <- unique(GADSdat[["labels"]][, c("varName", "varLabel")])
@@ -193,11 +195,12 @@ makeNumeric <- function (x, df_labels, liste, datOM) {
     if ( length(setdiff(werte, ""))==0 ) {
       recSt <- NULL
     }  else  {
-      miss  <- df_labels[which(df_labels[,"varName"] == as.character(tr[["variable"]])),]
+      miss  <- df_labels[intersect(which(df_labels[,"varName"] == as.character(tr[["variable"]])), which(df_labels[,"missings"] == "miss")),]
       wom   <- setdiff ( setdiff (werte, miss[,"value"]), "")## werte ohne missings
+      # if (length(wom)==0) {browser()}
       recSt1<- c("RECODE", as.character(tr[["variable"]]) ) ### erster Teil des Recodierungsstatements
       oldnew<- data.frame ( old = wom, new = 1:length(wom), stringsAsFactors = FALSE)
-      recSt2<- unlist(by ( data = oldnew, INDICES = oldnew[,"old"], FUN = function (z) { paste0("(",z[["old"]], " = ", z[["new"]], ")") }))
+      recSt2<- unlist(by ( data = oldnew, INDICES = oldnew[,"old"], FUN = function (z) { paste0("('",z[["old"]], "' = ", z[["new"]], ")") }))
       recSt3<- c("INTO" , paste0(as.character(tr[["variable"]]), "_FDZ."))
       recSt4<- paste0("VARIABLE LABELS ", as.character(tr[["variable"]]), "_FDZ '",as.character(tr[["varLab"]]), "'.")
       recSt5<- paste0("VALUE LABELS ", as.character(tr[["variable"]]), "_FDZ '", paste(oldnew[,"new"], paste0("'",oldnew[,"old"], "'") , collapse=" "), ".")
