@@ -26,6 +26,8 @@ check_docu_mez <- function(sav_path, pdf_path, post_words = 2, case_sensitive = 
   tok_docu <- quanteda::tokens(corp_docu)
   tok_docu_longer <- quanteda::tokens(corp_docu, what = "fasterword")
 
+  combined_varNames <- combine_mez_stem_suffix(tok_docu_longer)
+
   out_list <- lapply(sav_path, function(single_sav_path) {
     gads <- suppressWarnings(eatGADS::import_spss(single_sav_path, checkVarNames = FALSE, encoding = encoding))
     nams <- eatGADS::namesGADS(gads)
@@ -34,22 +36,76 @@ check_docu_mez <- function(sav_path, pdf_path, post_words = 2, case_sensitive = 
     # test
     test <- lapply(nams, function(nam) {
       print(nam)
-      #if(nam == "msta1_e") browser()
-      out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words, case_insensitive = !case_sensitive)
-      #browser()
-      if(nrow(out) == 0) {
-        nam_stem <- strsplit(nam, split = "(?<=[a-zA-Z])\\s*(?=[0-9])", perl = TRUE)[[1]][1]
-        nam_new <- paste0(nam_stem, "*")
 
-        out <- quanteda::kwic(tok_docu_longer, pattern = nam_new, window = post_words, case_insensitive = !case_sensitive, valuetype = "fixed")
+      out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words, case_insensitive = !case_sensitive)
+
+      if(nrow(out) == 0) {
+        #if(nam == "msta1_e") browser()
+        #browser()
+        out_list <- lapply(combined_varNames, function(varNames_vec) nam %in% varNames_vec)
+        count <- sum(unlist(out_list))
+        out <- data.frame(variable = nam,
+                   count = count,
+                   how_found = ifelse(count > 0, yes = "name_pasting", no = NA),
+                   stringsAsFactors = FALSE)
+        return(out)
         }
 
       data.frame(variable = nam,
-                 count = nrow(out), stringsAsFactors = FALSE)
+                 count = nrow(out),
+                 how_found = ifelse(nrow(out) > 0, yes = "normal", no = NA),
+                 stringsAsFactors = FALSE)
     })
     do.call(rbind, test)
   })
   #if(length(sav_path) > 1) browser()
   out_df <- eatTools::do_call_rbind_withName(out_list, name = basename(sav_path), colName = "data_set")
-  out_df[, c("variable", "count", "data_set")]
+  out_df[, c("variable", "count", "how_found", "data_set")]
+}
+
+
+combine_mez_stem_suffix <- function(tok_docu_longer) {
+  out <- lapply(tok_docu_longer, function(single_cb) {
+    #browser()
+    #star_vec <- grep("\\*$|^\\*", single_cb, value = TRUE)
+    #star_vec <- grep("\\*", single_cb, value = TRUE)
+    star_vec <- grep("\\*$|^\\*|^\\(\\*|^\\_\\(\\*", single_cb, value = TRUE)
+    star_vec <- gsub("\\(|\\)|\\_\\(", "", star_vec)
+
+    where_star <- stringi::stri_locate_first(star_vec, regex = "\\*")
+    is_stem <- where_star[, "start"] > 1
+    is_suffix <- where_star[, "start"] == 1
+
+    i <- 1
+    #out_list <- list()
+    out_list <- c()
+
+    while(i < length(star_vec)) {
+      is_stem_single <- is_stem[i]
+      stem_set <- c()
+
+      while(is_stem_single) {
+        stem_set <- c(stem_set, star_vec[i])
+        i <- i + 1
+        is_stem_single <- is_stem[i]
+      }
+
+      is_suffix_single <- is_suffix[i]
+      suffix_set <- c()
+
+      while(i < length(star_vec) && is_suffix_single) {
+        suffix_set <- c(suffix_set, star_vec[i])
+        i <- i + 1
+        is_suffix_single <- is_suffix[i]
+      }
+      #list_element <- gsub("\\*", "", unlist(lapply(stem_set, function(x) paste0(x, suffix_set))))
+      #for_list_append <- list()
+      #for_list_append[[1]] <- list_element
+      #out_list <- append(out_list, for_list_append)
+      out_list <- c(out_list, gsub("\\*", "", unlist(lapply(stem_set, function(x) paste0(x, suffix_set)))))
+    }
+
+    out_list
+  })
+  out
 }
