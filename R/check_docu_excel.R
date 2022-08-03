@@ -33,7 +33,7 @@ check_docu_excel <- function(sav_path, excel_path, case_sensitive = FALSE, encod
   all_excel_codebooks <- lapply(excel_path, function(single_excel_path) {
     sheet_names <- readxl::excel_sheets(single_excel_path)
     lapply(sheet_names, function(sheet_name) {
-      codebook_df <- as.data.frame(readxl::read_excel(single_excel_path, sheet = sheet_name))
+      suppressMessages(codebook_df <- as.data.frame(readxl::read_excel(single_excel_path, sheet = sheet_name)))
       as.character(codebook_df)
   })})
 
