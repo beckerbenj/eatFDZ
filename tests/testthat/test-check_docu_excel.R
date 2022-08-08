@@ -28,6 +28,13 @@ test_that("Multiple pdf, one .sav data set", {
   expect_equal(length(unique(out$data_set)), 1)
 })
 
+test_that("case sensitivity", {
+  out <- check_docu_excel(sav_path = c("helper_spss.sav"),
+                          excel_path = c("helper_codebook_p1.xlsx", "helper_codebook_p3.xlsx"),
+                          case_sensitive = TRUE)
+  expect_equal(out[out$variable == "Var3", "count"], 1)
+})
+
 
 
 

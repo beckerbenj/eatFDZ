@@ -48,7 +48,7 @@ check_docu_excel <- function(sav_path, excel_path, case_sensitive = FALSE, encod
       count_vec <- c()
       for(excel_file in all_excel_codebooks) {
         for(excel_sheet in excel_file) {
-          count_vec <- c(count_vec, grep(nam, excel_sheet))
+          count_vec <- c(count_vec, grep(nam, excel_sheet, ignore.case = !case_sensitive))
         }
       }
 
