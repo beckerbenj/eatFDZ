@@ -4,7 +4,13 @@
 #'
 #' Check if all variables of one or multiple data sets saved as \code{sav} are included in the \code{pdf} documentation.
 #'
-#'A common requirement for data documentation is a complete codebook. The \code{check_docu} function can be used to check, whether all variables (column names) in one or multiple \code{sav} data sets are mentioned in the documentation, provided as \code{pdf} files. Multiple \code{pdf} files are treated as one single \code{pdf} file. For multiple data sets the output is sorted by data set and the \code{data_set} column indicates to which data set the variable name belongs.
+#'A common requirement for data documentation is a complete codebook. The \code{check_docu} function can be used to check,
+#' whether all variables (column names) in one or multiple \code{sav} data sets are mentioned in the documentation,
+#' provided as \code{pdf} files. Multiple \code{pdf} files are treated as one single \code{pdf} file.
+#' For multiple data sets the output is sorted by data set and the \code{data_set} column indicates
+#' to which data set the variable name belongs.
+#'
+#' Error messages such as \code{PDF error: Invalid Font Weight} can be savely ignored.
 #'
 #'For easier reading of the output, the output can be written to an excel file, for example using the \code{write.xlsx} function from the \code{openxlsx} package or the \code{write_xlsx} function from the \code{eatAnalysis} package.
 #'
