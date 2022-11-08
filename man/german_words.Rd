@@ -9,6 +9,7 @@ A character vector with 239649 entries.
 }
 \source{
 \url{https://github.com/davidak/wortliste}
+german_words
 }
 \usage{
 german_words

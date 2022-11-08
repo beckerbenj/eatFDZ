@@ -5,6 +5,7 @@
 #' @format A character vector with 459866 entries.
 #'
 #' @source \url{https://github.com/dwyl/english-words}
+#' english_words
 "english_words"
 
 #' German Language Corpus
@@ -14,4 +15,5 @@
 #' @format A character vector with 239649 entries.
 #'
 #' @source \url{https://github.com/davidak/wortliste}
+#' german_words
 "german_words"

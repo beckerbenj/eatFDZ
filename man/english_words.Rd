@@ -9,6 +9,7 @@ A character vector with 459866 entries.
 }
 \source{
 \url{https://github.com/dwyl/english-words}
+english_words
 }
 \usage{
 english_words

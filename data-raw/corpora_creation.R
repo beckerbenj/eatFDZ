@@ -8,6 +8,9 @@ german_words <- german_words_ori[-c(151400, 151401)]
 usethis::use_data(german_words, overwrite = TRUE)
 
 
+usethis::use_data(english_words, german_words, overwrite = TRUE, internal = TRUE)
+
+
 
 # tbd
 # --------------------------------------
