@@ -35,7 +35,7 @@ sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
 exclude<- c("idstud_FDZ", "idsch_FDZ")
 
 ##
-sdc_report <- data_clean(fileName = sav_path, exclude=exclude)
+sdc_report <- sdc_check(fileName = sav_path, exclude=exclude)
 
 
 
