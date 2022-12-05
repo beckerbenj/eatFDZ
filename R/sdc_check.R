@@ -72,10 +72,9 @@ create_overview <- function(GADSdat, boundary) {
     }))
   out1 <- data.frame ( variable = varLab[,"varName"], varLab = varLab[,"varLabel"], existVarLab = existVarLab,
                          skala = unlist(skala), nKatOhneMissings = nKatOM, nValid = nValid,
-                         nKl5 = freq5, makeAnonymous = FALSE, recodeToNumeric = FALSE, exclude = FALSE, stringsAsFactors = FALSE)
+                         nKl5 = freq5, exclude = FALSE, stringsAsFactors = FALSE)
   out2 <- merge(out1, existValLab, all = TRUE, by = "variable", sort = FALSE)
-  out2[, c("variable", "varLab", "existVarLab", "existValLab", "skala", "nKatOhneMissings", "nValid", "nKl5", "makeAnonymous",
-           "recodeToNumeric", "exclude")]
+  out2[, c("variable", "varLab", "existVarLab", "existValLab", "skala", "nKatOhneMissings", "nValid", "nKl5", "exclude")]
 }
 
 
