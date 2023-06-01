@@ -40,3 +40,4 @@ vignettes/*.pdf
 
 # Ignore folder with other code
 /otherCode
+docs
