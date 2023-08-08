@@ -13,7 +13,10 @@ LazyData: true
 Imports: eatGADS, readtext, quanteda, eatTools, readxl, stringi
 RoxygenNote: 7.2.1
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 2.1.0)
 Depends: 
     R (>= 2.10)
 URL: https://beckerbenj.github.io/eatFDZ/
+VignetteBuilder: knitr
