@@ -10,33 +10,17 @@ vignette: >
 
 In the following, the FDZ data preparation is documented.
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
 library(eatGADS)
 sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 dat <- import_spss(sav_path)
-
-#### Basisinformationen festlegen ####
-studyname <- "data_prep" # hier Akronym eintragen, wie es im Ordnernamen steht
-# (ggf. auch "Zwischenordner" eintragen, z.B. "StEG/StEG_Tandem")
-
-# Pfade aller Datensaetze zusammenfuegen + suchen
-#   (ggf. sollten Pfade ueberprueft und angepasst werden, falls bspw.
-#     einige Dateien anders abgelegt sind)
-sav_path_base <- file.path("Q:/FDZ/Alle/01_Studien",
-                           studyname,
-                           "1a_Daten/2_Arbeitskopie")
-sav_list <- list.files(sav_path_base, recursive = TRUE,
-                       pattern = ".sav", full.names = TRUE)
-
-out_path_base <- file.path("Q:/FDZ/Alle/01_Studien",
-                           studyname,
-                           "1a_Daten/3_IZA/v1")
+```
 
 #------------------------------------------------------------------------------
-#### Schuelerdatensatz #####
-
-# einzelnen Datensatz laden (richtigen auswaehlen!)
+#### example data set #####
+# loading a single data set (make sure to select the right one)
+```{r load}
 dat <- import_spss(sav_list[1])
 ```
 
@@ -59,10 +43,8 @@ dat1 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 ## Recode IDs
 The first step is to create the path for the template.
 ```{r IDrecode}
-ID_recode_template <- file.path("Q:/FDZ/Alle/01_Studien",
-                                studyname,
-                                "4_Aufbereitung",
-                                "xxx_Rekodierung_template.csv") ## Adapt file name if necessary
+f <- tempfile()
+ID_recode_template <- file.path("f") ## use your own file path instead of the tempfile
 ```
 Then, you have two options: Create a new template (option 1) or apply an existing template (option 2).
 
@@ -112,7 +94,7 @@ dat4 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var
 ```
 
 # -----------------------------------------------------------------------------
-## Empty variables already in IZA (with loop)
+## Empty variables already in IZA
 If variables are of strong data protection concern, they are already emptied directly in the IZA. This is achieved with the `emptyTheseVariables()` function.
 ```{r emptyTheseVariables}
 dat3_empty <- c("info",
@@ -134,11 +116,26 @@ dat5 <- recodeGADS(dat5, varName = "age_FDZ", oldValues = c(13, 14, 15, 17),
                   newValues = c(13, 13, 15, 15))
 dat5 <- changeValLabels(dat5, varName = "age_FDZ", value = c(13, 15), valLabel = c("13-14", "15-17"))
 ```
+You can also perform grouping for multiple variables using a loop. For this we give the variables a temporary name consisting of the variable name and the suffix "_FDZ". `varname` stands here for each individual variable, which was summarized before in `gr_var`. The individual steps (`cloneVariable()`, `recodeGADS()`,`changeValLabels()`) are therefore performed for each of the variables in turn.
+```{r recodeGADS_loop}
+dat6 <- dat5
+gr_var <- c("grade_math", "grade_germ", "grade_eng")
+for (varname in gr_var) {
+  tempnewname <- paste0(varname, "_FDZ")
+  dat6 <- cloneVariable(dat6, varName = varname,
+                        new_varName = tempnewname, label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
+  dat6 <- recodeGADS(dat6, varName = tempnewname,
+                      oldValues = c(1:6),
+                      newValues = c(rep(1,4),rep(2,2)))
+  dat6 <- changeValLabels(dat6, varName = tempnewname, value = c(1, 2),
+                           valLabel = c("passed", "not passed"))
+}
+```
 
 ## Change variable and value labels
 To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
 ```{r changeVarLabels}
-dat6 <- changeVarLabels(dat5, varName = "ID_name", varLabel = "Vorname")
+dat6 <- changeVarLabels(dat6, varName = "ID_name", varLabel = "Vorname")
 dat6 <- changeValLabels(dat6, varName = "books", value = 5, valLabel = "201-500 books")
 ```
 
