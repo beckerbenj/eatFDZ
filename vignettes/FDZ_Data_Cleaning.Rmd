@@ -10,18 +10,20 @@ vignette: >
 
 In the following, the FDZ data preparation is documented.
 
-```{r setup}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+We start with a little setup.
+``` {r path}
 library(eatGADS)
 sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 dat <- import_spss(sav_path)
 ```
 
-#------------------------------------------------------------------------------
-#### example data set #####
-# loading a single data set (make sure to select the right one)
+# -----------------------------------------------------------------------------
+Loading a single data set (make sure to select the right one)
 ```{r load}
-dat <- import_spss(sav_list[1])
+dat <- import_spss(sav_path[1])
 ```
 
 # -----------------------------------------------------------------------------
@@ -97,20 +99,28 @@ dat4 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var
 ## Empty variables already in IZA
 If variables are of strong data protection concern, they are already emptied directly in the IZA. This is achieved with the `emptyTheseVariables()` function.
 ```{r emptyTheseVariables}
-dat3_empty <- c("info",
+dat4_empty <- c("info",
                 "ID_name")
-dat3 <- emptyTheseVariables(dat3,
-                            vars = dat3_empty,
+dat4 <- emptyTheseVariables(dat4,
+                            vars = dat4_empty,
                             label_suffix = " (Zur Anonymisierung geleert (FDZ))")
 ```
-`dat3` corresponds to the dataset here, `vars` describes the variables to be emptied and `label_suffix` automatically adds the declaration to the variable label that the data has been emptied for anonymization.
+`dat4` corresponds to the dataset here, `vars` describes the variables to be emptied and `label_suffix` automatically adds the declaration to the variable label that the data has been emptied for anonymization.
+
+# -----------------------------------------------------------------------------
+## Change variable and value labels
+To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
+```{r changeVarLabels}
+dat5 <- changeVarLabels(dat4, varName = "ID_name", varLabel = "Vorname")
+dat5 <- changeValLabels(dat5, varName = "books", value = 5, valLabel = "201-500 books")
+```
 
 # -----------------------------------------------------------------------------
 ## Anonymization: Form grouping variable
 For anonymization reasons, we partially form grouping variables for items with a case number <6. To do this, we create a new _FDZ variable by "cloning" the variable we want to group with `cloneVariable()`. For `varName` we enter the original variable name, for `new_varName` we enter the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
 With `recodeGADS()` the old values (`oldValues`) are replaced by new ones (`newValues`). With the help of `changeValLabels()` the value labels of the new groupings are changed.
 ```{r recodeGADS}
-dat5 <- cloneVariable(dat4, varName = "age", new_varName = "age_FDZ", label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
+dat5 <- cloneVariable(dat5, varName = "age", new_varName = "age_FDZ", label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
 
 dat5 <- recodeGADS(dat5, varName = "age_FDZ", oldValues = c(13, 14, 15, 17),
                   newValues = c(13, 13, 15, 15))
@@ -132,13 +142,7 @@ for (varname in gr_var) {
 }
 ```
 
-## Change variable and value labels
-To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
-```{r changeVarLabels}
-dat6 <- changeVarLabels(dat6, varName = "ID_name", varLabel = "Vorname")
-dat6 <- changeValLabels(dat6, varName = "books", value = 5, valLabel = "201-500 books")
-```
-
+# -----------------------------------------------------------------------------
 ## Define missing values
 Using `changeMissings()`, missing values can be tagged as missings by specifying them under `value` and marking them as `miss` under `missings.`
 ```{r changeMissings}
