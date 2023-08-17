@@ -23,7 +23,7 @@ dat <- import_spss(sav_path)
 # -----------------------------------------------------------------------------
 Loading a single data set (make sure to select the right one)
 ```{r load}
-dat <- import_spss(sav_path[1])
+dat <- import_spss(sav_path)
 ```
 
 # -----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ dat1 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 # -----------------------------------------------------------------------------
 ## Recode IDs
 The first step is to create the path for the template.
-```{r IDrecode}
+```{r IDrecode, eval = FALSE}
 f <- tempfile()
 ID_recode_template <- file.path("f") ## use your own file path instead of the tempfile
 ```
