@@ -8,7 +8,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-In the following, the FDZ data preparation is documented.
+This vignette is about preparing SPSS data. The goal is to end up with a high-quality, traceable, comprehensible, anonymized data set with meaningful metadata. To do this, we will go over functions such as ID recoding, clearing variables, changing labels, creating grouping variables, and many more. 
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
@@ -21,14 +21,14 @@ dat <- import_spss(sav_path)
 ```
 
 # -----------------------------------------------------------------------------
-Loading a single data set (make sure to select the right one)
+Loading a single data set (be careful to select the right one)
 ```{r load}
 dat <- import_spss(sav_path)
 ```
 
 # -----------------------------------------------------------------------------
 ## Recode missings semi-automatically
-At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
+Sometimes not all missing values are really defined as missing. At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
 ```{r checkMissings}
 missinglabels <- paste("missing", "unknown",
                        "omitted", "unclear answer",
@@ -37,23 +37,22 @@ dat1 <- checkMissings(dat, missingLabel = missinglabels)
 ```
 Similar principle here, only that here a certain range of values is tagged as missing.
 ```{r checkMissingsByValues}
-dat1 <- checkMissingsByValues(dat1, missingValues = -50:-99)
+dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 ```
-
 
 # -----------------------------------------------------------------------------
 ## Recode IDs
-The first step is to create the path for the template.
+To ensure that the IDs remain the same across multiple subsets and describe the same person, we recode them using a template. The first step is to create the path for the template.
 ```{r IDrecode, eval = FALSE}
 f <- tempfile()
 ID_recode_template <- file.path("f") ## use your own file path instead of the tempfile
 ```
-Then, you have two options: Create a new template (option 1) or apply an existing template (option 2).
+Then, you have two options: Create a new template (option 1 - for the first subset) or apply an existing template (option 2 - for the following subsets).
 
 ### Option 1: Recode IDs with creation of a template as .csv
 A recoding template is created here.
-```{r autoRecode}
-dat2 <- autoRecode(dat1, var = "ID", var_suffix = "_FDZ", csv_path = ID_recode_template, label_suffix = " (rekodiert FDZ)")
+```{r autoRecode, eval = FALSE}
+dat2 <- autoRecode(dat2, var = "ID", var_suffix = "_FDZ", csv_path = ID_recode_template, label_suffix = " (rekodiert FDZ)")
 ```
 ### Option 2: Recode IDs with application of a template (e.g. created by a previously prepared, different data set).
 Here an already existing template was applied.
@@ -64,8 +63,8 @@ dat2 <- autoRecode(dat1, var = "ID", suffix = "_FDZ", csv_path = ID_recode_templ
 ```
 
 Delete old ID variables if necessary.
-```{r removeVars}
-dat3 <- removeVars(dat2, vars = c("ID"))
+```{r removeVars, eval = FALSE}
+dat2 <- removeVars(dat2, vars = c("ID"))
 ```
 
 # -----------------------------------------------------------------------------
@@ -73,7 +72,7 @@ dat3 <- removeVars(dat2, vars = c("ID"))
 String variables cause problems in some statistical programs. In addition, it is more difficult to select the answers in the evaluations with string variables than with numerical codes. Therefore, we convert string variables into numeric variables.
 To do so, all string variables are identified first.
 ```{r docall}
-all_types <- do.call(rbind, lapply(namesGADS(dat3), function(nam) data.frame(varName = nam, type = class(dat3$dat[[nam]]))))
+all_types <- do.call(rbind, lapply(namesGADS(dat2), function(nam) data.frame(varName = nam, type = class(dat2$dat[[nam]]))))
 all_types[all_types$type == "character", ]
 ```
 In this case the variables "ID_name", "info", "subjfav" and "birth" were recognized as string variables. In the next step they can be converted.
@@ -82,34 +81,34 @@ In this case the variables "ID_name", "info", "subjfav" and "birth" were recogni
 ```{r allTypes}
 charNames <- all_types[all_types$type == "character", "varName"]
 for(charName in charNames) {
-  dat4 <- multiChar2fac(dat3, vars = charName, var_suffix = "", label_suffix = "")
+  dat3 <- multiChar2fac(dat2, vars = charName, var_suffix = "", label_suffix = "")
 }
 ```
 ### Option 2: Convert string variable individually
 Convert to a new variable:
 ```{r multiChar2fac, eval=FALSE}
-dat4 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "_FDZ", label_suffix = "")
+dat3 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "_FDZ", label_suffix = "")
 ```
 Overwrite variable:
 ```{r multiChar2fac2, eval=FALSE}
-dat4 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "", label_suffix = "")
+dat3 <- multiChar2fac(dat3, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "", label_suffix = "")
 ```
 
 # -----------------------------------------------------------------------------
 ## Empty variables already in IZA
-If variables are of strong data protection concern, they are already emptied directly in the IZA. This is achieved with the `emptyTheseVariables()` function.
+If variables are of strong data protection concern, they are already emptied directly in the IZA - the data set form, which is provided only via remote computing. This is achieved with the `emptyTheseVariables()` function.
 ```{r emptyTheseVariables}
-dat4_empty <- c("info",
+dat3_empty <- c("info",
                 "ID_name")
-dat4 <- emptyTheseVariables(dat4,
-                            vars = dat4_empty,
+dat4 <- emptyTheseVariables(dat3,
+                            vars = dat3_empty,
                             label_suffix = " (Zur Anonymisierung geleert (FDZ))")
 ```
 `dat4` corresponds to the dataset here, `vars` describes the variables to be emptied and `label_suffix` automatically adds the declaration to the variable label that the data has been emptied for anonymization.
 
 # -----------------------------------------------------------------------------
 ## Change variable and value labels
-To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
+Variable and value labels help us with the traceability and comprehensibility of a data set. To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
 ```{r changeVarLabels}
 dat5 <- changeVarLabels(dat4, varName = "ID_name", varLabel = "Vorname")
 dat5 <- changeValLabels(dat5, varName = "books", value = 5, valLabel = "201-500 books")
@@ -162,7 +161,7 @@ dat8 <- relocateVariable(dat8, var = version_name, after = NULL)
 ## Change variable order
 To rearrange the variables of a data set, the function `orderLike()` helps, in which the variables are listed in their new order.
 ```{r orderLike}
-dat9 <- orderLike(dat8, newOrder = c("Version_v1_2023_07", "ID_FDZ", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav"))
+dat9 <- orderLike(dat8, newOrder = c("Version_v1_2023_07", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ"))
 ```
 To sort in individual variables, such as newly created grouping variables behind their emptied original variable, `relocateVariable()` can be used.
 ```{r relocateVariable}
