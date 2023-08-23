@@ -31,7 +31,7 @@ The data set contains 14 variables with 10 observations. We'll learn about the a
 
 # -----------------------------------------------------------------------------
 ## Define missings semi-automatically
-Sometimes not all missing values are really defined as missing. At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
+Sometimes not all missing values are correctly defined as missing. At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
 ```{r checkMissings}
 extractMeta(dat, vars = c("books")) # usually, we wouldn't know yet that this variable contains these value labels. This is for demonstration purposes to see the before and after effect of the function
 missinglabels <- paste("missing", "unknown",
@@ -176,7 +176,7 @@ Now we have created two groups. The first group includes the students with grade
 
 # -----------------------------------------------------------------------------
 ## Creating the version variable
-To indicate the state of the data set, each datas et is provided with a version variable. This is created using `createVariable()` and placed at the beginning of the record by `relovateVariable()` so that it has a consistent, visible place.
+To indicate the state of the data set, each data set is provided with a version variable. This is created using `createVariable()` and placed at the beginning of the record by `relovateVariable()` so that it has a consistent, visible place.
 ```{r VersionsVar}
 version_name <- "Version_v1_2023_07"
 dat10 <- createVariable(dat9, varName = version_name)
