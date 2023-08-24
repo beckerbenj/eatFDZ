@@ -22,7 +22,7 @@ dat <- import_spss(sav_path)
 We use an artificial example data set with the subject of secondary school students in Berlin. The data set is intentionally flawed and messy and will be prepared using the following steps.
 
 # -----------------------------------------------------------------------------
-Loading a single data set (be careful to select the right one)
+Loading a single data set
 ```{r load}
 dat <- import_spss(sav_path)
 str(dat$dat) # for a small overview in the variables of the data set
