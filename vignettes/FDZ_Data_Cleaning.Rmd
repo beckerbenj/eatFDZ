@@ -21,7 +21,7 @@ dat <- import_spss(sav_path)
 ```
 We use an artificial example data set with the subject of secondary school students in Berlin. The data set is intentionally flawed and messy and will be prepared using the following steps.
 
-# -----------------------------------------------------------------------------
+
 Loading a single data set
 ```{r load}
 dat <- import_spss(sav_path)
@@ -29,7 +29,7 @@ str(dat$dat) # for a small overview in the variables of the data set
 ```
 The data set contains 14 variables with 10 observations. We'll learn about the age and sex of the students, their family situation and selected grades.
 
-# -----------------------------------------------------------------------------
+
 ## Define missings semi-automatically
 Sometimes not all missing values are correctly defined as missing. At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
 ```{r checkMissings}
@@ -47,7 +47,7 @@ Similar principle here, only that here a certain range of values is tagged as mi
 dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 ```
 
-# -----------------------------------------------------------------------------
+
 ## Define missing values by hand
 If we need to tag missings by hand, we use `changeMissings()`. With this missing values can be tagged as missings by specifying them under `value` and marking them as `miss` under `missings.`
 ```{r changeMissings}
@@ -57,7 +57,7 @@ extractMeta(dat3, vars = c("info"))
 ```
 The values `-97`, `-98` and `-99` are now tagged as `miss`.
 
-# -----------------------------------------------------------------------------
+
 ## Recode IDs
 To ensure that the IDs remain the same across multiple subsets and describe the same person, we recode them using a template. The first step is to create the path for the template.
 ```{r IDrecode, eval = FALSE}
@@ -84,7 +84,7 @@ Delete old ID variables if necessary.
 dat3 <- removeVars(dat3, vars = c("ID"))
 ```
 
-# -----------------------------------------------------------------------------
+
 ## Convert string variables to numeric variables
 For (semi)open variables we have two procedures. If it is possible (e.g., for a small data set) to go through all responses to check whether there are no strong privacy violations or insults included, the variables are converted into numeric ones and then emptied in the Scientific Use Files. In this way, the information remain accessible on a meta-level, but can no longer be assigned to a person. If there are too many responses to check or privacy cannot be granted, the variable is emptied entirely in the Scientific Use Files.
 To convert the string variables into numeric ones, all string variables are identified first.
@@ -111,7 +111,7 @@ Overwrite variable:
 dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "", label_suffix = "")
 ```
 
-# -----------------------------------------------------------------------------
+
 ## Empty variables already in IZA
 If variables are of strong data protection concern, they are already emptied directly in the IZA - the data set form, which is provided only via remote computing. This is achieved with the `emptyTheseVariables()` function.
 ```{r emptyTheseVariables}
@@ -125,7 +125,7 @@ extractMeta(dat5, vars = c("info", "ID_name"))
 ```
 `dat4` corresponds to the data set here, `vars` describes the variables to be emptied and `label_suffix` automatically adds the explanation to the variable label that the data has been emptied for anonymization.
 
-# -----------------------------------------------------------------------------
+
 ## Change variable and value labels
 Variable and value labels help us with the traceability and comprehensibility of a data set. To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
 
@@ -142,7 +142,7 @@ dat7 <- changeValLabels(dat6, varName = "books", value = 5, valLabel = "201-500 
 extractMeta(dat7, vars = c("books"))
 ```
 
-# -----------------------------------------------------------------------------
+
 ## Anonymization: Form grouping variable
 For anonymization reasons, we partially form grouping variables for items with a case number <6. To do this, we create a new _FDZ variable by "cloning" the variable we want to group with `cloneVariable()`. For `varName` we enter the original variable name, for `new_varName` we enter the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
 With `recodeGADS()` the old values (`oldValues`) are replaced by new ones (`newValues`). With the help of `changeValLabels()` the value labels of the new groupings are changed.
@@ -174,7 +174,7 @@ extractMeta(dat9, vars = c("grade_math_FDZ"))
 ```
 Now we have created two groups. The first group includes the students with grades from 1-4, which means they have passed. In the other group, there are the students with grades 5 and 6, which means they have not passed. These groups were created for all three subjects Math, German and English at once.
 
-# -----------------------------------------------------------------------------
+
 ## Creating the version variable
 To indicate the state of the data set, each data set is provided with a version variable. This is created using `createVariable()` and placed at the beginning of the record by `relovateVariable()` so that it has a consistent, visible place.
 ```{r VersionsVar}
@@ -183,7 +183,7 @@ dat10 <- createVariable(dat9, varName = version_name)
 dat10 <- relocateVariable(dat10, var = version_name, after = NULL)
 ```
 
-# -----------------------------------------------------------------------------
+
 ## Change variable order
 To rearrange the variables of a data set, the function `orderLike()` helps, in which the variables are listed in their new order.
 ```{r orderLike}
