@@ -85,9 +85,6 @@ variables, and many more.</p>
 <p>We use an artificial example data set with the subject of secondary
 school students in Berlin. The data set is intentionally flawed and
 messy and will be prepared using the following steps.</p>
-<div class="section level2">
-<h2 id="section">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section"></a>
-</h2>
 <p>Loading a single data set</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/import_spss.html" class="external-link">import_spss</a></span><span class="op">(</span><span class="va">sav_path</span><span class="op">)</span></span>
@@ -110,13 +107,9 @@ messy and will be prepared using the following steps.</p>
 <p>The data set contains 14 variables with 10 observations. We’ll learn
 about the age and sex of the students, their family situation and
 selected grades.</p>
-</div>
 <div class="section level2">
-<h2 id="section-1">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-1"></a>
+<h2 id="define-missings-semi-automatically">Define missings semi-automatically<a class="anchor" aria-label="anchor" href="#define-missings-semi-automatically"></a>
 </h2>
-<div class="section level3">
-<h3 id="define-missings-semi-automatically">Define missings semi-automatically<a class="anchor" aria-label="anchor" href="#define-missings-semi-automatically"></a>
-</h3>
 <p>Sometimes not all missing values are correctly defined as missing. At
 this place the missings are recoded semi-automatically. With
 <code><a href="https://beckerbenj.github.io/eatGADS/reference/checkMissings.html" class="external-link">checkMissings()</a></code> it is tested where the above specified
@@ -173,13 +166,9 @@ tagged as missing:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/checkMissings.html" class="external-link">checkMissingsByValues</a></span><span class="op">(</span><span class="va">dat1</span>, missingValues <span class="op">=</span> <span class="op">-</span><span class="fl">50</span><span class="op">:</span><span class="op">-</span><span class="fl">99</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-2">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-2"></a>
+<h2 id="define-missing-values-by-hand">Define missing values by hand<a class="anchor" aria-label="anchor" href="#define-missing-values-by-hand"></a>
 </h2>
-<div class="section level3">
-<h3 id="define-missing-values-by-hand">Define missing values by hand<a class="anchor" aria-label="anchor" href="#define-missing-values-by-hand"></a>
-</h3>
 <p>If we need to tag missings by hand, we use
 <code><a href="https://beckerbenj.github.io/eatGADS/reference/changeMissings.html" class="external-link">changeMissings()</a></code>. With this missing values can be tagged as
 missings by specifying them under <code>value</code> and marking them as
@@ -198,13 +187,9 @@ missings by specifying them under <code>value</code> and marking them as
 <p>The values <code>-97</code>, <code>-98</code> and <code>-99</code>
 are now tagged as <code>miss</code>.</p>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-3">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-3"></a>
+<h2 id="recode-ids">Recode IDs<a class="anchor" aria-label="anchor" href="#recode-ids"></a>
 </h2>
-<div class="section level3">
-<h3 id="recode-ids">Recode IDs<a class="anchor" aria-label="anchor" href="#recode-ids"></a>
-</h3>
 <p>To ensure that the IDs remain the same across multiple subsets and
 describe the same person, we recode them using a template. The first
 step is to create the path for the template.</p>
@@ -214,17 +199,17 @@ step is to create the path for the template.</p>
 <p>Then, you have two options: Create a new template (option 1 - for the
 first subset) or apply an existing template (option 2 - for the
 following subsets).</p>
-<div class="section level4">
-<h4 id="option-1-recode-ids-with-creation-of-a-template-as--csv">Option 1: Recode IDs with creation of a template as .csv<a class="anchor" aria-label="anchor" href="#option-1-recode-ids-with-creation-of-a-template-as--csv"></a>
-</h4>
+<div class="section level3">
+<h3 id="option-1-recode-ids-with-creation-of-a-template-as--csv">Option 1: Recode IDs with creation of a template as .csv<a class="anchor" aria-label="anchor" href="#option-1-recode-ids-with-creation-of-a-template-as--csv"></a>
+</h3>
 <p>A recoding template is created here.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/autoRecode.html" class="external-link">autoRecode</a></span><span class="op">(</span><span class="va">dat3</span>, var <span class="op">=</span> <span class="st">"ID"</span>, var_suffix <span class="op">=</span> <span class="st">"_FDZ"</span>, csv_path <span class="op">=</span> <span class="va">ID_recode_template</span>, label_suffix <span class="op">=</span> <span class="st">" (rekodiert FDZ)"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="option-2-recode-ids-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-">Option 2: Recode IDs with application of a template (e.g. created by
+<div class="section level3">
+<h3 id="option-2-recode-ids-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-">Option 2: Recode IDs with application of a template (e.g. created by
 a previously prepared, different data set).<a class="anchor" aria-label="anchor" href="#option-2-recode-ids-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-"></a>
-</h4>
+</h3>
 <p>Here an already existing template was applied.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">template</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">ID_recode_template</span><span class="op">)</span></span>
@@ -235,13 +220,9 @@ a previously prepared, different data set).<a class="anchor" aria-label="anchor"
 <code class="sourceCode R"><span><span class="va">dat3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractVars.html" class="external-link">removeVars</a></span><span class="op">(</span><span class="va">dat3</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-4">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-4"></a>
+<h2 id="convert-string-variables-to-numeric-variables">Convert string variables to numeric variables<a class="anchor" aria-label="anchor" href="#convert-string-variables-to-numeric-variables"></a>
 </h2>
-<div class="section level3">
-<h3 id="convert-string-variables-to-numeric-variables">Convert string variables to numeric variables<a class="anchor" aria-label="anchor" href="#convert-string-variables-to-numeric-variables"></a>
-</h3>
 <p>For (semi)open variables we have two procedures. If it is possible
 (e.g., for a small data set) to go through all responses to check
 whether there are no strong privacy violations or insults included, the
@@ -264,19 +245,19 @@ first.</p>
 <p>In this case the variables <code>ID_name</code>, <code>info</code>,
 <code>subjfav</code> and <code>birth</code> were recognized as string
 variables. In the next step they can be converted.</p>
-<div class="section level4">
-<h4 id="option-1-convert-all-string-variables-automatically-overwrite-variables">Option 1: Convert all string variables automatically (overwrite
+<div class="section level3">
+<h3 id="option-1-convert-all-string-variables-automatically-overwrite-variables">Option 1: Convert all string variables automatically (overwrite
 variables)<a class="anchor" aria-label="anchor" href="#option-1-convert-all-string-variables-automatically-overwrite-variables"></a>
-</h4>
+</h3>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">charNames</span> <span class="op">&lt;-</span> <span class="va">all_types</span><span class="op">[</span><span class="va">all_types</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"character"</span>, <span class="st">"varName"</span><span class="op">]</span></span>
 <span><span class="kw">for</span><span class="op">(</span><span class="va">charName</span> <span class="kw">in</span> <span class="va">charNames</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">dat4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html" class="external-link">multiChar2fac</a></span><span class="op">(</span><span class="va">dat3</span>, vars <span class="op">=</span> <span class="va">charName</span>, var_suffix <span class="op">=</span> <span class="st">""</span>, label_suffix <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
-<div class="section level4">
-<h4 id="option-2-convert-string-variable-individually">Option 2: Convert string variable individually<a class="anchor" aria-label="anchor" href="#option-2-convert-string-variable-individually"></a>
-</h4>
+<div class="section level3">
+<h3 id="option-2-convert-string-variable-individually">Option 2: Convert string variable individually<a class="anchor" aria-label="anchor" href="#option-2-convert-string-variable-individually"></a>
+</h3>
 <p>Convert to a new variable:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html" class="external-link">multiChar2fac</a></span><span class="op">(</span><span class="va">dat4</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID_name"</span>, <span class="st">"info"</span>, <span class="st">"subjfav"</span>, <span class="st">"birth"</span><span class="op">)</span>, var_suffix <span class="op">=</span> <span class="st">"_FDZ"</span>, label_suffix <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
@@ -285,13 +266,9 @@ variables)<a class="anchor" aria-label="anchor" href="#option-1-convert-all-stri
 <code class="sourceCode R"><span><span class="va">dat4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html" class="external-link">multiChar2fac</a></span><span class="op">(</span><span class="va">dat4</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID_name"</span>, <span class="st">"info"</span>, <span class="st">"subjfav"</span>, <span class="st">"birth"</span><span class="op">)</span>, var_suffix <span class="op">=</span> <span class="st">""</span>, label_suffix <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-5">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-5"></a>
+<h2 id="empty-variables-already-in-iza">Empty variables already in IZA<a class="anchor" aria-label="anchor" href="#empty-variables-already-in-iza"></a>
 </h2>
-<div class="section level3">
-<h3 id="empty-variables-already-in-iza">Empty variables already in IZA<a class="anchor" aria-label="anchor" href="#empty-variables-already-in-iza"></a>
-</h3>
 <p>If variables are of strong data protection concern, they are already
 emptied directly in the IZA - the data set form, which is provided only
 via remote computing. This is achieved with the
@@ -325,13 +302,9 @@ describes the variables to be emptied and <code>label_suffix</code>
 automatically adds the explanation to the variable label that the data
 has been emptied for anonymization.</p>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-6">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-6"></a>
+<h2 id="change-variable-and-value-labels">Change variable and value labels<a class="anchor" aria-label="anchor" href="#change-variable-and-value-labels"></a>
 </h2>
-<div class="section level3">
-<h3 id="change-variable-and-value-labels">Change variable and value labels<a class="anchor" aria-label="anchor" href="#change-variable-and-value-labels"></a>
-</h3>
 <p>Variable and value labels help us with the traceability and
 comprehensibility of a data set. To change variable or value labels, the
 functions <code>ChangeVarLabels()</code> and
@@ -421,13 +394,9 @@ the same way, except that the corresponding value is selected, too.</p>
 <span><span class="co">## 28       201-500 books    valid</span></span>
 <span><span class="co">## 29 more than 500 books    valid</span></span></code></pre>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-7">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-7"></a>
+<h2 id="anonymization-form-grouping-variable">Anonymization: Form grouping variable<a class="anchor" aria-label="anchor" href="#anonymization-form-grouping-variable"></a>
 </h2>
-<div class="section level3">
-<h3 id="anonymization-form-grouping-variable">Anonymization: Form grouping variable<a class="anchor" aria-label="anchor" href="#anonymization-form-grouping-variable"></a>
-</h3>
 <p>For anonymization reasons, we partially form grouping variables for
 items with a case number &lt;6. To do this, we create a new _FDZ
 variable by “cloning” the variable we want to group with
@@ -495,13 +464,9 @@ there are the students with grades 5 and 6, which means they have not
 passed. These groups were created for all three subjects Math, German
 and English at once.</p>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-8">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-8"></a>
+<h2 id="creating-the-version-variable">Creating the version variable<a class="anchor" aria-label="anchor" href="#creating-the-version-variable"></a>
 </h2>
-<div class="section level3">
-<h3 id="creating-the-version-variable">Creating the version variable<a class="anchor" aria-label="anchor" href="#creating-the-version-variable"></a>
-</h3>
 <p>To indicate the state of the data set, each data set is provided with
 a version variable. This is created using <code><a href="https://beckerbenj.github.io/eatGADS/reference/createVariable.html" class="external-link">createVariable()</a></code>
 and placed at the beginning of the record by
@@ -512,13 +477,9 @@ place.</p>
 <span><span class="va">dat10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/createVariable.html" class="external-link">createVariable</a></span><span class="op">(</span><span class="va">dat9</span>, varName <span class="op">=</span> <span class="va">version_name</span><span class="op">)</span></span>
 <span><span class="va">dat10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable</a></span><span class="op">(</span><span class="va">dat10</span>, var <span class="op">=</span> <span class="va">version_name</span>, after <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
 <div class="section level2">
-<h2 id="section-9">—————————————————————————–<a class="anchor" aria-label="anchor" href="#section-9"></a>
+<h2 id="change-variable-order">Change variable order<a class="anchor" aria-label="anchor" href="#change-variable-order"></a>
 </h2>
-<div class="section level3">
-<h3 id="change-variable-order">Change variable order<a class="anchor" aria-label="anchor" href="#change-variable-order"></a>
-</h3>
 <p>To rearrange the variables of a data set, the function
 <code><a href="https://beckerbenj.github.io/eatGADS/reference/orderLike.html" class="external-link">orderLike()</a></code> helps, in which the variables are listed in
 their new order.</p>
@@ -529,7 +490,6 @@ variables behind their emptied original variable,
 <code><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable()</a></code> can be used.</p>
 <div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat11</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable</a></span><span class="op">(</span><span class="va">dat11</span>, var <span class="op">=</span> <span class="st">"age_FDZ"</span>, after <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
