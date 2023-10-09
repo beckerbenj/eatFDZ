@@ -1,37 +1,57 @@
 ---
-title: "FDZ_Data_Cleaning"
-author: "Annegret Rucker"
+title: "FDZ Data Cleaning"
+author: "Annegret Rucker, Benjamin Becker"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{FDZ_Data_Cleaning}
+  %\VignetteIndexEntry{FDZ Data Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-This vignette is about preparing SPSS data. The goal is to end up with a high-quality, traceable, comprehensible, anonymized data set with meaningful metadata. To do this, we will go over functions such as ID recoding, emptying variables, changing labels, creating grouping variables, and many more. 
+This vignette illustrates how the [Research Data Centre](https://www.iqb.hu-berlin.de/fdz) (FDZ) at the [Institute for Educational Quality Improvement](https://www.iqb.hu-berlin.de/) (IQB) cleans and tidies data for secondary usage purposes. 
+For secondary usage, data is expected to be of high quality, traceable, comprehensible, and anonymized. Furthermore, meaningful metadata should enable secondary users to understand the data. 
+For this purpose, operations such as recoding of identifier variables, emptying variables, changing labels, creating grouping variables, and many more are performed and therefore discussed in this vignette. Overall, the following aspects should be adressed when cleaning data:
+
+- Appropriate missing tags
+- Non-informative identifier variables
+- Transforming strings to labeled numeric variables
+- Anonymization of variables
+- ...
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
 ```
-We start with a little setup.
+The setup for this illustration is the following:
 ``` {r path}
+## if necessary, install eatGADS and eatFDZ
+#install.packages(eatGADS)
+#remotes::install_github("beckerbenj/eatFDZ")
+
+# load eatGADS
 library(eatGADS)
+
+# path to example data set
 sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
-dat <- import_spss(sav_path)
 ```
-We use an artificial example data set with the subject of secondary school students in Berlin. The data set is intentionally flawed and messy and will be prepared using the following steps.
+`eatGADS` is the R package used by the FDZ at IQB for data cleaning purposes. It is available on [CRAN](https://cran.r-project.org/package=eatGADS) and extensively documented via vignettes (e.g., the [Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)).
 
+For illustrative purposes, a small, artificial SPSS example data set of secondary school students in Berlin is used. The data set is intentionally flawed and messy. The example data set is part of the `eatFDZ` package and installed alongside. 
 
-Loading a single data set
+## Loading the data
 ```{r load}
 dat <- import_spss(sav_path)
 str(dat$dat) # for a small overview in the variables of the data set
 ```
-The data set contains 14 variables with 10 observations. We'll learn about the age and sex of the students, their family situation and selected grades.
+The data set is loaded via the `import_spss()` command. The data set contains 14 variables with 10 observations, including demographic variables such as age and sex of the students, their family situation and selected grades.
+
+Note that the data set is imported as a `GADSdat` object. For detailed explanations on the corresponding object structure and technical details, we refer readers to the `eatGADS` [documentation](https://beckerbenj.github.io/eatGADS/articles/import_spss.html). 
 
 
 ## Define missings semi-automatically
-Sometimes not all missing values are correctly defined as missing. At this place the missings are recoded semi-automatically. With `checkMissings()` it is tested where the above specified missings labels occur in the data and corresponding items are tagged as missing.
+A crucial meta data property for SPSS data are **missing tags**.
+Sometimes not all missing values are correctly tagged as missing. Via `eatGADS`, missing tags can be corrected semi-automatically. This can either be done based on wordings of existing value labels (`checkMissings()`) or based on a value range of existing value labels (`checkMissingsByValues()`).
+
+`checkMissings()` tests whether a set of specified regular expressions occurs in the value labels and compares the corresponding missings tags. For instance the variable `books` contains a value label `omitted`, which has not been tagged as missing.
 ```{r checkMissings}
 extractMeta(dat, vars = c("books")) # usually, we wouldn't know yet that this variable contains these value labels. This is for demonstration purposes to see the before and after effect of the function
 missinglabels <- paste("missing", "unknown",
@@ -40,10 +60,11 @@ missinglabels <- paste("missing", "unknown",
 dat1 <- checkMissings(dat, missingLabel = missinglabels)
 extractMeta(dat1, vars = c("books"))
 ```
-We can observe that the value `-99` with the label `omitted` is now tagged as `miss`.
+`checkMissings()` has now automatically tagged the value `-99` with the label `omitted` as missing (`miss`).
 
-Similar principle here, only that here a certain range of values is tagged as missing:
+`checkMissingsByValues()` checks whether value labels exist for a specified range of numeric values and whether missing tags are provided accordingly:
 ```{r checkMissingsByValues}
+# tbd: Use case is missing!
 dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 ```
 
