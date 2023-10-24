@@ -1,17 +1,25 @@
-#' Run all FDZ checks.
+#' Run all data checks.
 #'
-#' Run all FDZ checks.
+#' Run all data checks.
+#'
+#' This functions calls \code{\link{check_file_name}},
+#' \code{\link{check_var_names}}, \code{\link{check_meta_encoding}},
+#' \code{\link{check_id}}, \code{\link{check_var_labels}},
+#' \code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
+#' \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
+#' \code{\link{sdc_check}}, and \code{\link{docu_check}}.
 #'
 #'
 #'@param sav_path Character string of the SPSS file
-#'@param encoding Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.
+#'@param encoding Optional: The character encoding used for reading the \code{.sav} file.
+#'The default, \code{NULL}, uses the encoding specified in the file,
+#'but sometimes this value is incorrect and it is useful to be able to override it.
 #'@param missingRange Numerical range for missing tags.
 #'@param missingRegex Regular expression for value labels for missing tags.
 #'@param idVar Unique identifier variable in the data set.
 #'@param sdcVars Variable names of variables with potential statistical disclosure control issues.
 #'
 #'@return A \code{data.frame}.
-#'
 #'
 #'
 #'@export
@@ -55,7 +63,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   if(is.null(sdcVars)) {
     exclude_vars <- character()
   }
-  out <- eatFDZ::sdc_check(sav_path, exclude = exclude_vars)
+  out <- sdc_check(sav_path, exclude = exclude_vars)
   sdc_check_out <- out[out$exclude == FALSE, c("variable", "nKatOhneMissings", "nValid", "nKl5")]
 
 
@@ -77,8 +85,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                                  missing_range_tags, missing_regex_tags,
                                  sdc_check_out,
                                  docu_check)
-  individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
-  names(individual_result_list2) <- c("special_signs_variable_names", "special_signs_meta_data",
+  names(individual_result_list) <- c("special_signs_variable_names", "special_signs_meta_data",
                    "missing_IDs", "duplicate_IDs",
                    "missing_variable_labels",
                    "missing_value_labels", "unused_value_labels",
@@ -86,43 +93,22 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                    "statistical_disclosure_control",
                    "docu_check")
 
-  test_overview_logical <- c(nrow(bad_encoding_var_names) > 0,
-                             nrow(bad_encoding_meta_data) > 0,
-                             nrow(missing_ids) > 0,
-                             nrow(duplicate_ids) > 0,
-                             nrow(missing_varLabels) > 0,
-                             nrow(missing_valLables) > 0,
-                             nrow(empty_valLabels) > 0,
-                             nrow(missing_range_tags) > 0,
-                             nrow(missing_regex_tags) > 0,
-                             nrow(sdc_check_out) > 0,
-                             nrow(docu_check) > 0)
+  individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
 
-  test_overview_vec <- ifelse(test_overview_logical, yes = "Issues detected", no = "passing")
+  test_overview_vec <- sapply(individual_result_list2, function(x){
+    ifelse(nrow(x) > 0, yes = "Issues detected", no = "passing")
+  })
   if(is.null(pdf_path)) {
     test_overview_vec[11] <- "Not tested"
   }
 
-  test_output <- data.frame(Test = test_names, Result = test_overview_vec)
-
-  # output
-  # ----------------------------------------------------------
-  individual_result_list <- list(bad_encoding_var_names, bad_encoding_meta_data,
-                missing_ids, duplicate_ids,
-                missing_varLabels,
-                missing_valLables, empty_valLabels,
-                missing_range_tags, missing_regex_tags,
-                sdc_check_out,
-                docu_check)
-  individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
-  names(individual_result_list2) <- test_names
+  test_output <- data.frame(Test = names(test_overview_vec), Result = test_overview_vec, row.names = NULL)
+  print(test_output)
 
   # combine
   # ----------------------------------------------------------
-  print(test_output)
-  #browser()
   out <- append(list(test_output), individual_result_list2)
-  names(out) <- c("Overview", test_names)
+  names(out) <- c("Overview", test_output$Test)
   out
 }
 

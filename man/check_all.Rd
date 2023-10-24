@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_all.R
 \name{check_all}
 \alias{check_all}
-\title{Run all FDZ checks.}
+\title{Run all data checks.}
 \usage{
 check_all(
   sav_path,
@@ -17,7 +17,9 @@ check_all(
 \arguments{
 \item{sav_path}{Character string of the SPSS file}
 
-\item{encoding}{Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
+\item{encoding}{Optional: The character encoding used for reading the \code{.sav} file.
+The default, \code{NULL}, uses the encoding specified in the file,
+but sometimes this value is incorrect and it is useful to be able to override it.}
 
 \item{missingRange}{Numerical range for missing tags.}
 
@@ -31,5 +33,13 @@ check_all(
 A \code{data.frame}.
 }
 \description{
-Run all FDZ checks.
+Run all data checks.
+}
+\details{
+This functions calls \code{\link{check_file_name}},
+\code{\link{check_var_names}}, \code{\link{check_meta_encoding}},
+\code{\link{check_id}}, \code{\link{check_var_labels}},
+\code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
+\code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
+\code{\link{sdc_check}}, and \code{\link{docu_check}}.
 }
