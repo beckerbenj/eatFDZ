@@ -7,10 +7,11 @@
 #' \code{\link{check_id}}, \code{\link{check_var_labels}},
 #' \code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
 #' \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
-#' \code{\link{sdc_check}}, and \code{\link{docu_check}}.
+#' \code{\link{sdc_check}}, and \code{\link{check_docu}}.
 #'
 #'
-#'@param sav_path Character string of the SPSS file
+#'@param sav_path Path to the SPSS file
+#'@param pdf_path Path to the \code{.pdf} file
 #'@param encoding Optional: The character encoding used for reading the \code{.sav} file.
 #'The default, \code{NULL}, uses the encoding specified in the file,
 #'but sometimes this value is incorrect and it is useful to be able to override it.

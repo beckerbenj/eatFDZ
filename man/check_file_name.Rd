@@ -7,7 +7,7 @@
 check_file_name(path)
 }
 \arguments{
-\item{GADSdat}{\code{GADSdat} object.}
+\item{path}{File path.}
 }
 \value{
 Returns the test report.

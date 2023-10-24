@@ -8,7 +8,7 @@
 #' \item spaces
 #' }
 #'
-#'@param GADSdat \code{GADSdat} object.
+#'@param path File path.
 #'
 #'@return Returns the test report.
 #'

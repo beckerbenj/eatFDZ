@@ -11,6 +11,8 @@ check_missing_regex(
 }
 \arguments{
 \item{GADSdat}{\code{GADSdat} object.}
+
+\item{missingRegex}{Value labels which should be declared as missings.}
 }
 \value{
 Returns the test report.

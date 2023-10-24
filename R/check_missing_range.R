@@ -8,6 +8,7 @@
 #' }
 #'
 #'@param GADSdat \code{GADSdat} object.
+#'@param missingRange Values which should be declared as missings.
 #'
 #'@return Returns the test report.
 #'

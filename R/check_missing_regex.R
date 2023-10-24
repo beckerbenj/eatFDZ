@@ -8,6 +8,7 @@
 #' }
 #'
 #'@param GADSdat \code{GADSdat} object.
+#'@param missingRegex Value labels which should be declared as missings.
 #'
 #'@return Returns the test report.
 #'

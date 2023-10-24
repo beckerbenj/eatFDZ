@@ -15,7 +15,9 @@ check_all(
 )
 }
 \arguments{
-\item{sav_path}{Character string of the SPSS file}
+\item{sav_path}{Path to the SPSS file}
+
+\item{pdf_path}{Path to the \code{.pdf} file}
 
 \item{encoding}{Optional: The character encoding used for reading the \code{.sav} file.
 The default, \code{NULL}, uses the encoding specified in the file,
@@ -41,5 +43,5 @@ This functions calls \code{\link{check_file_name}},
 \code{\link{check_id}}, \code{\link{check_var_labels}},
 \code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
 \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
-\code{\link{sdc_check}}, and \code{\link{docu_check}}.
+\code{\link{sdc_check}}, and \code{\link{check_docu}}.
 }

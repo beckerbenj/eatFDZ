@@ -8,6 +8,8 @@ check_missing_range(GADSdat, missingRange = -50:-99)
 }
 \arguments{
 \item{GADSdat}{\code{GADSdat} object.}
+
+\item{missingRange}{Values which should be declared as missings.}
 }
 \value{
 Returns the test report.
