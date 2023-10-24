@@ -29,6 +29,12 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                        idVar = NULL,
                        sdcVars = NULL) {
 
+  ### further checks (tbd)?
+  # lengthy variable names?
+  # variables with no missing tags at all? -> or unlabeled values within range?
+  # character variables?
+  # extended fixEncoding (further special signs?)
+
   # encoding checks
   # ----------------------------------------------------------
   check_file_name(sav_path)
@@ -122,11 +128,4 @@ make_df_with_comment <- function(x) {
 }
 
 
-### questions regarding further checks
-# length variable names?
-# variables with no missing tags at all? -> or unlabeled values within range?
-# character variables?
-
-# extend fixEncoding (further special signs?)
-# check variable names => "."?
 
