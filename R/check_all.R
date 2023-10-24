@@ -23,12 +23,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
 
   # encoding checks
   # ----------------------------------------------------------
-  file_name <- basename(sav_path)
-  clean_encoding_file_name <- eatGADS::fixEncoding(file_name)
-  clean_encoding_file_name <- gsub(" ", "", clean_encoding_file_name)
-  if(!identical(file_name, clean_encoding_file_name)) {
-    stop(".sav file name contains special characters or spaces.")
-  }
+  check_file_name(sav_path)
   gads <- eatGADS::import_spss(sav_path, checkVarNames = FALSE)
 
   bad_encoding_var_names <- check_var_names(gads)
@@ -51,15 +46,8 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
 
   # missing tags
   # ----------------------------------------------------------
-  suppressMessages(checked_dat <- eatGADS::checkMissingsByValues(gads, missingValues = missingRange))
-  changed_vars <- eatGADS::equalGADS(gads, checked_dat)$meta_data_differences
-  changed_meta <- eatGADS::extractMeta(gads, changed_vars)
-  missing_range_tags <- changed_meta[changed_meta$value %in% missingRange, ]
-
-  suppressMessages(checked_dat <- eatGADS::checkMissings(gads, missingLabel = missingRegex))
-  changed_vars <- eatGADS::equalGADS(gads, checked_dat)$meta_data_differences
-  changed_meta <- eatGADS::extractMeta(gads, changed_vars)
-  missing_regex_tags <- changed_meta[grepl(missingRegex, changed_meta$valLabel), ]
+  missing_range_tags <- check_missing_range(gads, missingRange = missingRange)
+  missing_regex_tags <- check_missing_regex(gads, missingRegex = missingRegex)
 
   # check data disclosure control
   # ----------------------------------------------------------
@@ -82,13 +70,22 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
 
   # overview
   # ----------------------------------------------------------
-  test_names <- c("special_signs_variable_names", "special_signs_meta_data",
+  individual_result_list <- list(bad_encoding_var_names, bad_encoding_meta_data,
+                                 missing_ids, duplicate_ids,
+                                 missing_varLabels,
+                                 missing_valLables, empty_valLabels,
+                                 missing_range_tags, missing_regex_tags,
+                                 sdc_check_out,
+                                 docu_check)
+  individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
+  names(individual_result_list2) <- c("special_signs_variable_names", "special_signs_meta_data",
                    "missing_IDs", "duplicate_IDs",
                    "missing_variable_labels",
                    "missing_value_labels", "unused_value_labels",
                    "missing_range_tags", "missing_regex_tags",
                    "statistical_disclosure_control",
                    "docu_check")
+
   test_overview_logical <- c(nrow(bad_encoding_var_names) > 0,
                              nrow(bad_encoding_meta_data) > 0,
                              nrow(missing_ids) > 0,
