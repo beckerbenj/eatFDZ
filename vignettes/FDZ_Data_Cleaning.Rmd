@@ -16,7 +16,7 @@ For this purpose, operations such as recoding of identifier variables, emptying 
 - Non-informative identifier variables
 - Transforming strings to labeled numeric variables
 - Anonymization of variables
-- ...
+- Adding variable and value labels
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
@@ -70,7 +70,7 @@ dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 
 
 ## Define missing values by hand
-If we need to tag missings by hand, we use `changeMissings()`. With this missing values can be tagged as missings by specifying them under `value` and marking them as `miss` under `missings.`
+At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marking them as `miss` under `missings.`
 ```{r changeMissings}
 extractMeta(dat2, vars = c("info"))
 dat3 <- changeMissings(dat2, varName = "info", value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
@@ -80,42 +80,43 @@ The values `-97`, `-98` and `-99` are now tagged as `miss`.
 
 
 ## Recode IDs
-To ensure that the IDs remain the same across multiple subsets and describe the same person, we recode them using a template. The first step is to create the path for the template.
+To ensure that the IDs remain the same across multiple subsets and describe the same person, they are recoded using a template. First, a path for the template is created.
 ```{r IDrecode, eval = FALSE}
 f <- tempfile()
 ID_recode_template <- file.path("f") # use your own file path instead of the tempfile
 ```
-Then, you have two options: Create a new template (option 1 - for the first subset) or apply an existing template (option 2 - for the following subsets).
+Then there are two options: Creating a new template (option 1 - for the first subset) or applying an existing template (option 2 - for the following subsets).
 
-### Option 1: Recode IDs with creation of a template as .csv
-A recoding template is created here.
+### Option 1: IDs recoded with creation of a template as .csv
+`autoRecode()` creates a recoding template for the variable `ID`, saved as a .csv file, and in the course of this a new variable with the variable suffix `_FDZ` and an explanatory label suffix.
 ```{r autoRecode, eval = FALSE}
-dat3 <- autoRecode(dat3, var = "ID", var_suffix = "_FDZ", csv_path = ID_recode_template, label_suffix = " (rekodiert FDZ)")
+dat3 <- autoRecode(dat3, var = "ID", var_suffix = "_FDZ", csv_path = ID_recode_template, label_suffix = " (recoded by FDZ)")
 ```
-### Option 2: Recode IDs with application of a template (e.g. created by a previously prepared, different data set).
-Here an already existing template was applied.
+### Option 2: IDs recoded with application of a template (e.g. created by a previously prepared, different data set).
+Already existing templates can be used for following subsets. `read.csv()` imports the template, which can be applied with `autoRecode()`
 ```{r autoRecode2, eval = FALSE}
 template <- read.csv(ID_recode_template)
 dat3 <- autoRecode(dat3, var = "ID", suffix = "_FDZ", csv_path = ID_recode_template, template = template,
                    label_suffix = "(rekodiert FDZ)") # Apply template and overwrite
 ```
 
-Delete old ID variables if necessary.
+`removeVars()` deletes variables such as the old ID variable from the data set.
 ```{r removeVars, eval = FALSE}
 dat3 <- removeVars(dat3, vars = c("ID"))
 ```
 
 
 ## Convert string variables to numeric variables
-For (semi)open variables we have two procedures. If it is possible (e.g., for a small data set) to go through all responses to check whether there are no strong privacy violations or insults included, the variables are converted into numeric ones and then emptied in the Scientific Use Files. In this way, the information remain accessible on a meta-level, but can no longer be assigned to a person. If there are too many responses to check or privacy cannot be granted, the variable is emptied entirely in the Scientific Use Files.
+For (semi)open variables there are two procedures. If it is possible (e.g., for a small data set) to go through all responses to check whether there are no strong privacy violations or insults included, the variables are converted into numeric ones and then emptied in the Scientific Use Files. Thereby, the information remain accessible on a meta-level, but can no longer be assigned to a person. If there are too many responses to check or privacy cannot be granted, the variable is emptied entirely in the Scientific Use Files.
 To convert the string variables into numeric ones, all string variables are identified first.
 ```{r docall}
 all_types <- do.call(rbind, lapply(namesGADS(dat3), function(nam) data.frame(varName = nam, type = class(dat3$dat[[nam]]))))
 all_types[all_types$type == "character", ]
 ```
-In this case the variables `ID_name`, `info`, `subjfav` and `birth` were recognized as string variables. In the next step they can be converted.
+In this case the variables `ID_name`, `info`, `subjfav` and `birth` were recognized as string variables. In the next step they are converted.
 
 ### Option 1: Convert all string variables automatically (overwrite variables)
+`multiChar2fac()` converts the string variables identified in advance into numeric variables using a for loop.
 ```{r allTypes}
 charNames <- all_types[all_types$type == "character", "varName"]
 for(charName in charNames) {
@@ -123,18 +124,18 @@ for(charName in charNames) {
 }
 ```
 ### Option 2: Convert string variable individually
-Convert to a new variable:
+`multiChar2fac()` converts the string variables named in `vars` individually into numeric variables. If the option `var_suffix` is used, a new variable is created.
 ```{r multiChar2fac, eval=FALSE}
 dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "_FDZ", label_suffix = "")
 ```
-Overwrite variable:
+If the `var_suffix` option is left blank, the existing variable is overwritten.
 ```{r multiChar2fac2, eval=FALSE}
 dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "", label_suffix = "")
 ```
 
 
 ## Empty variables already in IZA
-If variables are of strong data protection concern, they are already emptied directly in the IZA - the data set form, which is provided only via remote computing. This is achieved with the `emptyTheseVariables()` function.
+Variables that may not even be offered via a remote computing system due to strong data protection concerns are emptied for all data sets. `emptyTheseVariables()` empties the listed variables and adds an explanation to the variable label on why the information was removed.
 ```{r emptyTheseVariables}
 extractMeta(dat4, vars = c("info", "ID_name"))
 dat4_empty <- c("info",
@@ -144,11 +145,11 @@ dat5 <- emptyTheseVariables(dat4,
                             label_suffix = " (Zur Anonymisierung geleert (FDZ))")
 extractMeta(dat5, vars = c("info", "ID_name"))
 ```
-`dat4` corresponds to the data set here, `vars` describes the variables to be emptied and `label_suffix` automatically adds the explanation to the variable label that the data has been emptied for anonymization.
+`dat4` corresponds to the data set, `vars` lists the variables to be emptied and `label_suffix` automatically adds the explanation to the variable label indicating that the data has been emptied for anonymization reasons.
 
 
 ## Change variable and value labels
-Variable and value labels help us with the traceability and comprehensibility of a data set. To change variable or value labels, the functions `ChangeVarLabels()` and `ChangeValLabels()` are helpful. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
+Variable and value labels help us with the traceability and comprehensibility of a data set. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
 
 1. Changing variable labels
 ```{r changeVarLabels}
