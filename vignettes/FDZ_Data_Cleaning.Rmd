@@ -70,7 +70,7 @@ dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 
 
 ## Define missing values by hand
-At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marking them as `miss` under `missings.`
+At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marks them as `miss` under `missings.`
 ```{r changeMissings}
 extractMeta(dat2, vars = c("info"))
 dat3 <- changeMissings(dat2, varName = "info", value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
@@ -100,7 +100,7 @@ dat3 <- autoRecode(dat3, var = "ID", suffix = "_FDZ", csv_path = ID_recode_templ
                    label_suffix = "(rekodiert FDZ)") # Apply template and overwrite
 ```
 
-`removeVars()` deletes variables such as the old ID variable from the data set.
+`removeVars()` deletes variables from the data set. In this case, the old ID variable is deleted.
 ```{r removeVars, eval = FALSE}
 dat3 <- removeVars(dat3, vars = c("ID"))
 ```
@@ -149,7 +149,7 @@ extractMeta(dat5, vars = c("info", "ID_name"))
 
 
 ## Change variable and value labels
-Variable and value labels help us with the traceability and comprehensibility of a data set. In `ChangeVarLabels()` the variable to be changed is selected under `varName` and with `varLabel` the corresponding label is assigned. `ChangeValLabels()` works the same way, except that the corresponding value is selected, too.
+Variable and value labels help us with the traceability and comprehensibility of a data set. `ChangeVarLabels()` selects the variable to be changed with `varName` and assigns the corresponding label with `varLabel`. `ChangeValLabels()` works in a similar way, the corresponding value is selected in `value` and the label for this value is created with `valLabel`.
 
 1. Changing variable labels
 ```{r changeVarLabels}
@@ -166,8 +166,8 @@ extractMeta(dat7, vars = c("books"))
 
 
 ## Anonymization: Form grouping variable
-For anonymization reasons, we partially form grouping variables for items with a case number <6. To do this, we create a new _FDZ variable by "cloning" the variable we want to group with `cloneVariable()`. For `varName` we enter the original variable name, for `new_varName` we enter the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
-With `recodeGADS()` the old values (`oldValues`) are replaced by new ones (`newValues`). With the help of `changeValLabels()` the value labels of the new groupings are changed.
+Small case numbers pose a risk of anonymity. For variables with a number of cases <6, which are not ratings, feelings or opinions, it is advisable to combine small numbers of cases into meaningful groups. To do so, `cloneVariable()` creates a new _FDZ variable by cloning the variable to be grouped. For `varName` the original variable name is entered, for `new_varName` the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
+`recodeGADS()` replaces the old values (`oldValues`) by new ones (`newValues`) and `changeValLabels()` changes the value labels of the new groupings.
 ```{r recodeGADS}
 extractMeta(dat7, vars = c("age"))
 dat8 <- cloneVariable(dat7, varName = "age", new_varName = "age_FDZ", label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
@@ -177,7 +177,7 @@ dat8 <- recodeGADS(dat8, varName = "age_FDZ", oldValues = c(13, 14, 15, 17),
 dat8 <- changeValLabels(dat8, varName = "age_FDZ", value = c(13, 15), valLabel = c("13-14", "15-17"))
 extractMeta(dat8, vars = c("age_FDZ"))
 ```
-You can also perform grouping for multiple variables using a loop. For this we give the variables a temporary name consisting of the variable name and the suffix "_FDZ". `varname` represents each individual variable, which was summarized before in `gr_var`. The individual steps (`cloneVariable()`, `recodeGADS()`,`changeValLabels()`) are therefore performed for each of the variables in turn.
+Groupings for multiple variables can also be performed using a loop. For this the variables are given a temporary name consisting of the variable name and the suffix "_FDZ". `varname` represents each individual variable, which was summarized before in `gr_var`. The individual steps (`cloneVariable()`, `recodeGADS()`,`changeValLabels()`) are therefore performed for each of the variables in turn.
 ```{r recodeGADS_loop}
 extractMeta(dat8, vars = c("grade_math"))
 dat9 <- dat8
@@ -194,24 +194,24 @@ for (varname in gr_var) {
 }
 extractMeta(dat9, vars = c("grade_math_FDZ"))
 ```
-Now we have created two groups. The first group includes the students with grades from 1-4, which means they have passed. In the other group, there are the students with grades 5 and 6, which means they have not passed. These groups were created for all three subjects Math, German and English at once.
+Now two groups have been created. The first group includes the students with grades from 1-4, which means they have passed. In the other group, there are the students with grades 5 and 6, which means they have not passed. These groups were created for all three subjects Math, German and English at once.
 
 
 ## Creating the version variable
-To indicate the state of the data set, each data set is provided with a version variable. This is created using `createVariable()` and placed at the beginning of the record by `relovateVariable()` so that it has a consistent, visible place.
+To indicate the state of the data set, each data set is provided with a version variable. It contains the version of the data record and the date of the last change. `createVariable()` creates this variable whereas `relocateVariable()` places it at the beginning of the record so it has a consistent, visible place.
 ```{r VersionsVar}
-version_name <- "Version_v1_2023_07"
+version_name <- "Version_v1_2023_11"
 dat10 <- createVariable(dat9, varName = version_name)
 dat10 <- relocateVariable(dat10, var = version_name, after = NULL)
 ```
 
 
 ## Change variable order
-To rearrange the variables of a data set, the function `orderLike()` helps, in which the variables are listed in their new order.
+Newly created variables are initially placed at the end of a data set. `orderLike()` rearranges the variables by specifying the variables in their new order.
 ```{r orderLike}
-dat11 <- orderLike(dat10, newOrder = c("Version_v1_2023_07", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ"))
+dat11 <- orderLike(dat10, newOrder = c("Version_v1_2023_11", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ"))
 ```
-To sort in individual variables, such as newly created grouping variables behind their emptied original variable, `relocateVariable()` can be used.
+Often it is only a matter of individual variables that are supposed to be sorted in, such as newly created grouping variables behind their emptied original variable. `relocateVariable()` sets the variables after the selected one.
 ```{r relocateVariable}
 dat11 <- relocateVariable(dat11, var = "age_FDZ", after = "age")
 ```
