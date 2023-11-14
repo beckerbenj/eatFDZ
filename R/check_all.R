@@ -66,12 +66,8 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
 
   # check data disclosure control
   # ----------------------------------------------------------
-  exclude_vars <- setdiff(eatGADS::namesGADS(gads), sdcVars)
-  if(is.null(sdcVars)) {
-    exclude_vars <- character()
-  }
-  out <- sdc_check(sav_path, exclude = exclude_vars)
-  sdc_check_out <- out[out$exclude == FALSE, c("variable", "nKatOhneMissings", "nValid", "nKl5")]
+  if(is.null(sdcVars)) sdcVars <- eatGADS::namesGADS(gads)
+  sdc_check_out <- check_sdc(gads, vars = sdcVars)
 
 
   # check codebook
