@@ -10,7 +10,7 @@ check_missing_regex(
 )
 }
 \arguments{
-\item{GADSdat}{\code{GADSdat} object.}
+\item{GADSdat}{A \code{GADSdat} object.}
 
 \item{missingRegex}{Value labels which should be declared as missings.}
 }
