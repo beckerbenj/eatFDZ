@@ -45,13 +45,13 @@ check_sdc <- function(GADSdat, vars = eatGADS::namesGADS(GADSdat), boundary = 5)
     existValLab <- nrow(rows_with_valLabels) > 0
 
     data.frame(existValLab = existValLab, skala = skala, nKatOhneMissings = nKat, nValid = nValid,
-               nKl5 = freq5, valuesNKl5 = values_freq5_string,
+               deanonymRisk = freq5, values = values_freq5_string,
                stringsAsFactors = FALSE)
   })
 
   #browser()
   out <- eatTools::do_call_rbind_withName(out_list, colName = "variable")
-  out[out$nKl5 == TRUE, !names(out) %in% "nKl5"]
+  out[out$deanonymRisk == TRUE, !names(out) %in% "deanonymRisk"]
 }
 
 

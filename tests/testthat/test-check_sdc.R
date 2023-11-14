@@ -2,11 +2,8 @@
 # throws error in some systems...
 #sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
 
-#g <- eatGADS::import_spss("tests/testthat/LV_2011_CF.sav")
-suppressMessages(g <- eatGADS::import_spss("LV_2011_CF.sav"))
-
-#g2 <- eatGADS::import_spss("tests/testthat/helper_example_data2.sav")
-suppressMessages(g2 <- eatGADS::import_spss("helper_example_data2.sav"))
+suppressMessages(g <- eatGADS::import_spss(test_path("LV_2011_CF.sav")))
+suppressMessages(g2 <- eatGADS::import_spss(test_path("helper_example_data2.sav")))
 
 
 test_that("create_overview", {
@@ -23,5 +20,5 @@ test_that("create_overview", {
   expect_equal(out2$skala, c("numeric", "numeric", "numeric"))
   expect_equal(out2$nKatOhneMissings, c(4, 3, 6))
   expect_equal(out2$nValid, rep(12, 3))
-  expect_equal(out2$valuesNKl5, c("15, 17", "-98, 2", "-9, 0, 2, 3, 35"))
+  expect_equal(out2$values, c("15, 17", "-98, 2", "-9, 0, 2, 3, 35"))
 })
