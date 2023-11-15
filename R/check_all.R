@@ -36,15 +36,17 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   # character variables?
   # extended fixEncoding (further special signs?)
 
+  # check file
+  # ----------------------------------------------------------
+  check_file_name(sav_path)
+  gads <- eatGADS::import_spss(sav_path, checkVarNames = FALSE)
+
   # lengthy variable names
   # ----------------------------------------------------------
   lengthy_var_names <- check_var_names_length(gads, boundary = 30)
 
   # encoding checks
   # ----------------------------------------------------------
-  check_file_name(sav_path)
-  gads <- eatGADS::import_spss(sav_path, checkVarNames = FALSE)
-
   bad_encoding_var_names <- check_var_names(gads)
   bad_encoding_meta_data <- check_meta_encoding(gads)
 
