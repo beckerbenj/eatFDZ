@@ -36,6 +36,10 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   # character variables?
   # extended fixEncoding (further special signs?)
 
+  # lengthy variable names
+  # ----------------------------------------------------------
+  lengthy_var_names <- check_var_names_length(gads, boundary = 30)
+
   # encoding checks
   # ----------------------------------------------------------
   check_file_name(sav_path)
@@ -80,20 +84,23 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
 
   # overview
   # ----------------------------------------------------------
-  individual_result_list <- list(bad_encoding_var_names, bad_encoding_meta_data,
+  individual_result_list <- list(lengthy_var_names,
+                                 bad_encoding_var_names, bad_encoding_meta_data,
                                  missing_ids, duplicate_ids,
                                  missing_varLabels,
                                  missing_valLables,
                                  missing_range_tags, missing_regex_tags,
                                  sdc_check_out,
                                  docu_check)
-  names(individual_result_list) <- c("special_signs_variable_names", "special_signs_meta_data",
-                   "missing_IDs", "duplicate_IDs",
-                   "missing_variable_labels",
-                   "missing_value_labels",
-                   "missing_range_tags", "missing_regex_tags",
-                   "statistical_disclosure_control",
-                   "docu_check")
+  names(individual_result_list) <- c(
+    "lengthy_variable_names",
+    "special_signs_variable_names", "special_signs_meta_data",
+    "missing_IDs", "duplicate_IDs",
+    "missing_variable_labels",
+    "missing_value_labels",
+    "missing_range_tags", "missing_regex_tags",
+    "statistical_disclosure_control",
+    "docu_check")
 
   individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
 
