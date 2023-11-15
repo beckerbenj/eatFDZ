@@ -74,6 +74,9 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   if(is.null(sdcVars)) sdcVars <- eatGADS::namesGADS(gads)
   sdc_check_out <- check_sdc(gads, vars = sdcVars)
 
+  # check for character variables
+  # ----------------------------------------------------------
+  character_vars <- check_character_vars(gads)
 
   # check codebook
   # ----------------------------------------------------------
@@ -93,6 +96,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                                  missing_valLables,
                                  missing_range_tags, missing_regex_tags,
                                  sdc_check_out,
+                                 character_vars,
                                  docu_check)
   names(individual_result_list) <- c(
     "lengthy_variable_names",
@@ -102,6 +106,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
     "missing_value_labels",
     "missing_range_tags", "missing_regex_tags",
     "statistical_disclosure_control",
+    "character_variables",
     "docu_check")
 
   individual_result_list2 <- lapply(individual_result_list, make_df_with_comment)
