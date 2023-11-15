@@ -5,7 +5,7 @@
 #' This functions calls \code{\link{check_file_name}},
 #' \code{\link{check_var_names}}, \code{\link{check_meta_encoding}},
 #' \code{\link{check_id}}, \code{\link{check_var_labels}},
-#' \code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
+#' \code{\link[eatGADS]{checkMissingValLabels}},
 #' \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
 #' \code{\link{sdc_check}}, and \code{\link{check_docu}}.
 #'
@@ -57,7 +57,6 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   # value labels
   # ----------------------------------------------------------
   missing_valLables <- eatGADS::checkMissingValLabels(gads, output = "data.frame")
-  empty_valLabels <- eatGADS::checkEmptyValLabels(gads, output = "data.frame")
 
   # missing tags
   # ----------------------------------------------------------
@@ -84,14 +83,14 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   individual_result_list <- list(bad_encoding_var_names, bad_encoding_meta_data,
                                  missing_ids, duplicate_ids,
                                  missing_varLabels,
-                                 missing_valLables, empty_valLabels,
+                                 missing_valLables,
                                  missing_range_tags, missing_regex_tags,
                                  sdc_check_out,
                                  docu_check)
   names(individual_result_list) <- c("special_signs_variable_names", "special_signs_meta_data",
                    "missing_IDs", "duplicate_IDs",
                    "missing_variable_labels",
-                   "missing_value_labels", "unused_value_labels",
+                   "missing_value_labels",
                    "missing_range_tags", "missing_regex_tags",
                    "statistical_disclosure_control",
                    "docu_check")
@@ -102,7 +101,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
     ifelse(nrow(x) > 0, yes = "Issues detected", no = "passing")
   })
   if(is.null(pdf_path)) {
-    test_overview_vec[11] <- "Not tested"
+    test_overview_vec[length(test_overview_vec)] <- "Not tested"
   }
 
   test_output <- data.frame(Test = names(test_overview_vec), Result = test_overview_vec, row.names = NULL)

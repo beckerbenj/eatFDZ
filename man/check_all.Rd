@@ -41,7 +41,7 @@ Run all data checks.
 This functions calls \code{\link{check_file_name}},
 \code{\link{check_var_names}}, \code{\link{check_meta_encoding}},
 \code{\link{check_id}}, \code{\link{check_var_labels}},
-\code{\link[eatGADS]{checkMissingValLabels}}, \code{\link[eatGADS]{checkEmptyValLabels}},
+\code{\link[eatGADS]{checkMissingValLabels}},
 \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
 \code{\link{sdc_check}}, and \code{\link{check_docu}}.
 }
