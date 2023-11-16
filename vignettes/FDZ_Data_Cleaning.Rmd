@@ -81,7 +81,7 @@ The values `-97`, `-98` and `-99` are now tagged as `miss`.
 
 
 ## Recode IDs
-To ensure that the IDs remain the same across multiple subsets and describe the same person, they are recoded using a template. First, a path for the template is created.
+ID variables are recoded so no hidden identifiers such as state, school or even name codes allow conclusions to be drawn about individual persons. To ensure that the IDs remain the same across multiple subsets and describe the same person, they are recoded using a template. First, a path for the template is created.
 ```{r IDrecode, eval = FALSE}
 f <- tempfile()
 ID_recode_template <- file.path("f") # use your own file path instead of the tempfile
@@ -167,7 +167,7 @@ extractMeta(dat7, vars = c("books"))
 
 
 ## Anonymization: Form grouping variable
-Small case numbers pose a risk of anonymity. For variables with a number of cases <6, which are not ratings, feelings or opinions, it is advisable to combine small numbers of cases into meaningful groups. To do so, `cloneVariable()` creates a new _FDZ variable by cloning the variable to be grouped. For `varName` the original variable name is entered, for `new_varName` the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
+Small case numbers pose a risk of anonymity. For variables with a number of cases <6, which are not ratings, feelings or opinions and that contain sensitive information about individuals, it is advisable to combine small numbers of cases into meaningful groups. To do so, `cloneVariable()` creates a new _FDZ variable by cloning the variable to be grouped. For `varName` the original variable name is entered, for `new_varName` the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
 `recodeGADS()` replaces the old values (`oldValues`) by new ones (`newValues`) and `changeValLabels()` changes the value labels of the new groupings.
 ```{r recodeGADS}
 extractMeta(dat7, vars = c("age"))
