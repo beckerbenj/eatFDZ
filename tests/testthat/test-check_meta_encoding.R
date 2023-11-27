@@ -11,5 +11,7 @@ test_that("Check meta data", {
   expect_equal(out, data.frame(varName = character()))
 
   out2 <- check_meta_encoding(gads2)
-  expect_equal(out2, data.frame(varName = c("var2", "var3")))
+  expect_equal(out2$varName, c("var2", "var3"))
+  expect_equal(out2$GADSdat_varLabel, c("Te\U00DFt", NA))
+  expect_equal(out2$GADSdat_valLabel, c(NA, "T\U00E4st"))
 })
