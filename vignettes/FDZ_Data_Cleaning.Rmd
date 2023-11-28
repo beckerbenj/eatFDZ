@@ -52,7 +52,7 @@ Note that the data set is imported as a `GADSdat` object. For detailed explanati
 Some systems are designed to handle only ASCII characters. If your data contains non-ASCII characters, it might cause compatibility issues or errors when processing the data. `fixEncoding()` removes special characters from a character vector or a `GADSdat` object
 ```{r fixEncoding}
 table(dat$dat$ID_name)
-dat <- fixEncoding(dat, input = "ASCII")
+dat <- fixEncoding(dat, input = "other")
 table(dat$dat$ID_name)
 ```
 The special character in the ID name has been changed to `ae`.
