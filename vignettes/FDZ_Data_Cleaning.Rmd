@@ -12,6 +12,7 @@ This vignette illustrates how the [Research Data Centre](https://www.iqb.hu-berl
 For secondary usage, data is expected to be of high quality, traceable, comprehensible, and anonymized. Furthermore, meaningful metadata should enable secondary users to understand the data. 
 For this purpose, operations such as recoding of identifier variables, emptying variables, changing labels, creating grouping variables, and many more are performed and therefore discussed in this vignette. Overall, the following aspects should be adressed when cleaning data:
 
+- Removing all non-ASCII characters
 - Appropriate missing tags
 - Non-informative identifier variables
 - Transforming strings to labeled numeric variables
@@ -46,6 +47,15 @@ The data set is loaded via the `import_spss()` command. The data set contains 14
 
 Note that the data set is imported as a `GADSdat` object. For detailed explanations on the corresponding object structure and technical details, we refer readers to the `eatGADS` [documentation](https://beckerbenj.github.io/eatGADS/articles/import_spss.html). 
 
+
+## Removing all non-ASCII characters
+Non-ASCII characters frequently lead to issues depending on the operating system and statistical software used. If your data contains non-ASCII characters, it might cause compatibility issues or errors when processing the data. `fixEncoding()` removes non-ASCII characters from a character vector or a `GADSdat` object.
+```{r fixEncoding}
+dat$dat$ID_name
+dat <- fixEncoding(dat, input = "other")
+dat$dat$ID_name
+```
+The non-ASCII character in the ID name has been changed to `ae`.
 
 ## Define missings semi-automatically
 A crucial meta data property for SPSS data are **missing tags**.
