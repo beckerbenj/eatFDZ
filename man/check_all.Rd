@@ -47,6 +47,6 @@ This functions calls \code{\link{check_file_name}},
 \code{\link{sdc_check}}, and \code{\link{check_docu}}.
 }
 \examples{
-dataset <- system.file("extdata", "example_data2", package = "eatFDZ")
+dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 out <- check_all(dataset)
 }

@@ -24,7 +24,7 @@
 #'@return A \code{data.frame}.
 #'
 #'@examples
-#' dataset <- system.file("extdata", "example_data2", package = "eatFDZ")
+#' dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 #' out <- check_all(dataset)
 #'@export
 check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,

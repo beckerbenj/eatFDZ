@@ -10,7 +10,7 @@
 #'@param language In which language should the output be written? Currently only German is supported.
 #'
 #'@examples
-#' dataset <- system.file("extdata", "example_data2", package = "eatFDZ")
+#' dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 #' out <- check_all(dataset)
 #' write_check_report(out, file_path = tempfile())
 #'@export
