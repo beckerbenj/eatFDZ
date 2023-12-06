@@ -1,11 +1,11 @@
 #' Write a check report.
 #'
-#' Write a check report as created by \code{\link{check_all()}} to excel.
+#' Write a check report as created by \code{\link{check_all}} to excel.
 #'
-#' The function writes a check report provided by \code{\link{check_all()}} via \code{openxlsx} to excel.
+#' The function writes a check report provided by \code{\link{check_all}} via \code{openxlsx} to excel.
 #' Formating and additional explanations are added to increase readability and usability.
 #'
-#'@param check_report The check report as created by \code{\link{check_all()}}.
+#'@param check_report The check report as created by \code{\link{check_all}}.
 #'@param file_path File destination.
 #'@param language In which language should the output be written? Currently only German is supported.
 #'
@@ -19,8 +19,9 @@ write_check_report <- function (check_report, file_path, language = c("German", 
   # tbd
   language <- match.arg(language)
 
-  if (file.exists(file_path))
+  if (file.exists(file_path)) {
     file.remove(file_path)
+  }
 
   #openxlsx::write.xlsx(check_report, file = filePath, sheetName = names(df_list), colNames = TRUE, rowNames = FALSE)
 
