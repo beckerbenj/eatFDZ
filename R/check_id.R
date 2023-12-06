@@ -9,7 +9,8 @@
 #' }
 #'
 #'@param GADSdat \code{GADSdat} object.
-#'@param idVar Name(s) of the identifier variable in the \code{GADSdat} object.
+#'@param idVar Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
+#'the data set is taken as the \code{idVar}.
 #'
 #'@return Returns the test report.
 #'

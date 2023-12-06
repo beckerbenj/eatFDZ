@@ -27,7 +27,8 @@ but sometimes this value is incorrect and it is useful to be able to override it
 
 \item{missingRegex}{Regular expression for value labels for missing tags.}
 
-\item{idVar}{Unique identifier variable in the data set.}
+\item{idVar}{Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
+the data set is taken as the \code{idVar}.}
 
 \item{sdcVars}{Variable names of variables with potential statistical disclosure control issues.}
 }
@@ -44,4 +45,8 @@ This functions calls \code{\link{check_file_name}},
 \code{\link[eatGADS]{checkMissingValLabels}},
 \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
 \code{\link{sdc_check}}, and \code{\link{check_docu}}.
+}
+\examples{
+dataset <- system.file("extdata", "example_data2", package = "eatFDZ")
+out <- check_all(dataset)
 }

@@ -7,6 +7,10 @@ gads2 <- eatGADS::changeValLabels(gads, varName = "var2",
 gads3 <- eatGADS::changeValLabels(gads, varName = "var2",
                                   value = c(-89, -90, 9),
                                   valLabel = c("missing", "not reached", "not seen"))
+gads4 <- eatGADS::changeValLabels(gads, varName = "var2",
+                                  value = c(-89, -90, 9),
+                                  valLabel = c("missing", "not reached", "not seen"))
+gads4 <- eatGADS::changeMissings(gads4, varName = "var2", value = -90, missings = "miss")
 
 test_that("Check missing range", {
   out <- check_missing_regex(gads)
@@ -27,4 +31,9 @@ test_that("Check missing range", {
   expect_equal(out3, data.frame(varName = rep("var2", 2), value = c(-90, -89),
                                 valLabel = c("not reached", "missing"),
                                 missings = rep("valid", 2)))
+
+  out4 <- check_missing_regex(gads4)
+  expect_equal(out4, data.frame(varName = rep("var2", 1), value = c(-89),
+                                valLabel = c("missing"),
+                                missings = rep("valid", 1)))
 })

@@ -22,7 +22,8 @@ check_missing_regex <- function(GADSdat, missingRegex = "missing|omitted|not rea
   changed_vars <- eatGADS::equalGADS(GADSdat, checked_dat)$meta_data_differences
   changed_meta <- eatGADS::extractMeta(GADSdat, changed_vars)
 
-  out <- changed_meta[grepl(missingRegex, changed_meta$valLabel), c("varName", "value", "valLabel", "missings")]
+  out <- changed_meta[grepl(missingRegex, changed_meta$valLabel) & changed_meta$missings == "valid",
+                      c("varName", "value", "valLabel", "missings")]
   row.names(out) <- NULL
   out
 }
