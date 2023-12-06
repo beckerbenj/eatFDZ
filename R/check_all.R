@@ -17,12 +17,15 @@
 #'but sometimes this value is incorrect and it is useful to be able to override it.
 #'@param missingRange Numerical range for missing tags.
 #'@param missingRegex Regular expression for value labels for missing tags.
-#'@param idVar Unique identifier variable in the data set.
+#'@param idVar Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
+#'the data set is taken as the \code{idVar}.
 #'@param sdcVars Variable names of variables with potential statistical disclosure control issues.
 #'
 #'@return A \code{data.frame}.
 #'
-#'
+#'@examples
+#' dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
+#' out <- check_all(dataset)
 #'@export
 check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                        missingRange = -50:-99,

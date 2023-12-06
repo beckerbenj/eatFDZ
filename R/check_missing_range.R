@@ -22,7 +22,8 @@ check_missing_range <- function(GADSdat, missingRange = -50:-99) {
   changed_vars <- eatGADS::equalGADS(GADSdat, checked_dat)$meta_data_differences
   changed_meta <- eatGADS::extractMeta(GADSdat, changed_vars)
 
-  out <- changed_meta[changed_meta$value %in% missingRange, c("varName", "value", "valLabel", "missings")]
+  out <- changed_meta[changed_meta$value %in% missingRange & changed_meta$missings == "valid",
+                      c("varName", "value", "valLabel", "missings")]
   row.names(out) <- NULL
   out
 }

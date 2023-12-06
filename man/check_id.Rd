@@ -9,7 +9,8 @@ check_id(GADSdat, idVar = NULL)
 \arguments{
 \item{GADSdat}{\code{GADSdat} object.}
 
-\item{idVar}{Name(s) of the identifier variable in the \code{GADSdat} object.}
+\item{idVar}{Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
+the data set is taken as the \code{idVar}.}
 }
 \value{
 Returns the test report.
