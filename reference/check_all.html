@@ -84,7 +84,8 @@ but sometimes this value is incorrect and it is useful to be able to override it
 
 
 <dt>idVar</dt>
-<dd><p>Unique identifier variable in the data set.</p></dd>
+<dd><p>Name(s) of the identifier variable in the <code>GADSdat</code> object. If <code>NULL</code>, the first variable in
+the data set is taken as the <code>idVar</code>.</p></dd>
 
 
 <dt>sdcVars</dt>
@@ -107,6 +108,25 @@ but sometimes this value is incorrect and it is useful to be able to override it
 <code><a href="sdc_check.html">sdc_check</a></code>, and <code><a href="check_docu.html">check_docu</a></code>.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data2.sav"</span>, package <span class="op">=</span> <span class="st">"eatFDZ"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">check_all</span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                              Test          Result</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          lengthy_variable_names         passing</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    special_signs_variable_names Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         special_signs_meta_data Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                     missing_IDs Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                   duplicate_IDs Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6         missing_variable_labels Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7            missing_value_labels Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8              missing_range_tags Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9              missing_regex_tags Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 statistical_disclosure_control Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11            character_variables Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12                     docu_check      Not tested</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
