@@ -64,37 +64,37 @@
 <div class="section level2">
 <h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h2>
-<p>An <code>R</code> package that automates workflows for the Forschungsdatenzentrum (<em>FDZ</em>) at IQB.</p>
+<p>An <code>R</code> package that automates workflows for the Forschungsdatenzentrum (<em>FDZ</em>) at IQB. This mainly includes automated data checks.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install eatFDZ from GitHub via</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"beckerbenj/eatFDZ"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Install eatAnalysis (for writing Excel files) from GitHub via</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"beckerbenj/eatAnalysis"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"beckerbenj/eatFDZ"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="codebook-checks">Codebook checks<a class="anchor" aria-label="anchor" href="#codebook-checks"></a>
+<h2 id="run-all-checks">Run all checks<a class="anchor" aria-label="anchor" href="#run-all-checks"></a>
 </h2>
+<p>Run all checks recommended by FDZ on an example data set (<code>example_data2.sav</code>) within the package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://beckerbenj.github.io/eatFDZ/">eatFDZ</a></span><span class="op">)</span></span>
-<span><span class="co">### Check if all variables in the data set are mentioned in the codebook</span></span>
-<span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/check_docu.html">check_docu</a></span><span class="op">(</span>sav_path <span class="op">=</span> <span class="st">"example_data.sav"</span>, </span>
-<span>           pdf_path <span class="op">=</span> <span class="st">"example_codebook.pdf"</span>, <span class="op">)</span></span>
 <span></span>
-<span><span class="co"># write to Excel</span></span>
-<span><span class="fu">eatAnalysis</span><span class="fu">::</span><span class="fu">write_xlsx</span><span class="op">(</span><span class="va">out</span>, filePath <span class="op">=</span> <span class="st">"codebook_checks.xlsx"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># get data set path</span></span>
+<span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data2.sav"</span>, package <span class="op">=</span> <span class="st">"eatFDZ"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># run all checks</span></span>
+<span><span class="va">check_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/check_all.html">check_all</a></span><span class="op">(</span><span class="va">dataset</span>, missingRange <span class="op">=</span> <span class="op">-</span><span class="fl">50</span><span class="op">:</span><span class="op">-</span><span class="fl">99</span>,</span>
+<span>                       missingRegex <span class="op">=</span> <span class="st">"missing|omitted|not reached|nicht beantwortet|ausgelassen"</span>,</span>
+<span>                       idVar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                       sdcVars <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="data-cleaning-and-anonymization">Data cleaning and anonymization<a class="anchor" aria-label="anchor" href="#data-cleaning-and-anonymization"></a>
+<h2 id="create-a-check-report">Create a check report<a class="anchor" aria-label="anchor" href="#create-a-check-report"></a>
 </h2>
+<p>Write a check report to excel (<code>.xlsx</code>).</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">syntax</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/data_clean.html">data_clean</a></span><span class="op">(</span>fileName <span class="op">=</span> <span class="va">sav_path</span>,</span>
-<span>             saveFolder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, nameListe <span class="op">=</span> <span class="st">"liste2.csv"</span>,</span>
-<span>             nameSyntax <span class="op">=</span> <span class="st">"syntax2.txt"</span>, exclude<span class="op">=</span><span class="va">exclude</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/write_check_report.html">write_check_report</a></span><span class="op">(</span><span class="va">check_report</span>, file_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">
