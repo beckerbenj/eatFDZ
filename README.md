@@ -7,7 +7,8 @@
 
 ## Workflow
 
-An `R` package that automates workflows for the Forschungsdatenzentrum (*FDZ*) at IQB.
+An `R` package that automates workflows for the Forschungsdatenzentrum (*FDZ*) at IQB. 
+This mainly includes automated data checks.
 
 
 ## Installation
@@ -15,27 +16,29 @@ An `R` package that automates workflows for the Forschungsdatenzentrum (*FDZ*) a
 ```R
 # Install eatFDZ from GitHub via
 remotes::install_github("beckerbenj/eatFDZ")
-
-# Install eatAnalysis (for writing Excel files) from GitHub via
-remotes::install_github("beckerbenj/eatAnalysis")
 ```
 
-## Codebook checks
+## Run all checks 
+
+Run all checks recommended by FDZ on an example data set (`example_data2.sav`) within the package.
 
 ```R
 library(eatFDZ)
-### Check if all variables in the data set are mentioned in the codebook
-out <- check_docu(sav_path = "example_data.sav", 
-           pdf_path = "example_codebook.pdf", )
 
-# write to Excel
-eatAnalysis::write_xlsx(out, filePath = "codebook_checks.xlsx", row.names = FALSE)
+# get data set path
+dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
+
+# run all checks
+check_report <- check_all(dataset, missingRange = -50:-99,
+                       missingRegex = "missing|omitted|not reached|nicht beantwortet|ausgelassen",
+                       idVar = NULL,
+                       sdcVars = NULL)
 ```
 
-## Data cleaning and anonymization
+## Create a check report
+
+Write a check report to excel (`.xlsx`).
 
 ```R
-syntax <- data_clean(fileName = sav_path,
-             saveFolder = tempdir(), nameListe = "liste2.csv",
-             nameSyntax = "syntax2.txt", exclude=exclude)
+write_check_report(check_report, file_path = tempfile())
 ```
