@@ -40,5 +40,5 @@ check_report <- check_all(dataset, missingRange = -50:-99,
 Write a check report to excel (`.xlsx`).
 
 ```R
-write_check_report(check_report, file_path = tempfile())
+write_check_report(check_report, file_path = tempfile(fileext = ".xlsx"))
 ```
