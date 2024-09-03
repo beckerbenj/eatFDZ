@@ -1,4 +1,5 @@
-# eatFDZ
+# eatFDZ <a href="https://beckerbenj.github.io/eatFDZ/"><img src="man/figures/logo.svg" align="right" height="139" alt="eatFDZ website" /></a>
+
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/beckerbenj/eatFDZ/workflows/R-CMD-check/badge.svg)](https://github.com/beckerbenj/eatFDZ/actions)
