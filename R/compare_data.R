@@ -10,6 +10,7 @@
 #'@param data2 Data set one, provided as a \code{GADSdat} object.
 #'@param name_data1 In which language should the output be written? Currently only German is supported.
 #'@param name_data2 In which language should the output be written? Currently only German is supported.
+#'@param ID_var Identifier variable in both data sets. Currently of no practical use.
 #'
 #'@examples
 #' # tbd

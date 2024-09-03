@@ -14,6 +14,8 @@ compare_data(data1, data2, name_data1, name_data2, ID_var)
 \item{name_data1}{In which language should the output be written? Currently only German is supported.}
 
 \item{name_data2}{In which language should the output be written? Currently only German is supported.}
+
+\item{ID_var}{Identifier variable in both data sets. Currently of no practical use.}
 }
 \description{
 Compare existing variables and meta data structure between two data sets.
