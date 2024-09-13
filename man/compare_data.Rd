@@ -4,16 +4,16 @@
 \alias{compare_data}
 \title{Compare existing variables and meta data structure between two data sets.}
 \usage{
-compare_data(data1, data2, name_data1, name_data2, ID_var)
+compare_data(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var)
 }
 \arguments{
 \item{data1}{Data set one, provided as a \code{GADSdat} object.}
 
-\item{data2}{Data set one, provided as a \code{GADSdat} object.}
+\item{data2}{Data set two, provided as a \code{GADSdat} object.}
 
-\item{name_data1}{In which language should the output be written? Currently only German is supported.}
+\item{name_data1}{Character vector of length 1. Name of \code{data1}.}
 
-\item{name_data2}{In which language should the output be written? Currently only German is supported.}
+\item{name_data2}{Character vector of length 1. Name of \code{data2}.}
 
 \item{ID_var}{Identifier variable in both data sets. Currently of no practical use.}
 }

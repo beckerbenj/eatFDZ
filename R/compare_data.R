@@ -7,15 +7,15 @@
 #' (variable labels, SPSS format, value labels, missing tags).
 #'
 #'@param data1 Data set one, provided as a \code{GADSdat} object.
-#'@param data2 Data set one, provided as a \code{GADSdat} object.
-#'@param name_data1 In which language should the output be written? Currently only German is supported.
-#'@param name_data2 In which language should the output be written? Currently only German is supported.
+#'@param data2 Data set two, provided as a \code{GADSdat} object.
+#'@param name_data1 Character vector of length 1. Name of \code{data1}.
+#'@param name_data2 Character vector of length 1. Name of \code{data2}.
 #'@param ID_var Identifier variable in both data sets. Currently of no practical use.
 #'
 #'@examples
 #' # tbd
 #'@export
-compare_data <- function(data1, data2, name_data1, name_data2, ID_var) {
+compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var) {
   ## input validation
   # ----------------------------------------------------------
   eatGADS:::check_GADSdat(data1)
