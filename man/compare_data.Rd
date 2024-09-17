@@ -15,7 +15,7 @@ compare_data(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var)
 
 \item{name_data2}{Character vector of length 1. Name of \code{data2}.}
 
-\item{ID_var}{Identifier variable in both data sets. Currently of no practical use.}
+\item{ID_var}{Identifier variable in both data sets.}
 }
 \description{
 Compare existing variables and meta data structure between two data sets.

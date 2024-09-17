@@ -10,7 +10,7 @@
 #'@param data2 Data set two, provided as a \code{GADSdat} object.
 #'@param name_data1 Character vector of length 1. Name of \code{data1}.
 #'@param name_data2 Character vector of length 1. Name of \code{data2}.
-#'@param ID_var Identifier variable in both data sets. Currently of no practical use.
+#'@param ID_var Identifier variable in both data sets.
 #'
 #'@examples
 #' # tbd
@@ -32,6 +32,7 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
   # ----------------------------------------------------------
   eatGADS_comparison <- eatGADS::equalGADS(data1, data2, id = ID_var)
   ## equalGADS has some overhead, especially for larger data sets. Could be optimized in the future
+  ## also: for compare_data ID_var should be omitted
 
   ## list missing variables in both data sets
   # ----------------------------------------------------------
