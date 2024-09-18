@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_pisa.R
 \name{download_pisa}
 \alias{download_pisa}
-\title{Download a PISA public use file.}
+\title{Download an empty PISA public use file.}
 \usage{
 download_pisa(
   year = c("2018", "2015", "2012", "2009", "2006", "2003", "2000"),
@@ -15,11 +15,12 @@ download_pisa(
 \item{data_type}{Type of the PISA data.}
 }
 \description{
-Download a PISA public use file from the OECD homepage.
+Download an empty PISA public use file (containing only the first row) from the OECD homepage.
 }
 \details{
 The function downloads a zip file from the OECD homepage into a temporary directory,
 unzips it and imports the data with only a single data row via \code{haven}.
+For downloading full PISA data sets see the \href{https://cran.r-project.org/package=EdSurvey}{EdSurvey} package.
 }
 \examples{
 # tbd

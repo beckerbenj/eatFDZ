@@ -1,9 +1,10 @@
-#' Download a PISA public use file.
+#' Download an empty PISA public use file.
 #'
-#' Download a PISA public use file from the OECD homepage.
+#' Download an empty PISA public use file (containing only the first row) from the OECD homepage.
 #'
 #' The function downloads a zip file from the OECD homepage into a temporary directory,
 #' unzips it and imports the data with only a single data row via \code{haven}.
+#' For downloading full PISA data sets see the \href{https://cran.r-project.org/package=EdSurvey}{EdSurvey} package.
 #'
 #'@param year Year of the PISA data.
 #'@param data_type Type of the PISA data.
@@ -23,7 +24,7 @@ download_pisa <- function(year = c("2018", "2015", "2012", "2009", "2006", "2003
     data_subdir <- "STU/CY07_MSU_STU_QQQ.sav"
   } else if(year == "2015" && data_type == "stud_quest") {
     zip_path <- "https://webfs.oecd.org/pisa/PUF_SPSS_COMBINED_CMB_STU_QQQ.zip"
-    data_subdir <- "CY6_MS_CMB_STU_COG.sav"
+    data_subdir <- "CY6_MS_CMB_STU_QQQ.sav"
   } else {
     stop("The corresponding download has not been implemented yet.")
   }
