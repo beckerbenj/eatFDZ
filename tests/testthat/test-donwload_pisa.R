@@ -1,4 +1,8 @@
 
+test_that("Errors", {
+  expect_error(download_pisa(year = "2000", data_type = "stud_quest"),
+              "The corresponding download has not been implemented yet.")
+})
 
 
 test_that("download pisa 2018 student questionaire data", {

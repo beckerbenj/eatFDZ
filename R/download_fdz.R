@@ -1,15 +1,18 @@
-#' Download an empty FDZ file.
+#' Download and import an empty FDZ file.
 #'
-#' Download an empty data set from the FDZ homepage.
+#' Download and import an empty data set from the \href{https://www.iqb.hu-berlin.de/fdz/studies/}{FDZ homepage}.
 #'
-#' The function downloads a \code{Leerdatensatz} from the FDZ homepage.
+#' The function downloads and imports an empty data set (\code{Leerdatensatz}) from the FDZ homepage.
+#' These data sets contain zero rows.
+#' The data is imported via \code{\link[eatGADS]{import_spss}} as a \code{GADSdat} object.
 #'
 #'@param study Name of the study
 #'@param year Year of the assessment (only needed for longitudinal assessments).
 #'@param data_type Type of the data.
 #'
 #'@examples
-#' # tbd
+#' fdz_pisa <- download_fdz(study = "PISA", year = "2015",
+#'                         data_type = "stud_quest")
 #'@export
 download_fdz <- function(study = c("PISA"),
                           year = c("2018", "2015", "2012", "2009", "2006", "2003", "2000"),

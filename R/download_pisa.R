@@ -1,16 +1,20 @@
-#' Download an empty PISA public use file.
+#' Download and import an empty PISA public use file.
 #'
-#' Download an empty PISA public use file (containing only the first row) from the OECD homepage.
+#' Download and import an empty PISA public use file (containing only the first data row) from the
+#' \href{https://www.oecd.org/en/about/programmes/pisa/pisa-data.html}{OECD homepage}.
 #'
 #' The function downloads a zip file from the OECD homepage into a temporary directory,
-#' unzips it and imports the data with only a single data row via \code{haven}.
+#' unzips it and imports the data with only a single data row via \code{\link[haven]{read_sav}}.
 #' For downloading full PISA data sets see the \href{https://cran.r-project.org/package=EdSurvey}{EdSurvey} package.
+#' The data is imported as a \code{GADSdat} object.
 #'
-#'@param year Year of the PISA data.
-#'@param data_type Type of the PISA data.
+#'@param year Year of the PISA cycle which the data is part of.
+#'@param data_type Type of the PISA data. Currently supported is student background data (\code{"stud_quest"}).
 #'
 #'@examples
-#' # tbd
+#' \dontrun{
+#' pisa <- download_pisa(year = "2015", data_type = "stud_quest")
+#' }
 #'@export
 download_pisa <- function(year = c("2018", "2015", "2012", "2009", "2006", "2003", "2000"),
                           data_type = c("stud_quest")) {
@@ -38,12 +42,10 @@ download_pisa <- function(year = c("2018", "2015", "2012", "2009", "2006", "2003
 
   ### download data to a folder with writing permissions
   download.file(url = zip_path,
-                destfile = file.path(temp_folder, "pisa2018.zip"))
-  # use progress bar?
-  #http://r-lib.github.io/progress/
+                destfile = file.path(temp_folder, "pisa.zip"))
 
   ### unzip data to temporary folder
-  zip::unzip(zipfile = file.path(temp_folder, "pisa2018.zip"), files= data_subdir, exdir = temp_folder)
+  zip::unzip(zipfile = file.path(temp_folder, "pisa.zip"), files= data_subdir, exdir = temp_folder)
 
   ### read data
   haven_dat <- haven::read_sav(file.path (temp_folder, data_subdir), n_max = 1, user_na = TRUE)

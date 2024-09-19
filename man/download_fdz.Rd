@@ -2,7 +2,7 @@
 % Please edit documentation in R/download_fdz.R
 \name{download_fdz}
 \alias{download_fdz}
-\title{Download an empty FDZ file.}
+\title{Download and import an empty FDZ file.}
 \usage{
 download_fdz(
   study = c("PISA"),
@@ -18,11 +18,14 @@ download_fdz(
 \item{data_type}{Type of the data.}
 }
 \description{
-Download an empty data set from the FDZ homepage.
+Download and import an empty data set from the \href{https://www.iqb.hu-berlin.de/fdz/studies/}{FDZ homepage}.
 }
 \details{
-The function downloads a \code{Leerdatensatz} from the FDZ homepage.
+The function downloads and imports an empty data set (\code{Leerdatensatz}) from the FDZ homepage.
+These data sets contain zero rows.
+The data is imported via \code{\link[eatGADS]{import_spss}} as a \code{GADSdat} object.
 }
 \examples{
-# tbd
+fdz_pisa <- download_fdz(study = "PISA", year = "2015",
+                        data_type = "stud_quest")
 }
