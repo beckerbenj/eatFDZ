@@ -1,4 +1,4 @@
-# eatFDZ <a href="https://beckerbenj.github.io/eatFDZ/"><img src="man/figures/logo.svg" align="right" height="139" alt="eatFDZ website" /></a>
+# eatFDZ <a href="https://beckerbenj.github.io/eatFDZ/"><img src="man/figures/logo.png" align="right" height="120" alt="eatFDZ website" /></a>
 
 
 <!-- badges: start -->
