@@ -41,7 +41,7 @@ download_pisa <- function(year = c("2018", "2015", "2012", "2009", "2006", "2003
   on.exit(options(timeout = old_timeout))
 
   ### download data to a folder with writing permissions
-  download.file(url = zip_path,
+  utils::download.file(url = zip_path,
                 destfile = file.path(temp_folder, "pisa.zip"))
 
   ### unzip data to temporary folder
