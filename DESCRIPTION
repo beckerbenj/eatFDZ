@@ -1,7 +1,7 @@
 Package: eatFDZ
 Type: Package
 Title: Data checking and validation
-Version: 0.7.0
+Version: 0.7.0.9000
 Authors@R: c(
     person("Benjamin", "Becker", email = "b.becker@iqb.hu-berlin.de", role = c("aut", "cre")),
     person("Annegret", "Rucker", role = c("aut", "ctb")),
