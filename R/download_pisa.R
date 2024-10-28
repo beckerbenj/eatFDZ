@@ -17,18 +17,31 @@
 #' }
 #'@export
 download_pisa <- function(year = c("2018", "2015", "2012", "2009", "2006", "2003", "2000"),
-                          data_type = c("stud_quest")) {
+                          data_type = c("stud_quest", "school_quest", "teach_quest", "timing")) {
   ## input validation
   year <- match.arg(year)
   data_type <- match.arg(data_type)
 
   ## choose path
-  if(year == "2018" && data_type == "stud_quest") {
-    zip_path <- "https://webfs.oecd.org/pisa2018/SPSS_STU_QQQ.zip"
-    data_subdir <- "STU/CY07_MSU_STU_QQQ.sav"
-  } else if(year == "2015" && data_type == "stud_quest") {
-    zip_path <- "https://webfs.oecd.org/pisa/PUF_SPSS_COMBINED_CMB_STU_QQQ.zip"
-    data_subdir <- "CY6_MS_CMB_STU_QQQ.sav"
+  if(year == "2018"){
+    if(data_type == "stud_quest") {
+      zip_path <- "https://www.oecd.org/content/dam/oecd/en/data/datasets/pisa/pisa-2018-datasets/ssas-sps-data-files/SPSS_STU_QQQ.zip"
+      data_subdir <- "STU/CY07_MSU_STU_QQQ.sav"
+    } else if(data_type == "school_quest") {
+      zip_path <- "https://www.oecd.org/content/dam/oecd/en/data/datasets/pisa/pisa-2018-datasets/ssas-sps-data-files/SPSS_SCH_QQQ.zip"
+      data_subdir <- "SCH/CY07_MSU_SCH_QQQ.sav"
+    } else if(data_type == "teach_quest") {
+      zip_path <- "https://www.oecd.org/content/dam/oecd/en/data/datasets/pisa/pisa-2018-datasets/ssas-sps-data-files/SPSS_TCH_QQQ.zip"
+      data_subdir <- "TCH/CY07_MSU_TCH_QQQ.sav"
+    } else if(data_type == "timing") {
+      zip_path <- "https://www.oecd.org/content/dam/oecd/en/data/datasets/pisa/pisa-2018-datasets/ssas-sps-data-files/SPSS_STU_TIM.zip"
+      data_subdir <- "TIM/CY07_MSU_STU_TIM.sav"
+    }
+  } else if(year == "2015"){
+    if(data_type == "stud_quest") {
+      zip_path <- "https://webfs.oecd.org/pisa/PUF_SPSS_COMBINED_CMB_STU_QQQ.zip"
+      data_subdir <- "CY6_MS_CMB_STU_QQQ.sav"
+    }
   } else {
     stop("The corresponding download has not been implemented yet.")
   }
