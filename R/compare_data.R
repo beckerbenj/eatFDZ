@@ -80,6 +80,7 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
     out$valDiff
   })
   names(out_list_val) <- eatGADS_comparison$meta_data_differences
+  out_list_val[sapply(out_list_val, identical, y = "all.equal")] <- NULL
 
   #guarantee that output data.frame has always the same structure
   all_nrows <- sapply(out_list_val, nrow)
@@ -93,7 +94,6 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
                                     other_GADSdat_missings = dummy_vec2)
 
   if(length(out_list_val) > 0) {
-    out_list_val[sapply(out_list_val, identical, y = "all.equal")] <- NULL
     out_df_val <- eatTools::do_call_rbind_withName(out_list_val, colName = "varName")
 
     for(col_nam in names(out_df_val)) {
