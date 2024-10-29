@@ -23,3 +23,19 @@ test_that("Compare identical data", {
   outp <- compare_data(data1 = data1, data2 = data1, name_data1 = "dataset1", name_data2 = "dataset2", ID_var = "ID_var")
   expect_equal(length(outp), 4)
 })
+
+test_that("Compare data with only variable level differences", {
+  data1b <- eatGADS::changeVarLabels(data1, "var1", varLabel = "Var 1")
+  outp <- compare_data(data1 = data1, data2 = data1b, name_data1 = "dataset1", name_data2 = "dataset2", ID_var = "ID_var")
+  expect_equal(length(outp), 4)
+  expect_equal(nrow(outp$differences_variable_labels), 1)
+})
+
+test_that("Compare data with only value level differences", {
+  data1b <- eatGADS::changeValLabels(data1, "var1", value = 1, valLabel = "value 1b")
+  outp <- compare_data(data1 = data1, data2 = data1b, name_data1 = "dataset1", name_data2 = "dataset2", ID_var = "ID_var")
+  expect_equal(length(outp), 4)
+  ## this is currently due to a bug in eatGADS; should be fixed soon
+  expect_equal(nrow(outp$differences_value_labels), 4)
+})
+

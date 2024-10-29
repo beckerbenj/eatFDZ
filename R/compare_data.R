@@ -49,6 +49,10 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
   })
   names(out_list_var) <- eatGADS_comparison$meta_data_differences
 
+  if(length(out_list_var) > 0) {
+    out_list_var[sapply(out_list_var, identical, y = "all.equal")] <- NULL
+  }
+
   #guarantee that output data.frame has always the same structure
   dummy_vec <- rep(NA_character_, length(out_list_var))
   complete_out_df_var <- data.frame(varName = dummy_vec,
@@ -58,7 +62,6 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
                                     other_GADSdat_format = dummy_vec)
   #browser()
   if(length(out_list_var) > 0) {
-    out_list_var[sapply(out_list_var, identical, y = "all.equal")] <- NULL
     out_df_var <- eatTools::do_call_rbind_withName(out_list_var, colName = "varName")
 
     ## hotfix because of bug in insepctMetaDifferences (see also https://github.com/beckerbenj/eatGADS/issues/81)
@@ -80,7 +83,10 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
     out$valDiff
   })
   names(out_list_val) <- eatGADS_comparison$meta_data_differences
-  out_list_val[sapply(out_list_val, identical, y = "all.equal")] <- NULL
+
+  if(length(out_list_val) > 0) {
+    out_list_val[sapply(out_list_val, identical, y = "all.equal")] <- NULL
+  }
 
   #guarantee that output data.frame has always the same structure
   all_nrows <- sapply(out_list_val, nrow)
