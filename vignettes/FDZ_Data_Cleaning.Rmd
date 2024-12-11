@@ -61,7 +61,7 @@ The non-ASCII character in the ID name has been changed to `ae`.
 A crucial meta data property for SPSS data are **missing tags**.
 Sometimes not all missing values are correctly tagged as missing. Via `eatGADS`, missing tags can be corrected semi-automatically. This can either be done based on wordings of existing value labels (`checkMissings()`) or based on a value range of existing value labels (`checkMissingsByValues()`).
 
-`checkMissings()` tests whether a set of specified regular expressions occurs in the value labels and compares the corresponding missings tags. For instance the variable `books` contains a value label `omitted`, which has not been tagged as missing.
+`checkMissings()` tests whether a set of specified regular expressions occurs in the value labels and compares the corresponding missing tags. For instance the variable `books` contains a value label `omitted`, which has not been tagged as missing.
 ```{r checkMissings}
 extractMeta(dat, vars = c("books")) # usually, we wouldn't know yet that this variable contains these value labels. This is for demonstration purposes to see the before and after effect of the function
 missinglabels <- paste("missing", "unknown",
@@ -81,7 +81,7 @@ extractMeta(dat2, vars = c("school"))
 The previous function had already tagged two of the missings correctly, but the value label `-98` with the value label `unclear answer` was not used. Now, it is contained in the specified range and therefore tagged as a missing.
 
 ## Defining missing values by hand
-At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marks them as `miss` under `missings.`
+At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marks them as `miss` under `missings.` This is also possible for multiple variables at the same time.
 ```{r changeMissings}
 extractMeta(dat2, vars = c("info"))
 dat3 <- changeMissings(dat2, varName = "info", value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
@@ -145,7 +145,7 @@ dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var
 ```
 
 
-## Emptying variables already in SUF_Remote
+## Emptying variables
 Variables that may not even be offered via a remote computing system due to strong data protection concerns are emptied for all data sets. `emptyTheseVariables()` empties the listed variables and adds an explanation to the variable label on why the information was removed.
 ```{r emptyTheseVariables}
 extractMeta(dat4, vars = c("info", "ID_name"))
@@ -176,13 +176,12 @@ extractMeta(dat7, vars = c("books"))
 ```
 
 
-## Anonymization: Forming grouping variable
+## Forming grouping variable
 Small case numbers pose a risk of anonymity. For variables with a number of cases <6, which are not ratings, feelings or opinions and that contain sensitive information about individuals, it is advisable to combine small numbers of cases into meaningful groups. To do so, `cloneVariable()` creates a new _FDZ variable by cloning the variable to be grouped. For `varName` the original variable name is entered, for `new_varName` the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
 `recodeGADS()` replaces the old values (`oldValues`) by new ones (`newValues`) and `changeValLabels()` changes the value labels of the new groupings.
 ```{r recodeGADS}
 extractMeta(dat7, vars = c("age"))
 dat8 <- cloneVariable(dat7, varName = "age", new_varName = "age_FDZ", label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
-
 dat8 <- recodeGADS(dat8, varName = "age_FDZ", oldValues = c(13, 14, 15, 17),
                   newValues = c(13, 13, 15, 15))
 dat8 <- changeValLabels(dat8, varName = "age_FDZ", value = c(13, 15), valLabel = c("13-14", "15-17"))
@@ -228,8 +227,8 @@ dat11 <- relocateVariable(dat11, var = "age_FDZ", after = "age")
 ```
 
 
-## Exporting a data set
-Once the data record has been prepared, it can be saved. The export functions `write_spss()` and `write_stata()` are available for this purpose. The file paths must be adapted in each case.
+## Exporting the data
+Once the data record has been prepared, it can be saved. The export functions `write_spss()` and `write_stata()` are offered for this purpose. The file paths must be adapted in each case.
 ```{r write, eval=FALSE}
 write_spss(dat11, filePath = "filePath")
 write_stata(dat11, filePath = "filePath2")
