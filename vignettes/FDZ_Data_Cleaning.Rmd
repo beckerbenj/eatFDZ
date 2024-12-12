@@ -13,7 +13,7 @@ For secondary usage, data is expected to be of high quality, traceable, comprehe
 For this purpose, operations such as recoding of identifier variables, emptying variables, changing labels, creating grouping variables, and many more are performed and therefore discussed in this vignette. Overall, the following aspects should be adressed when cleaning data:
 
 - Removing all non-ASCII characters
-- Appropriate missing tags
+- Setting appropriate missing tags
 - Adding non-informative identifier variables
 - Converting strings to labeled numeric variables
 - Anonymization of variables
@@ -176,7 +176,7 @@ extractMeta(dat7, vars = c("books"))
 ```
 
 
-## Forming grouping variable
+## Forming grouping variables
 Small case numbers pose a risk of anonymity. For variables with a number of cases <6, which are not ratings, feelings or opinions and that contain sensitive information about individuals, it is advisable to combine small numbers of cases into meaningful groups. To do so, `cloneVariable()` creates a new _FDZ variable by cloning the variable to be grouped. For `varName` the original variable name is entered, for `new_varName` the variable name including the appendix "_FDZ". The variable label is automatically adjusted with the option `label_suffix`.
 `recodeGADS()` replaces the old values (`oldValues`) by new ones (`newValues`) and `changeValLabels()` changes the value labels of the new groupings.
 ```{r recodeGADS}
@@ -228,8 +228,8 @@ dat11 <- relocateVariable(dat11, var = "age_FDZ", after = "age")
 
 
 ## Exporting the data
-Once the data record has been prepared, it can be saved. The export functions `write_spss()` and `write_stata()` are offered for this purpose. The file paths must be adapted in each case.
+Once the data set has been cleaned, it can be saved. The export functions `write_spss()` and `write_stata()` are offered for this purpose. The file paths must be adapted in each case.
 ```{r write, eval=FALSE}
-write_spss(dat11, filePath = "filePath")
-write_stata(dat11, filePath = "filePath2")
+write_spss(dat11, filePath = "filePath.sav")
+write_stata(dat11, filePath = "filePath.dta")
 ```
