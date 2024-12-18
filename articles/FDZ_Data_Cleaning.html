@@ -8,8 +8,8 @@
 <title>FDZ Data Cleaning • eatFDZ</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="FDZ Data Cleaning">
 </head>
 <body>
@@ -77,9 +77,9 @@ are performed and therefore discussed in this vignette. Overall, the
 following aspects should be adressed when cleaning data:</p>
 <ul>
 <li>Removing all non-ASCII characters</li>
-<li>Appropriate missing tags</li>
-<li>Non-informative identifier variables</li>
-<li>Transforming strings to labeled numeric variables</li>
+<li>Setting appropriate missing tags</li>
+<li>Adding non-informative identifier variables</li>
+<li>Converting strings to labeled numeric variables</li>
 <li>Anonymization of variables</li>
 <li>Adding variable and value labels</li>
 </ul>
@@ -108,7 +108,7 @@ intentionally flawed and messy. The example data set is part of the
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/import_spss.html" class="external-link">import_spss</a></span><span class="op">(</span><span class="va">sav_path</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">dat</span><span class="op">)</span> <span class="co"># for a small overview in the variables of the data set</span></span></code></pre></div>
-<pre><code><span><span class="co">## 'data.frame':    10 obs. of  14 variables:</span></span>
+<pre><code><span><span class="co">## 'data.frame':    10 obs. of  15 variables:</span></span>
 <span><span class="co">##  $ ID        : chr  "BY1342" "RP7763" "ST1213" "NW5763" ...</span></span>
 <span><span class="co">##  $ ID_name   : chr  "Finn" "Lukas" "Malia" "Lennard" ...</span></span>
 <span><span class="co">##  $ info      : chr  "Father Markus helps with homework" "family always goes to Cortina ice cream parlor after school" "-97" "big sister is student representative" ...</span></span>
@@ -122,7 +122,8 @@ intentionally flawed and messy. The example data set is part of the
 <span><span class="co">##  $ school    : num  4 -99 -98 3 -99 2 3 -97 4 4</span></span>
 <span><span class="co">##  $ grade_math: num  1 3 4 2 6 2 3 5 4 1</span></span>
 <span><span class="co">##  $ grade_germ: num  2 3 2 6 5 4 2 1 1 2</span></span>
-<span><span class="co">##  $ grade_eng : num  3 4 1 3 2 3 5 2 1 6</span></span></code></pre>
+<span><span class="co">##  $ grade_eng : num  3 4 1 3 2 3 5 2 1 6</span></span>
+<span><span class="co">##  $ career    : chr  "scientist" "sport psychologist" "-99" "graphic designer" ...</span></span></code></pre>
 <p>The data set is loaded via the <code><a href="https://beckerbenj.github.io/eatGADS/reference/import_spss.html" class="external-link">import_spss()</a></code> command.
 The data set contains 14 variables with 10 observations, including
 demographic variables such as age and sex of the students, their family
@@ -141,18 +142,18 @@ processing the data. <code><a href="https://beckerbenj.github.io/eatGADS/referen
 characters from a character vector or a <code>GADSdat</code> object.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span><span class="op">$</span><span class="va">dat</span><span class="op">$</span><span class="va">ID_name</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1] "Finn"    "Lukas"   "Malia"   "Lennard" "Änne"    "Gerrit"  "Emil"   </span></span>
+<pre><code><span><span class="co">##  [1] "Finn"    "Lukas"   "Malia"   "Lennard" "Jule"    "Gerrit"  "Emil"   </span></span>
 <span><span class="co">##  [8] "Mila"    "Clara"   "Malek"</span></span></code></pre>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/fixEncoding.html" class="external-link">fixEncoding</a></span><span class="op">(</span><span class="va">dat</span>, input <span class="op">=</span> <span class="st">"other"</span><span class="op">)</span></span>
 <span><span class="va">dat</span><span class="op">$</span><span class="va">dat</span><span class="op">$</span><span class="va">ID_name</span></span></code></pre></div>
-<pre><code><span><span class="co">##  [1] "Finn"    "Lukas"   "Malia"   "Lennard" "Aenne"   "Gerrit"  "Emil"   </span></span>
+<pre><code><span><span class="co">##  [1] "Finn"    "Lukas"   "Malia"   "Lennard" "Jule"    "Gerrit"  "Emil"   </span></span>
 <span><span class="co">##  [8] "Mila"    "Clara"   "Malek"</span></span></code></pre>
 <p>The non-ASCII character in the ID name has been changed to
 <code>ae</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="define-missings-semi-automatically">Define missings semi-automatically<a class="anchor" aria-label="anchor" href="#define-missings-semi-automatically"></a>
+<h2 id="defining-missings-semi-automatically">Defining missings semi-automatically<a class="anchor" aria-label="anchor" href="#defining-missings-semi-automatically"></a>
 </h2>
 <p>A crucial meta data property for SPSS data are <strong>missing
 tags</strong>. Sometimes not all missing values are correctly tagged as
@@ -163,7 +164,7 @@ range of existing value labels
 (<code><a href="https://beckerbenj.github.io/eatGADS/reference/checkMissings.html" class="external-link">checkMissingsByValues()</a></code>).</p>
 <p><code><a href="https://beckerbenj.github.io/eatGADS/reference/checkMissings.html" class="external-link">checkMissings()</a></code> tests whether a set of specified regular
 expressions occurs in the value labels and compares the corresponding
-missings tags. For instance the variable <code>books</code> contains a
+missing tags. For instance the variable <code>books</code> contains a
 value label <code>omitted</code>, which has not been tagged as
 missing.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -263,28 +264,29 @@ correctly, but the value label <code>-98</code> with the value label
 specified range and therefore tagged as a missing.</p>
 </div>
 <div class="section level2">
-<h2 id="define-missing-values-by-hand">Define missing values by hand<a class="anchor" aria-label="anchor" href="#define-missing-values-by-hand"></a>
+<h2 id="defining-missing-values-by-hand">Defining missing values by hand<a class="anchor" aria-label="anchor" href="#defining-missing-values-by-hand"></a>
 </h2>
 <p>At times, only individual missings need to be tagged.
 <code><a href="https://beckerbenj.github.io/eatGADS/reference/changeMissings.html" class="external-link">changeMissings()</a></code> tags missing values as missings by
 specifying them under <code>value</code> and marks them as
-<code>miss</code> under <code>missings.</code></p>
+<code>miss</code> under <code>missings.</code> This is also possible for
+multiple variables at the same time.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat2</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   varName      varLabel format display_width labeled value valLabel missings</span></span>
-<span><span class="co">## 3    info General notes     A8            47      no    NA     &lt;NA&gt;     &lt;NA&gt;</span></span></code></pre>
+<span><span class="co">## 3    info General notes     A8            NA      no    NA     &lt;NA&gt;     &lt;NA&gt;</span></span></code></pre>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/changeMissings.html" class="external-link">changeMissings</a></span><span class="op">(</span><span class="va">dat2</span>, varName <span class="op">=</span> <span class="st">"info"</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"-97"</span>, <span class="st">"-98"</span>, <span class="st">"-99"</span><span class="op">)</span>, missings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"miss"</span>, <span class="st">"miss"</span>, <span class="st">"miss"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat3</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   varName      varLabel format display_width labeled value valLabel missings</span></span>
-<span><span class="co">## 3    info General notes     A8            47     yes   -99     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 4    info General notes     A8            47     yes   -98     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 5    info General notes     A8            47     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
+<span><span class="co">## 3    info General notes     A8            NA     yes   -99     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 4    info General notes     A8            NA     yes   -98     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 5    info General notes     A8            NA     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
 <p>The values <code>-97</code>, <code>-98</code> and <code>-99</code>
 are now tagged as <code>miss</code>.</p>
 </div>
 <div class="section level2">
-<h2 id="recode-ids">Recode IDs<a class="anchor" aria-label="anchor" href="#recode-ids"></a>
+<h2 id="recoding-ids">Recoding IDs<a class="anchor" aria-label="anchor" href="#recoding-ids"></a>
 </h2>
 <p>ID variables are recoded so no hidden identifiers such as state,
 school or even name codes allow conclusions to be drawn about individual
@@ -298,7 +300,7 @@ a path for the template is created.</p>
 the first subset) or applying an existing template (option 2 - for the
 following subsets).</p>
 <div class="section level3">
-<h3 id="option-1-ids-recoded-with-creation-of-a-template-as--csv">Option 1: IDs recoded with creation of a template as .csv<a class="anchor" aria-label="anchor" href="#option-1-ids-recoded-with-creation-of-a-template-as--csv"></a>
+<h3 id="option-1-recoding-ids-with-creation-of-a-template-as--csv">Option 1: Recoding IDs with creation of a template as .csv<a class="anchor" aria-label="anchor" href="#option-1-recoding-ids-with-creation-of-a-template-as--csv"></a>
 </h3>
 <p><code><a href="https://beckerbenj.github.io/eatGADS/reference/autoRecode.html" class="external-link">autoRecode()</a></code> creates a recoding template for the
 variable <code>ID</code>, saved as a .csv file, and in the course of
@@ -308,8 +310,8 @@ explanatory label suffix.</p>
 <code class="sourceCode R"><span><span class="va">dat3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/autoRecode.html" class="external-link">autoRecode</a></span><span class="op">(</span><span class="va">dat3</span>, var <span class="op">=</span> <span class="st">"ID"</span>, var_suffix <span class="op">=</span> <span class="st">"_FDZ"</span>, csv_path <span class="op">=</span> <span class="va">ID_recode_template</span>, label_suffix <span class="op">=</span> <span class="st">" (recoded by FDZ)"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="option-2-ids-recoded-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-">Option 2: IDs recoded with application of a template (e.g. created
-by a previously prepared, different data set).<a class="anchor" aria-label="anchor" href="#option-2-ids-recoded-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-"></a>
+<h3 id="option-2-recoding-ids-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-">Option 2: Recoding IDs with application of a template (e.g. created
+by a previously prepared, different data set).<a class="anchor" aria-label="anchor" href="#option-2-recoding-ids-with-application-of-a-template-e-g--created-by-a-previously-prepared-different-data-set-"></a>
 </h3>
 <p>Already existing templates can be used for following subsets.
 <code><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv()</a></code> imports the template, which can be applied with
@@ -325,7 +327,7 @@ this case, the old ID variable is deleted.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="convert-string-variables-to-numeric-variables">Convert string variables to numeric variables<a class="anchor" aria-label="anchor" href="#convert-string-variables-to-numeric-variables"></a>
+<h2 id="converting-string-variables-to-numeric-variables">Converting string variables to numeric variables<a class="anchor" aria-label="anchor" href="#converting-string-variables-to-numeric-variables"></a>
 </h2>
 <p>For (semi)open variables there are two procedures. If it is possible
 (e.g., for a small data set) to go through all responses to check
@@ -340,18 +342,19 @@ first.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/namesGADS.html" class="external-link">namesGADS</a></span><span class="op">(</span><span class="va">dat3</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">nam</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>varName <span class="op">=</span> <span class="va">nam</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">dat3</span><span class="op">$</span><span class="va">dat</span><span class="op">[[</span><span class="va">nam</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">all_types</span><span class="op">[</span><span class="va">all_types</span><span class="op">$</span><span class="va">type</span> <span class="op">==</span> <span class="st">"character"</span>, <span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">##   varName      type</span></span>
-<span><span class="co">## 1      ID character</span></span>
-<span><span class="co">## 2 ID_name character</span></span>
-<span><span class="co">## 3    info character</span></span>
-<span><span class="co">## 5 subjfav character</span></span>
-<span><span class="co">## 9   birth character</span></span></code></pre>
+<pre><code><span><span class="co">##    varName      type</span></span>
+<span><span class="co">## 1       ID character</span></span>
+<span><span class="co">## 2  ID_name character</span></span>
+<span><span class="co">## 3     info character</span></span>
+<span><span class="co">## 5  subjfav character</span></span>
+<span><span class="co">## 9    birth character</span></span>
+<span><span class="co">## 15  career character</span></span></code></pre>
 <p>In this case the variables <code>ID_name</code>, <code>info</code>,
 <code>subjfav</code> and <code>birth</code> were recognized as string
 variables. In the next step they are converted.</p>
 <div class="section level3">
-<h3 id="option-1-convert-all-string-variables-automatically-overwrite-variables">Option 1: Convert all string variables automatically (overwrite
-variables)<a class="anchor" aria-label="anchor" href="#option-1-convert-all-string-variables-automatically-overwrite-variables"></a>
+<h3 id="option-1-converting-all-string-variables-automatically-overwrite-variables">Option 1: Converting all string variables automatically (overwrite
+variables)<a class="anchor" aria-label="anchor" href="#option-1-converting-all-string-variables-automatically-overwrite-variables"></a>
 </h3>
 <p><code><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html" class="external-link">multiChar2fac()</a></code> converts the string variables identified
 in advance into numeric variables using a for loop.</p>
@@ -362,7 +365,7 @@ in advance into numeric variables using a for loop.</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="option-2-convert-string-variable-individually">Option 2: Convert string variable individually<a class="anchor" aria-label="anchor" href="#option-2-convert-string-variable-individually"></a>
+<h3 id="option-2-converting-string-variable-individually">Option 2: Converting string variable individually<a class="anchor" aria-label="anchor" href="#option-2-converting-string-variable-individually"></a>
 </h3>
 <p><code><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html" class="external-link">multiChar2fac()</a></code> converts the string variables named in
 <code>vars</code> individually into numeric variables. If the option
@@ -376,7 +379,7 @@ variable is overwritten.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="empty-variables-already-in-iza">Empty variables already in IZA<a class="anchor" aria-label="anchor" href="#empty-variables-already-in-iza"></a>
+<h2 id="emptying-variables">Emptying variables<a class="anchor" aria-label="anchor" href="#emptying-variables"></a>
 </h2>
 <p>Variables that may not even be offered via a remote computing system
 due to strong data protection concerns are emptied for all data sets.
@@ -387,9 +390,9 @@ removed.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat4</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"ID_name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##   varName      varLabel format display_width labeled value valLabel missings</span></span>
 <span><span class="co">## 2 ID_name           XXX     A8            NA      no    NA     &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">## 3    info General notes     A8            47     yes   -99     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 4    info General notes     A8            47     yes   -98     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 5    info General notes     A8            47     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
+<span><span class="co">## 3    info General notes     A8            NA     yes   -99     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 4    info General notes     A8            NA     yes   -98     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 5    info General notes     A8            NA     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat4_empty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>,</span>
 <span>                <span class="st">"ID_name"</span><span class="op">)</span></span>
@@ -404,16 +407,16 @@ removed.</p>
 <span><span class="co">## 5    info General notes  (Zur Anonymisierung geleert (FDZ))     A8</span></span>
 <span><span class="co">##   display_width labeled value valLabel missings</span></span>
 <span><span class="co">## 2            NA      no    NA     &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">## 3            47     yes   -99     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 4            47     yes   -98     &lt;NA&gt;     miss</span></span>
-<span><span class="co">## 5            47     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
+<span><span class="co">## 3            NA     yes   -99     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 4            NA     yes   -98     &lt;NA&gt;     miss</span></span>
+<span><span class="co">## 5            NA     yes   -97     &lt;NA&gt;     miss</span></span></code></pre>
 <p><code>dat4</code> corresponds to the data set, <code>vars</code>
 lists the variables to be emptied and <code>label_suffix</code>
 automatically adds the explanation to the variable label indicating that
 the data has been emptied for anonymization reasons.</p>
 </div>
 <div class="section level2">
-<h2 id="change-variable-and-value-labels">Change variable and value labels<a class="anchor" aria-label="anchor" href="#change-variable-and-value-labels"></a>
+<h2 id="changing-variable-and-value-labels">Changing variable and value labels<a class="anchor" aria-label="anchor" href="#changing-variable-and-value-labels"></a>
 </h2>
 <p>Variable and value labels help us with the traceability and
 comprehensibility of a data set. <code>ChangeVarLabels()</code> selects
@@ -428,83 +431,83 @@ created with <code>valLabel</code>.</p>
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat5</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"school"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    varName varLabel format display_width labeled value                 valLabel</span></span>
-<span><span class="co">## 30  school      XXX   F8.2            NA     yes   -99                  omitted</span></span>
-<span><span class="co">## 31  school      XXX   F8.2            NA     yes   -98           unclear answer</span></span>
-<span><span class="co">## 32  school      XXX   F8.2            NA     yes   -97                  unknown</span></span>
-<span><span class="co">## 33  school      XXX   F8.2            NA     yes     1              Hauptschule</span></span>
-<span><span class="co">## 34  school      XXX   F8.2            NA     yes     2               Realschule</span></span>
-<span><span class="co">## 35  school      XXX   F8.2            NA     yes     3 Integrierte Gesamtschule</span></span>
-<span><span class="co">## 36  school      XXX   F8.2            NA     yes     4                Gymnasium</span></span>
+<span><span class="co">## 21  school      XXX   F8.2            NA     yes   -99                  omitted</span></span>
+<span><span class="co">## 22  school      XXX   F8.2            NA     yes   -98           unclear answer</span></span>
+<span><span class="co">## 23  school      XXX   F8.2            NA     yes   -97                  unknown</span></span>
+<span><span class="co">## 24  school      XXX   F8.2            NA     yes     1              Hauptschule</span></span>
+<span><span class="co">## 25  school      XXX   F8.2            NA     yes     2               Realschule</span></span>
+<span><span class="co">## 26  school      XXX   F8.2            NA     yes     3 Integrierte Gesamtschule</span></span>
+<span><span class="co">## 27  school      XXX   F8.2            NA     yes     4                Gymnasium</span></span>
 <span><span class="co">##    missings</span></span>
-<span><span class="co">## 30     miss</span></span>
-<span><span class="co">## 31     miss</span></span>
-<span><span class="co">## 32     miss</span></span>
-<span><span class="co">## 33    valid</span></span>
-<span><span class="co">## 34    valid</span></span>
-<span><span class="co">## 35    valid</span></span>
-<span><span class="co">## 36    valid</span></span></code></pre>
+<span><span class="co">## 21     miss</span></span>
+<span><span class="co">## 22     miss</span></span>
+<span><span class="co">## 23     miss</span></span>
+<span><span class="co">## 24    valid</span></span>
+<span><span class="co">## 25    valid</span></span>
+<span><span class="co">## 26    valid</span></span>
+<span><span class="co">## 27    valid</span></span></code></pre>
 <div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/changeVarLabels.html" class="external-link">changeVarLabels</a></span><span class="op">(</span><span class="va">dat5</span>, varName <span class="op">=</span> <span class="st">"school"</span>, varLabel <span class="op">=</span> <span class="st">"School type"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat6</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"school"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    varName    varLabel format display_width labeled value</span></span>
-<span><span class="co">## 30  school School type   F8.2            NA     yes   -99</span></span>
-<span><span class="co">## 31  school School type   F8.2            NA     yes   -98</span></span>
-<span><span class="co">## 32  school School type   F8.2            NA     yes   -97</span></span>
-<span><span class="co">## 33  school School type   F8.2            NA     yes     1</span></span>
-<span><span class="co">## 34  school School type   F8.2            NA     yes     2</span></span>
-<span><span class="co">## 35  school School type   F8.2            NA     yes     3</span></span>
-<span><span class="co">## 36  school School type   F8.2            NA     yes     4</span></span>
+<span><span class="co">## 21  school School type   F8.2            NA     yes   -99</span></span>
+<span><span class="co">## 22  school School type   F8.2            NA     yes   -98</span></span>
+<span><span class="co">## 23  school School type   F8.2            NA     yes   -97</span></span>
+<span><span class="co">## 24  school School type   F8.2            NA     yes     1</span></span>
+<span><span class="co">## 25  school School type   F8.2            NA     yes     2</span></span>
+<span><span class="co">## 26  school School type   F8.2            NA     yes     3</span></span>
+<span><span class="co">## 27  school School type   F8.2            NA     yes     4</span></span>
 <span><span class="co">##                    valLabel missings</span></span>
-<span><span class="co">## 30                  omitted     miss</span></span>
-<span><span class="co">## 31           unclear answer     miss</span></span>
-<span><span class="co">## 32                  unknown     miss</span></span>
-<span><span class="co">## 33              Hauptschule    valid</span></span>
-<span><span class="co">## 34               Realschule    valid</span></span>
-<span><span class="co">## 35 Integrierte Gesamtschule    valid</span></span>
-<span><span class="co">## 36                Gymnasium    valid</span></span></code></pre>
+<span><span class="co">## 21                  omitted     miss</span></span>
+<span><span class="co">## 22           unclear answer     miss</span></span>
+<span><span class="co">## 23                  unknown     miss</span></span>
+<span><span class="co">## 24              Hauptschule    valid</span></span>
+<span><span class="co">## 25               Realschule    valid</span></span>
+<span><span class="co">## 26 Integrierte Gesamtschule    valid</span></span>
+<span><span class="co">## 27                Gymnasium    valid</span></span></code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Changing value labels</li>
 </ol>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat6</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"books"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    varName                varLabel format display_width labeled value</span></span>
-<span><span class="co">## 23   books Number of books at home  F10.0            NA     yes   -99</span></span>
-<span><span class="co">## 24   books Number of books at home  F10.0            NA     yes     1</span></span>
-<span><span class="co">## 25   books Number of books at home  F10.0            NA     yes     2</span></span>
-<span><span class="co">## 26   books Number of books at home  F10.0            NA     yes     3</span></span>
-<span><span class="co">## 27   books Number of books at home  F10.0            NA     yes     4</span></span>
-<span><span class="co">## 28   books Number of books at home  F10.0            NA     yes     5</span></span>
-<span><span class="co">## 29   books Number of books at home  F10.0            NA     yes     6</span></span>
+<span><span class="co">## 14   books Number of books at home  F10.0            NA     yes   -99</span></span>
+<span><span class="co">## 15   books Number of books at home  F10.0            NA     yes     1</span></span>
+<span><span class="co">## 16   books Number of books at home  F10.0            NA     yes     2</span></span>
+<span><span class="co">## 17   books Number of books at home  F10.0            NA     yes     3</span></span>
+<span><span class="co">## 18   books Number of books at home  F10.0            NA     yes     4</span></span>
+<span><span class="co">## 19   books Number of books at home  F10.0            NA     yes     5</span></span>
+<span><span class="co">## 20   books Number of books at home  F10.0            NA     yes     6</span></span>
 <span><span class="co">##               valLabel missings</span></span>
-<span><span class="co">## 23             omitted     miss</span></span>
-<span><span class="co">## 24          0-10 books    valid</span></span>
-<span><span class="co">## 25         11-25 books    valid</span></span>
-<span><span class="co">## 26        26-100 books    valid</span></span>
-<span><span class="co">## 27       101-200 books    valid</span></span>
-<span><span class="co">## 28                        valid</span></span>
-<span><span class="co">## 29 more than 500 books    valid</span></span></code></pre>
+<span><span class="co">## 14             omitted     miss</span></span>
+<span><span class="co">## 15          0-10 books    valid</span></span>
+<span><span class="co">## 16         11-25 books    valid</span></span>
+<span><span class="co">## 17        26-100 books    valid</span></span>
+<span><span class="co">## 18       101-200 books    valid</span></span>
+<span><span class="co">## 19                        valid</span></span>
+<span><span class="co">## 20 more than 500 books    valid</span></span></code></pre>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat7</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/changeValLabels.html" class="external-link">changeValLabels</a></span><span class="op">(</span><span class="va">dat6</span>, varName <span class="op">=</span> <span class="st">"books"</span>, value <span class="op">=</span> <span class="fl">5</span>, valLabel <span class="op">=</span> <span class="st">"201-500 books"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat7</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"books"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    varName                varLabel format display_width labeled value</span></span>
-<span><span class="co">## 23   books Number of books at home  F10.0            NA     yes   -99</span></span>
-<span><span class="co">## 24   books Number of books at home  F10.0            NA     yes     1</span></span>
-<span><span class="co">## 25   books Number of books at home  F10.0            NA     yes     2</span></span>
-<span><span class="co">## 26   books Number of books at home  F10.0            NA     yes     3</span></span>
-<span><span class="co">## 27   books Number of books at home  F10.0            NA     yes     4</span></span>
-<span><span class="co">## 28   books Number of books at home  F10.0            NA     yes     5</span></span>
-<span><span class="co">## 29   books Number of books at home  F10.0            NA     yes     6</span></span>
+<span><span class="co">## 14   books Number of books at home  F10.0            NA     yes   -99</span></span>
+<span><span class="co">## 15   books Number of books at home  F10.0            NA     yes     1</span></span>
+<span><span class="co">## 16   books Number of books at home  F10.0            NA     yes     2</span></span>
+<span><span class="co">## 17   books Number of books at home  F10.0            NA     yes     3</span></span>
+<span><span class="co">## 18   books Number of books at home  F10.0            NA     yes     4</span></span>
+<span><span class="co">## 19   books Number of books at home  F10.0            NA     yes     5</span></span>
+<span><span class="co">## 20   books Number of books at home  F10.0            NA     yes     6</span></span>
 <span><span class="co">##               valLabel missings</span></span>
-<span><span class="co">## 23             omitted     miss</span></span>
-<span><span class="co">## 24          0-10 books    valid</span></span>
-<span><span class="co">## 25         11-25 books    valid</span></span>
-<span><span class="co">## 26        26-100 books    valid</span></span>
-<span><span class="co">## 27       101-200 books    valid</span></span>
-<span><span class="co">## 28       201-500 books    valid</span></span>
-<span><span class="co">## 29 more than 500 books    valid</span></span></code></pre>
+<span><span class="co">## 14             omitted     miss</span></span>
+<span><span class="co">## 15          0-10 books    valid</span></span>
+<span><span class="co">## 16         11-25 books    valid</span></span>
+<span><span class="co">## 17        26-100 books    valid</span></span>
+<span><span class="co">## 18       101-200 books    valid</span></span>
+<span><span class="co">## 19       201-500 books    valid</span></span>
+<span><span class="co">## 20 more than 500 books    valid</span></span></code></pre>
 </div>
 <div class="section level2">
-<h2 id="anonymization-form-grouping-variable">Anonymization: Form grouping variable<a class="anchor" aria-label="anchor" href="#anonymization-form-grouping-variable"></a>
+<h2 id="forming-grouping-variables">Forming grouping variables<a class="anchor" aria-label="anchor" href="#forming-grouping-variables"></a>
 </h2>
 <p>Small case numbers pose a risk of anonymity. For variables with a
 number of cases &lt;6, which are not ratings, feelings or opinions and
@@ -525,17 +528,16 @@ groupings.</p>
 <span><span class="co">## 9     age      Age  F10.0            NA      no    NA     &lt;NA&gt;     &lt;NA&gt;</span></span></code></pre>
 <div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat8</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/cloneVariable.html" class="external-link">cloneVariable</a></span><span class="op">(</span><span class="va">dat7</span>, varName <span class="op">=</span> <span class="st">"age"</span>, new_varName <span class="op">=</span> <span class="st">"age_FDZ"</span>, label_suffix <span class="op">=</span> <span class="st">" (Zur Anonymisierung aggregiert (FDZ))"</span><span class="op">)</span></span>
-<span></span>
 <span><span class="va">dat8</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/recodeGADS.html" class="external-link">recodeGADS</a></span><span class="op">(</span><span class="va">dat8</span>, varName <span class="op">=</span> <span class="st">"age_FDZ"</span>, oldValues <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">13</span>, <span class="fl">14</span>, <span class="fl">15</span>, <span class="fl">17</span><span class="op">)</span>,</span>
 <span>                  newValues <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">13</span>, <span class="fl">13</span>, <span class="fl">15</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">dat8</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/changeValLabels.html" class="external-link">changeValLabels</a></span><span class="op">(</span><span class="va">dat8</span>, varName <span class="op">=</span> <span class="st">"age_FDZ"</span>, value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">13</span>, <span class="fl">15</span><span class="op">)</span>, valLabel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"13-14"</span>, <span class="st">"15-17"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat8</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age_FDZ"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    varName                                   varLabel format display_width</span></span>
-<span><span class="co">## 40 age_FDZ Age  (Zur Anonymisierung aggregiert (FDZ))  F10.0            NA</span></span>
 <span><span class="co">## 41 age_FDZ Age  (Zur Anonymisierung aggregiert (FDZ))  F10.0            NA</span></span>
+<span><span class="co">## 42 age_FDZ Age  (Zur Anonymisierung aggregiert (FDZ))  F10.0            NA</span></span>
 <span><span class="co">##    labeled value valLabel missings</span></span>
-<span><span class="co">## 40     yes    13    13-14    valid</span></span>
-<span><span class="co">## 41     yes    15    15-17    valid</span></span></code></pre>
+<span><span class="co">## 41     yes    13    13-14    valid</span></span>
+<span><span class="co">## 42     yes    15    15-17    valid</span></span></code></pre>
 <p>Groupings for multiple variables can also be performed using a loop.
 For this the variables are given a temporary name consisting of the
 variable name and the suffix “_FDZ”. <code>varname</code> represents
@@ -546,9 +548,9 @@ performed for each of the variables in turn.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat8</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grade_math"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##       varName          varLabel format display_width labeled value valLabel</span></span>
-<span><span class="co">## 37 grade_math Grade mathematics   F8.2            NA      no    NA     &lt;NA&gt;</span></span>
+<span><span class="co">## 28 grade_math Grade mathematics   F8.2            NA      no    NA     &lt;NA&gt;</span></span>
 <span><span class="co">##    missings</span></span>
-<span><span class="co">## 37     &lt;NA&gt;</span></span></code></pre>
+<span><span class="co">## 28     &lt;NA&gt;</span></span></code></pre>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat9</span> <span class="op">&lt;-</span> <span class="va">dat8</span></span>
 <span><span class="va">gr_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grade_math"</span>, <span class="st">"grade_germ"</span>, <span class="st">"grade_eng"</span><span class="op">)</span></span>
@@ -564,11 +566,11 @@ performed for each of the variables in turn.</p>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/extractMeta.html" class="external-link">extractMeta</a></span><span class="op">(</span><span class="va">dat9</span>, vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grade_math_FDZ"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##           varName                                                 varLabel</span></span>
-<span><span class="co">## 42 grade_math_FDZ Grade mathematics  (Zur Anonymisierung aggregiert (FDZ))</span></span>
 <span><span class="co">## 43 grade_math_FDZ Grade mathematics  (Zur Anonymisierung aggregiert (FDZ))</span></span>
+<span><span class="co">## 44 grade_math_FDZ Grade mathematics  (Zur Anonymisierung aggregiert (FDZ))</span></span>
 <span><span class="co">##    format display_width labeled value   valLabel missings</span></span>
-<span><span class="co">## 42   F8.2            NA     yes     1     passed    valid</span></span>
-<span><span class="co">## 43   F8.2            NA     yes     2 not passed    valid</span></span></code></pre>
+<span><span class="co">## 43   F8.2            NA     yes     1     passed    valid</span></span>
+<span><span class="co">## 44   F8.2            NA     yes     2 not passed    valid</span></span></code></pre>
 <p>Now two groups have been created. The first group includes the
 students with grades from 1-4, which means they have passed. In the
 other group, there are the students with grades 5 and 6, which means
@@ -589,19 +591,31 @@ beginning of the record so it has a consistent, visible place.</p>
 <span><span class="va">dat10</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable</a></span><span class="op">(</span><span class="va">dat10</span>, var <span class="op">=</span> <span class="va">version_name</span>, after <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="change-variable-order">Change variable order<a class="anchor" aria-label="anchor" href="#change-variable-order"></a>
+<h2 id="changing-variable-order">Changing variable order<a class="anchor" aria-label="anchor" href="#changing-variable-order"></a>
 </h2>
 <p>Newly created variables are initially placed at the end of a data
 set. <code><a href="https://beckerbenj.github.io/eatGADS/reference/orderLike.html" class="external-link">orderLike()</a></code> rearranges the variables by specifying the
 variables in their new order.</p>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat11</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/orderLike.html" class="external-link">orderLike</a></span><span class="op">(</span><span class="va">dat10</span>, newOrder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Version_v1_2023_11"</span>, <span class="st">"ID"</span>, <span class="st">"ID_name"</span>, <span class="st">"info"</span>, <span class="st">"home"</span>, <span class="st">"birth"</span>, <span class="st">"age"</span>, <span class="st">"age_FDZ"</span>, <span class="st">"sex"</span>, <span class="st">"siblings"</span>, <span class="st">"books"</span>, <span class="st">"school"</span>, <span class="st">"subjfav"</span>, <span class="st">"grade_math"</span>, <span class="st">"grade_math_FDZ"</span>, <span class="st">"grade_germ"</span>, <span class="st">"grade_germ_FDZ"</span>, <span class="st">"grade_eng"</span>, <span class="st">"grade_eng_FDZ"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning: The following variables are not in new Order: career</span></span></code></pre>
 <p>Often it is only a matter of individual variables that are supposed
 to be sorted in, such as newly created grouping variables behind their
 emptied original variable. <code><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable()</a></code> sets the
 variables after the selected one.</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat11</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/relocateVariable.html" class="external-link">relocateVariable</a></span><span class="op">(</span><span class="va">dat11</span>, var <span class="op">=</span> <span class="st">"age_FDZ"</span>, after <span class="op">=</span> <span class="st">"age"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="exporting-the-data">Exporting the data<a class="anchor" aria-label="anchor" href="#exporting-the-data"></a>
+</h2>
+<p>Once the data set has been cleaned, it can be saved. The export
+functions <code><a href="https://beckerbenj.github.io/eatGADS/reference/write_spss.html" class="external-link">write_spss()</a></code> and <code><a href="https://beckerbenj.github.io/eatGADS/reference/write_spss.html" class="external-link">write_stata()</a></code> are
+offered for this purpose. The file paths must be adapted in each
+case.</p>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/write_spss.html" class="external-link">write_spss</a></span><span class="op">(</span><span class="va">dat11</span>, filePath <span class="op">=</span> <span class="st">"filePath.sav"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://beckerbenj.github.io/eatGADS/reference/write_spss.html" class="external-link">write_stata</a></span><span class="op">(</span><span class="va">dat11</span>, filePath <span class="op">=</span> <span class="st">"filePath.dta"</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
