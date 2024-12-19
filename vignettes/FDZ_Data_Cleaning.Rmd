@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
 The setup for this illustration is the following:
 ``` {r path}
 ## if necessary, install eatGADS and eatFDZ
-#install.packages(eatGADS)
+#install.packages("eatGADS")
 #remotes::install_github("beckerbenj/eatFDZ")
 
 # load eatGADS
@@ -81,7 +81,7 @@ extractMeta(dat2, vars = c("school"))
 The previous function had already tagged two of the missings correctly, but the value label `-98` with the value label `unclear answer` was not used. Now, it is contained in the specified range and therefore tagged as a missing.
 
 ## Defining missing values by hand
-At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marks them as `miss` under `missings.` This is also possible for multiple variables at the same time.
+At times, only individual missings need to be tagged. `changeMissings()` tags missing values as missings by specifying them under `value` and marks them as `miss` under `missings.`
 ```{r changeMissings}
 extractMeta(dat2, vars = c("info"))
 dat3 <- changeMissings(dat2, varName = "info", value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
@@ -89,6 +89,13 @@ extractMeta(dat3, vars = c("info"))
 ```
 The values `-97`, `-98` and `-99` are now tagged as `miss`.
 
+Changing the missing tags is also possible for multiple variables at the same time using `changeMissings()`.
+```{r changeMissings+}
+extractMeta(dat2, vars = c("info", "career"))
+dat3 <- changeMissings(dat2, varName = c("info", "career"), value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
+extractMeta(dat3, vars = c("info", "career"))
+```
+Here, the values for both variables were simultaneously tagged as missings.
 
 ## Recoding IDs
 ID variables are recoded so no hidden identifiers such as state, school or even name codes allow conclusions to be drawn about individual persons. To ensure that the IDs remain the same across multiple subsets and describe the same person, they are recoded using a template. First, a path for the template is created.
