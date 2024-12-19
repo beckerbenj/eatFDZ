@@ -226,7 +226,7 @@ dat10 <- relocateVariable(dat10, var = version_name, after = NULL)
 ## Changing variable order
 Newly created variables are initially placed at the end of a data set. `orderLike()` rearranges the variables by specifying the variables in their new order.
 ```{r orderLike}
-dat11 <- orderLike(dat10, newOrder = c("Version_v1_2023_11", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ"))
+dat11 <- orderLike(dat10, newOrder = c("Version_v1_2023_11", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ", "career"))
 ```
 Often it is only a matter of individual variables that are supposed to be sorted in, such as newly created grouping variables behind their emptied original variable. `relocateVariable()` sets the variables after the selected one.
 ```{r relocateVariable}
