@@ -4,7 +4,13 @@
 \alias{compare_data}
 \title{Compare existing variables and meta data structure between two data sets.}
 \usage{
-compare_data(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var)
+compare_data(
+  data1,
+  data2,
+  name_data1 = "data1",
+  name_data2 = "data2",
+  metaExceptions = c("display_width", "labeled")
+)
 }
 \arguments{
 \item{data1}{Data set one, provided as a \code{GADSdat} object.}
@@ -15,7 +21,7 @@ compare_data(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var)
 
 \item{name_data2}{Character vector of length 1. Name of \code{data2}.}
 
-\item{ID_var}{Identifier variable in both data sets.}
+\item{metaExceptions}{Should certain meta data columns be excluded from the comparison?}
 }
 \description{
 Compare existing variables and meta data structure between two data sets.

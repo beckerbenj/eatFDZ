@@ -10,27 +10,24 @@
 #'@param data2 Data set two, provided as a \code{GADSdat} object.
 #'@param name_data1 Character vector of length 1. Name of \code{data1}.
 #'@param name_data2 Character vector of length 1. Name of \code{data2}.
-#'@param ID_var Identifier variable in both data sets.
+#'@param metaExceptions Should certain meta data columns be excluded from the comparison?
 #'
 #'@examples
 #' # tbd
 #'@export
-compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2", ID_var) {
+compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2",
+                         metaExceptions = c("display_width", "labeled")) {
   ## input validation
   # ----------------------------------------------------------
   eatGADS:::check_GADSdat(data1)
   eatGADS:::check_GADSdat(data2)
 
-  eatGADS:::check_characterArgument(ID_var, argName = "ID_var")
   eatGADS:::check_characterArgument(name_data1, argName = "name_data1")
   eatGADS:::check_characterArgument(name_data2, argName = "name_data2")
 
-  eatGADS:::check_vars_in_GADSdat(data1, vars = ID_var, argName = "ID_var", GADSdatName = "data1")
-  eatGADS:::check_vars_in_GADSdat(data2, vars = ID_var, argName = "ID_var", GADSdatName = "data2")
-
   ## initiate comparison
   # ----------------------------------------------------------
-  eatGADS_comparison <- eatGADS::equalGADS(data1, data2, id = ID_var)
+  eatGADS_comparison <- eatGADS::equalMeta(data1, data2, metaExceptions = metaExceptions)
   ## equalGADS has some overhead, especially for larger data sets. Could be optimized in the future
   ## also: for compare_data ID_var should be omitted
 
@@ -62,14 +59,8 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
                                     other_GADSdat_format = dummy_vec)
   #browser()
   if(length(out_list_var) > 0) {
+    #browser()
     out_df_var <- eatTools::do_call_rbind_withName(out_list_var, colName = "varName")
-
-    ## hotfix because of bug in insepctMetaDifferences (see also https://github.com/beckerbenj/eatGADS/issues/81)
-    if("metaVar1.format" %in% names(out_df_var)) {
-      recode_table <- data.frame(old = c("GADSdat_format", "other_GADSdat_format", "metaVar1.format", "metaVar2.format"),
-                                 new = c("GADSdat_varLabel", "other_GADSdat_varLabel", "GADSdat_format", "other_GADSdat_format"))
-      names(out_df_var) <- eatTools::recodeLookup(names(out_df_var), lookup = recode_table)
-    }
 
     for(col_nam in names(out_df_var)) {
       complete_out_df_var[, col_nam] <- out_df_var[, col_nam]
@@ -120,6 +111,6 @@ compare_data <- function(data1, data2, name_data1 = "data1", name_data2 = "data2
                    complete_out_df_var, complete_out_df_val)
   names(out_list) <- c(paste0("not_in_", name_data1, "_data"),
                        paste0("not_in_", name_data2, "_data"),
-                       "differences_variable_labels", "differences_value_labels")
+                       "differences_variable_level", "differences_value_level")
   out_list
 }
