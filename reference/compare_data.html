@@ -41,7 +41,13 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compare_data</span><span class="op">(</span><span class="va">data1</span>, <span class="va">data2</span>, name_data1 <span class="op">=</span> <span class="st">"data1"</span>, name_data2 <span class="op">=</span> <span class="st">"data2"</span>, <span class="va">ID_var</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compare_data</span><span class="op">(</span></span>
+<span>  <span class="va">data1</span>,</span>
+<span>  <span class="va">data2</span>,</span>
+<span>  name_data1 <span class="op">=</span> <span class="st">"data1"</span>,</span>
+<span>  name_data2 <span class="op">=</span> <span class="st">"data2"</span>,</span>
+<span>  metaExceptions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"display_width"</span>, <span class="st">"labeled"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -64,8 +70,8 @@
 <dd><p>Character vector of length 1. Name of <code>data2</code>.</p></dd>
 
 
-<dt id="arg-id-var">ID_var<a class="anchor" aria-label="anchor" href="#arg-id-var"></a></dt>
-<dd><p>Identifier variable in both data sets.</p></dd>
+<dt id="arg-metaexceptions">metaExceptions<a class="anchor" aria-label="anchor" href="#arg-metaexceptions"></a></dt>
+<dd><p>Should certain meta data columns be excluded from the comparison?</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -89,7 +95,7 @@ Variables included in each data set are compared and reported, as well as meta d
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer></div>
