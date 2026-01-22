@@ -27,7 +27,7 @@
 - [`check_var_labels()`](https://beckerbenj.github.io/eatFDZ/reference/check_var_labels.md)
   : Check existence of variable labels.
 - [`check_var_names()`](https://beckerbenj.github.io/eatFDZ/reference/check_var_names.md)
-  : Check variable names.
+  : Check variable names for encoding issues and dots
 - [`check_var_names_length()`](https://beckerbenj.github.io/eatFDZ/reference/check_var_names_length.md)
   : Check for lengthy variable names.
 - [`compare_data()`](https://beckerbenj.github.io/eatFDZ/reference/compare_data.md)
