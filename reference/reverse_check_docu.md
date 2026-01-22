@@ -1,0 +1,57 @@
+# Reverse check documentation of data sets.
+
+This function extracts all words from the `pdf` file and discards all
+words which are variables in the data set and all words which are white
+listed. Based on this a list of words is returned, which might be listed
+as variables in the documentation but not in the data set.
+
+## Usage
+
+``` r
+reverse_check_docu(
+  white_list = c(english_words, german_words),
+  pdf_path,
+  sav_path,
+  encoding = NULL
+)
+```
+
+## Arguments
+
+- white_list:
+
+  A character vector containing all words which should not be flagged.
+  Defaults to a combination of a German and English corpus.
+
+- pdf_path:
+
+  Character vector with paths to the `.pdf` files.
+
+- sav_path:
+
+  Character vector with paths to the `.sav` files.
+
+- encoding:
+
+  The character encoding used for the file. The default, `NULL`, use the
+  encoding specified in the file, but sometimes this value is incorrect
+  and it is useful to be able to override it.
+
+## Value
+
+A `data.frame` with the columns `suspicious_words`,
+`missing_documentation` and `comment`.
+
+## Examples
+
+``` r
+# File pathes
+sav_path1 <- system.file("extdata", "helper_spss_p1.sav", package = "eatFDZ")
+sav_path2 <- system.file("extdata", "helper_spss_p2.sav", package = "eatFDZ")
+pdf_path1 <- system.file("extdata", "helper_codebook_p1.pdf", package = "eatFDZ")
+pdf_path2 <- system.file("extdata", "helper_codebook_p2.pdf", package = "eatFDZ")
+pdf_path3 <- system.file("extdata", "helper_codebook_p3.pdf", package = "eatFDZ")
+
+check_df <- reverse_check_docu(sav_path = c(sav_path1, sav_path2),
+                       pdf_path = c(pdf_path1, pdf_path2, pdf_path3))
+```
