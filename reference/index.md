@@ -17,7 +17,7 @@
 - [`check_id()`](https://beckerbenj.github.io/eatFDZ/reference/check_id.md)
   : Check an identifier variable.
 - [`check_meta_encoding()`](https://beckerbenj.github.io/eatFDZ/reference/check_meta_encoding.md)
-  : Check meta data encoding.
+  : Check encoding issues in meta data
 - [`check_missing_range()`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_range.md)
   : Check missing range.
 - [`check_missing_regex()`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_regex.md)
