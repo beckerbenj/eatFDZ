@@ -1,18 +1,34 @@
-#' Check meta data encoding.
+#' Check encoding issues in meta data
 #'
-#' Check the occurence of specials signs in the meta data of a \code{GADSdat}.
+#' This function checks the meta data of a \code{GADSdat} object for encoding issues, such as the presence of special characters (e.g., \code{"Umlaute"} or other non-ASCII characters).
+#' Encoding problems in meta data (e.g., variable labels, value labels) can lead to inconsistencies and issues when working with data across systems that expect clean encoding.
 #'
 #' Checks in the meta data include
 #' \itemize{
 #' \item special signs such as \code{Umlaute}
 #' }
 #'
-#'@param GADSdat \code{GADSdat} object.
+#'@param GADSdat A \code{GADSdat} object containing the data to be checked for meta data encoding issues.
 #'
-#'@return Returns the test report.
+#' @return A \code{data.frame} that reports the variables and labels with encoding issues:
+#' \itemize{
+#'   \item \code{"varName"}: The name of the variable with encoding issues (if applicable).
+#'   \item \code{"value"}: The problematic value (if applicable).
+#'   \item \code{"GADSdat_varLabel"}: The variable label with the detected encoding issue.
+#'   \item \code{"GADSdat_valLabel"}: The value label with the detected encoding issue.
+#' }
+#' If no issues are found, the function returns an empty \code{data.frame}.
 #'
 #'@examples
-#'# tbd
+#' # Example usage:
+#' # Load example GADSdat object
+#' GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
+#'
+#' # Check for encoding issues in meta data
+#' meta_encoding_issues <- check_meta_encoding(GADSdat)
+#'
+#' # Print the result
+#' print(meta_encoding_issues)
 #'
 #'@export
 check_meta_encoding <- function(GADSdat) {
