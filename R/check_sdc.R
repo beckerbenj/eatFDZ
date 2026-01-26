@@ -1,23 +1,43 @@
-#' Create a Statistical Disclosure Control Report.
+#' Create a Statistical Disclosure Control Report
 #'
-#' Create a statistical disclosure control report: Which variables have categories with low absolute frequencies,
-#' which might lead to statistical data disclosure issues?
+#' This function generates a statistical disclosure control (SDC) report, identifying variables with categories
+#' that have low absolute frequencies. Such low-frequency categories could potentially lead to statistical
+#' data disclosure issues, particularly in data sets involving individual-level data from studies like
+#' large-scale assessments. The function currently performs only a uni-variate check, flagging categories
+#' with a frequency below a specified threshold.
 #'
-#' Individual participants of studies such as educational large-scale assessments usually must remain
-#' non-identifiable on individual level.
-#' This function checks the specified variables in a \code{GADSdat} object
-#' for low frequency categories which might lead to statistical disclosure control issues.
-#' Currently, only a uni-variate check is implemented.
+#' @param fileName A character string specifying the path to the SPSS file to import as a \code{GADSdat} object.
+#' @param boundary An integer specifying the frequency threshold for identifying low-frequency categories.
+#' Categories with less than or equal to this number of observations will be flagged. The default value is \code{5}.
+#' @param exclude An optional character vector containing variable names that should be excluded from the report.
+#' @param encoding An optional character string specifying the character encoding for importing the SPSS file.
+#' If \code{NULL} (default), the encoding specified in the file is used.
 #'
-#'@param GADSdat A \code{GADSdat} object.
-#'@param vars Character vector of variable names. Which variables should be checked?
-#'@param boundary Integer number: categories with less than or equal to \code{boundary} observations will be flagged
+#' @return A \code{data.frame} summarizing categories with low frequencies, including the following columns:
+#' \itemize{
+#'   \item \code{variable}: The name of the variable with low-frequency categories.
+#'   \item \code{varLab}: The label for the variable (if present).
+#'   \item \code{existVarLab}: Whether a variable label exists (\code{TRUE} or \code{FALSE}).
+#'   \item \code{existValLab}: Whether value labels exist for the variable (\code{TRUE} or \code{FALSE}).
+#'   \item \code{skala}: Information on the variable type/classification.
+#'   \item \code{nKatOhneMissings}: The total number of non-missing categories.
+#'   \item \code{nValid}: The total number of valid observations for the variable.
+#'   \item \code{nKl5}: Indicator for variables with categories flagged as low frequency (\code{TRUE} or \code{FALSE}).
+#'   \item \code{exclude}: Whether the variable has been excluded based on the \code{exclude} argument.
+#' }
 #'
-#'@return A \code{data.frame}.
+#' @examples
+#' # Load an example SPSS file
+#' sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
 #'
-#'@examples
-#'# tbd
+#' # Exclude unique identifier variables from the SDC check
+#' exclude_vars <- c("idstud_FDZ", "idsch_FDZ")
 #'
+#' # Generate the SDC report
+#' sdc_report <- sdc_check(fileName = sav_path, boundary = 5, exclude = exclude_vars)
+#'
+#' # Print the SDC report
+#' print(sdc_report)
 #'
 #'@export
 check_sdc <- function(GADSdat, vars = eatGADS::namesGADS(GADSdat), boundary = 5) {
