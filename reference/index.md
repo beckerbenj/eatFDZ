@@ -3,7 +3,7 @@
 ## All functions
 
 - [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
-  : Run all data checks.
+  : Run all data checks for a GADSdat object
 - [`check_character_vars()`](https://beckerbenj.github.io/eatFDZ/reference/check_character_vars.md)
   : Check for the existence of character variables
 - [`check_docu()`](https://beckerbenj.github.io/eatFDZ/reference/check_docu.md)
