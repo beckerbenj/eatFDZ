@@ -1,27 +1,56 @@
-#' Run all data checks.
+##' Run all data checks for a GADSdat object
 #'
-#' Run all data checks.
+#' This function performs a series of comprehensive data quality checks on a \code{GADSdat} object.
+#' It aggregates the functionality of multiple individual checks, validating the structure, consistency, and documentation
+#' of the dataset. The checks include:
+#' \itemize{
+#'   \item \code{\link{check_file_name}}: Verifies the validity of the file name.
+#'   \item \code{\link{check_var_names}}: Checks variable names for e.g. special characters.
+#'   \item \code{\link{check_meta_encoding}}: Ensures proper encoding in metadata.
+#'   \item \code{\link{check_id}}: Validates the uniqueness and non-missingness of identifier variables.
+#'   \item \code{\link{check_var_labels}}: Checks for the existence of variable labels.
+#'   \item \code{\link[eatGADS]{checkMissingValLabels}}: Ensures missing value labels are correctly defined.
+#'   \item \code{\link{check_missing_range}}: Validates whether values fall within a defined missing value range.
+#'   \item \code{\link{check_missing_regex}}: Identifies missing value labels based on a regular expression.
+#'   \item \code{\link{sdc_check}}: Performs a statistical disclosure control check for variables with low category frequencies.
+#'   \item \code{\link{check_docu}}: Verifies that all variables are referenced in external documentation (e.g., codebooks in \code{.pdf} format).
+#' }
 #'
-#' This functions calls \code{\link{check_file_name}},
-#' \code{\link{check_var_names}}, \code{\link{check_meta_encoding}},
-#' \code{\link{check_id}}, \code{\link{check_var_labels}},
-#' \code{\link[eatGADS]{checkMissingValLabels}},
-#' \code{\link{check_missing_range}}, \code{\link{check_missing_regex}},
-#' \code{\link{sdc_check}}, and \code{\link{check_docu}}.
+#' This function provides a comprehensive overview of potential issues, helping to ensure data set quality and consistency.
+#' It outputs a summary of detected issues as well as detailed reports for each individual check.
 #'
+#' @param sav_path Character string specifying the path to the SPSS file (\code{.sav}).
+#' @param pdf_path Optional. A character string specifying the path to the \code{.pdf} file containing the codebook or documentation.
+#' If not provided, checks related to documentation are skipped.
+#' @param encoding Optional. A character string specifying the encoding used for reading the \code{.sav} file.
+#' If \code{NULL} (default), the encoding defined in the file is used.
+#' @param missingRange Numeric. A range of values that should be declared as missing. Defaults to \code{-50:-99}.
+#' @param missingRegex Character. A regular expression pattern used to identify labels that should be treated as missing.
+#' Defaults to \code{"missing|omitted|not reached|nicht beantwortet|ausgelassen"}.
+#' @param idVar Optional. A character vector specifying the name(s) of identifier variables in the \code{GADSdat} object.
+#' If \code{NULL} (default), the first variable in the data set is used as the identifier variable.
+#' @param sdcVars Optional. A character vector of variable names to be checked for statistical disclosure control risks.
+#' If \code{NULL}, all variables are checked.
 #'
-#'@param sav_path Path to the SPSS file
-#'@param pdf_path Path to the \code{.pdf} file
-#'@param encoding Optional: The character encoding used for reading the \code{.sav} file.
-#'The default, \code{NULL}, uses the encoding specified in the file,
-#'but sometimes this value is incorrect and it is useful to be able to override it.
-#'@param missingRange Numerical range for missing tags.
-#'@param missingRegex Regular expression for value labels for missing tags.
-#'@param idVar Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
-#'the data set is taken as the \code{idVar}.
-#'@param sdcVars Variable names of variables with potential statistical disclosure control issues.
+#' @return A \code{list} containing:
+#' \itemize{
+#'   \item \code{Overview}: A \code{data.frame} summarizing which checks passed or detected issues.
+#'   \item Detailed reports for each check: A series of \code{data.frame}s generated during the checks, each labeled
+#'         with the respective check name (e.g., \code{"lengthy_variable_names"}, \code{"missing_IDs"}).
+#' }
 #'
-#'@return A \code{data.frame}.
+#' @examples
+#' # Specify the path to an SPSS file
+#' sav_path <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
+#'
+#' # Run all checks with default parameters
+#' check_results <- check_all(sav_path = sav_path)
+#'
+#' # View summary of results
+#' print(check_results$Overview)
+#'
+#' # Access detailed results for specific checks
+#' print(check_results$`missing_IDs`)
 #'
 #'@examples
 #' dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
