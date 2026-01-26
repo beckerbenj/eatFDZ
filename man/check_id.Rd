@@ -35,7 +35,7 @@ These checks help ensure that the identifier variable can uniquely and reliably 
 GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
 
 # Check identifier variable for uniqueness and non-missingness
-id_check <- check_id(GADSdat, idVar = "IDSTUD")
+id_check <- check_id(GADSdat, idVar = "ID")
 
 # View rows with missing identifier values
 print(id_check$missing_ids)
