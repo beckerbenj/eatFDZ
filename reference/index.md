@@ -24,7 +24,7 @@
 - [`check_missing_regex()`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_regex.md)
   : Check if labeled values match a missing value regex pattern
 - [`check_sdc()`](https://beckerbenj.github.io/eatFDZ/reference/check_sdc.md)
-  : Create a Statistical Disclosure Control Report
+  : Create a Statistical Disclosure Control Report.
 - [`check_var_labels()`](https://beckerbenj.github.io/eatFDZ/reference/check_var_labels.md)
   : Check for missing variable labels
 - [`check_var_names()`](https://beckerbenj.github.io/eatFDZ/reference/check_var_names.md)
@@ -47,6 +47,6 @@
 - [`reverse_check_docu()`](https://beckerbenj.github.io/eatFDZ/reference/reverse_check_docu.md)
   : Reverse check documentation of data sets.
 - [`sdc_check()`](https://beckerbenj.github.io/eatFDZ/reference/sdc_check.md)
-  : Create a Statistical Disclosure Control Report.
+  : Create a Statistical Disclosure Control Report
 - [`write_check_report()`](https://beckerbenj.github.io/eatFDZ/reference/write_check_report.md)
   : Write a check report.
