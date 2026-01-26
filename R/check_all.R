@@ -46,15 +46,6 @@
 #' # Run all checks with default parameters
 #' check_results <- check_all(sav_path = sav_path)
 #'
-#' # View summary of results
-#' print(check_results$Overview)
-#'
-#' # Access detailed results for specific checks
-#' print(check_results$`missing_IDs`)
-#'
-#'@examples
-#' dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
-#' out <- check_all(dataset)
 #'@export
 check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                        missingRange = -50:-99,
