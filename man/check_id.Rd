@@ -2,30 +2,45 @@
 % Please edit documentation in R/check_id.R
 \name{check_id}
 \alias{check_id}
-\title{Check an identifier variable.}
+\title{Check for uniqueness and non-missingness in an identifier variable}
 \usage{
 check_id(GADSdat, idVar = NULL)
 }
 \arguments{
-\item{GADSdat}{\code{GADSdat} object.}
+\item{GADSdat}{A \code{GADSdat} object containing the data to be checked.}
 
-\item{idVar}{Name(s) of the identifier variable in the \code{GADSdat} object. If \code{NULL}, the first variable in
-the data set is taken as the \code{idVar}.}
+\item{idVar}{A character string specifying the name of the identifier variable in the \code{GADSdat} object.
+If \code{NULL}, the first variable in the dataset will be used as the identifier variable.}
 }
 \value{
-Returns the test report.
+A \code{list} with two components summarizing the issues found:
+\itemize{
+  \item \code{missing_ids}: A \code{data.frame} with the row indices of observations where the identifier variable has missing values.
+  \item \code{duplicate_ids}: A \code{data.frame} with the values of duplicate identifiers (if any).
+}
+If there are no missing or duplicate identifiers, the respective \code{data.frame} will be empty.
 }
 \description{
-Check the uniqueness and non-missingness of a variable in a \code{GADSdat}.
-}
-\details{
-Checks include
+This function checks whether an identifier variable in a \code{GADSdat} object meets key requirements for data quality:
 \itemize{
-\item Is the identifier variable unique (i.e., no duplicates)?
-\item Are there any missing values in the identifier variable?
+  \item The identifier variable must be unique (i.e., no duplicate values).
+  \item The identifier variable must not contain any missing values (\code{NA}).
 }
+These checks help ensure that the identifier variable can uniquely and reliably index rows within the data.
 }
 \examples{
-# tbd
+# Example usage
+
+# Load example GADSdat object
+GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
+
+# Check identifier variable for uniqueness and non-missingness
+id_check <- check_id(GADSdat, idVar = "IDSTUD")
+
+# View rows with missing identifier values
+print(id_check$missing_ids)
+
+# View duplicate identifier values
+print(id_check$duplicate_ids)
 
 }
