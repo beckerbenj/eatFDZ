@@ -131,41 +131,4 @@ check_results <- check_all(sav_path = sav_path)
 #> 10 statistical_disclosure_control Issues detected
 #> 11            character_variables Issues detected
 #> 12                     docu_check      Not tested
-
-# View summary of results
-print(check_results$Overview)
-#>                              Test          Result
-#> 1          lengthy_variable_names         passing
-#> 2    special_signs_variable_names Issues detected
-#> 3         special_signs_meta_data Issues detected
-#> 4                     missing_IDs Issues detected
-#> 5                   duplicate_IDs Issues detected
-#> 6         missing_variable_labels Issues detected
-#> 7            missing_value_labels Issues detected
-#> 8              missing_range_tags Issues detected
-#> 9              missing_regex_tags Issues detected
-#> 10 statistical_disclosure_control Issues detected
-#> 11            character_variables Issues detected
-#> 12                     docu_check      Not tested
-
-# Access detailed results for specific checks
-print(check_results$`missing_IDs`)
-#>   Rows comment
-#> 1   12      NA
-
-dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
-out <- check_all(dataset)
-#>                              Test          Result
-#> 1          lengthy_variable_names         passing
-#> 2    special_signs_variable_names Issues detected
-#> 3         special_signs_meta_data Issues detected
-#> 4                     missing_IDs Issues detected
-#> 5                   duplicate_IDs Issues detected
-#> 6         missing_variable_labels Issues detected
-#> 7            missing_value_labels Issues detected
-#> 8              missing_range_tags Issues detected
-#> 9              missing_regex_tags Issues detected
-#> 10 statistical_disclosure_control Issues detected
-#> 11            character_variables Issues detected
-#> 12                     docu_check      Not tested
 ```

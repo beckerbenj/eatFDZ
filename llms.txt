@@ -53,7 +53,7 @@ write_check_report(check_report, file_path = tempfile(fileext = ".xlsx"))
 - [`check_docu_mez()`](https://beckerbenj.github.io/eatFDZ/reference/check_docu_mez.md)
   : Check documentation of data sets.
 - [`check_file_name()`](https://beckerbenj.github.io/eatFDZ/reference/check_file_name.md)
-  : Check file name.
+  : Check and validate a file name
 - [`check_id()`](https://beckerbenj.github.io/eatFDZ/reference/check_id.md)
   : Check for uniqueness and non-missingness in an identifier variable
 - [`check_meta_encoding()`](https://beckerbenj.github.io/eatFDZ/reference/check_meta_encoding.md)
