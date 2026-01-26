@@ -1,6 +1,9 @@
-# Check existence of variable labels.
+# Check for missing variable labels
 
-Check the existence of variable labels for all variables in a `GADSdat`.
+This function checks whether all variables in a `GADSdat` object have
+been assigned a variable label. Missing variable labels can indicate
+poorly documented data and may lead to issues in data analysis or
+reporting.
 
 ## Usage
 
@@ -12,20 +15,31 @@ check_var_labels(GADSdat)
 
 - GADSdat:
 
-  `GADSdat` object.
+  A `GADSdat` object containing the data for which variable labels
+  should be checked.
 
 ## Value
 
-Returns the test report.
+A `data.frame` with the names of variables that lack variable labels:
 
-## Details
+- `varName`: The name of the variable without a label.
 
-Checks include
-
-- Have variable labels been assigned?
+If all variables have labels, the function returns an empty
+`data.frame`.
 
 ## Examples
 
 ``` r
-# tbd
+# Example usage
+
+# Load example GADSdat object
+GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
+
+# Check for variables missing labels
+missing_labels <- check_var_labels(GADSdat)
+
+# Print the result
+print(missing_labels)
+#>   varName
+#> 1  school
 ```
