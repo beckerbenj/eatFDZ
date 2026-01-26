@@ -70,12 +70,4 @@ sav_path <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 # Run all checks with default parameters
 check_results <- check_all(sav_path = sav_path)
 
-# View summary of results
-print(check_results$Overview)
-
-# Access detailed results for specific checks
-print(check_results$`missing_IDs`)
-
-dataset <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
-out <- check_all(dataset)
 }
