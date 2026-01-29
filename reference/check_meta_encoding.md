@@ -37,12 +37,6 @@ issues:
 
 If no issues are found, the function returns an empty `data.frame`.
 
-## Details
-
-Checks in the meta data include
-
-- special signs such as `Umlaute`
-
 ## Examples
 
 ``` r

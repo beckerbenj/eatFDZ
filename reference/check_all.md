@@ -99,7 +99,7 @@ A `list` containing:
 - `Overview`: A `data.frame` summarizing which checks passed or detected
   issues.
 
-- Detailed reports for each check: A series of `data.frame`s generated
+- Detailed reports for each check: A series of `data.frames` generated
   during the checks, each labeled with the respective check name (e.g.,
   `"lengthy_variable_names"`, `"missing_IDs"`).
 
