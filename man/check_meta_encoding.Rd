@@ -23,12 +23,6 @@ If no issues are found, the function returns an empty \code{data.frame}.
 This function checks the meta data of a \code{GADSdat} object for encoding issues, such as the presence of special characters (e.g., \code{"Umlaute"} or other non-ASCII characters).
 Encoding problems in meta data (e.g., variable labels, value labels) can lead to inconsistencies and issues when working with data across systems that expect clean encoding.
 }
-\details{
-Checks in the meta data include
-\itemize{
-\item special signs such as \code{Umlaute}
-}
-}
 \examples{
 # Example usage:
 # Load example GADSdat object

@@ -3,11 +3,6 @@
 #' This function checks the meta data of a \code{GADSdat} object for encoding issues, such as the presence of special characters (e.g., \code{"Umlaute"} or other non-ASCII characters).
 #' Encoding problems in meta data (e.g., variable labels, value labels) can lead to inconsistencies and issues when working with data across systems that expect clean encoding.
 #'
-#' Checks in the meta data include
-#' \itemize{
-#' \item special signs such as \code{Umlaute}
-#' }
-#'
 #'@param GADSdat A \code{GADSdat} object containing the data to be checked for meta data encoding issues.
 #'
 #' @return A \code{data.frame} that reports the variables and labels with encoding issues:

@@ -34,16 +34,16 @@ A \code{data.frame} summarizing categories with low frequencies, including the f
 \description{
 This function generates a statistical disclosure control (SDC) report, identifying variables with categories
 that have low absolute frequencies. Such low-frequency categories could potentially lead to statistical
-data disclosure issues, particularly in datasets involving individual-level data from studies like
+data disclosure issues, particularly in data sets involving individual-level data from studies like
 large-scale assessments. The function currently performs only a uni-variate check, flagging categories
 with a frequency below a specified threshold.
 }
 \examples{
 # Load an example SPSS file
-sav_path <- system.file("extdata", "LV_2011_CF.sav", package = "eatFDZ")
+sav_path <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 
 # Exclude unique identifier variables from the SDC check
-exclude_vars <- c("idstud_FDZ", "idsch_FDZ")
+exclude_vars <- c("ID", "ID_name")
 
 # Generate the SDC report
 sdc_report <- sdc_check(fileName = sav_path, boundary = 5, exclude = exclude_vars)

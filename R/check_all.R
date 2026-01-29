@@ -35,7 +35,7 @@
 #' @return A \code{list} containing:
 #' \itemize{
 #'   \item \code{Overview}: A \code{data.frame} summarizing which checks passed or detected issues.
-#'   \item Detailed reports for each check: A series of \code{data.frame}s generated during the checks, each labeled
+#'   \item Detailed reports for each check: A series of \code{data.frames} generated during the checks, each labeled
 #'         with the respective check name (e.g., \code{"lengthy_variable_names"}, \code{"missing_IDs"}).
 #' }
 #'

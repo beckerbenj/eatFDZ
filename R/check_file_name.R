@@ -11,12 +11,12 @@
 #'
 #' @examples
 #' # Example of a valid file name
-#' valid_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
+#' valid_path <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 #' check_file_name(valid_path)
 #'
 #' # Example of an invalid file name (this will throw an error)
-#' # invalid_path <- "invalid file name.sav"
-#' # check_file_name(invalid_path)
+#' invalid_path <- "invalid file name.sav"
+#' check_file_name(invalid_path)
 #'
 #'@export
 check_file_name <- function(path) {
