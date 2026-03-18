@@ -1,7 +1,7 @@
 # FDZ Data Cleaning
 
 This vignette illustrates how the [Research Data
-Centre](https://www.iqb.hu-berlin.de/fdz) (FDZ) at the [Institute for
+Centre](https://fdz.iqb.hu-berlin.de/de/) (FDZ) at the [Institute for
 Educational Quality Improvement](https://www.iqb.hu-berlin.de/) (IQB)
 cleans and tidies data for secondary usage purposes. For secondary
 usage, data is expected to be of high quality, traceable,
