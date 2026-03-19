@@ -1,15 +1,17 @@
 ---
-title: "FDZ Checks"
+title: "`check_all()`: Running automated data quality and documentation checks"
 author: "Annegret Rucker"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{FDZ Checks}
+  %\VignetteIndexEntry{`check_all()`: Running automated data quality and documentation checks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-This vignette illustrates how data providers can use the `check_all()` function from the `eatFDZ` package to assess and improve the quality of their data sets prior to submission to the [Research Data Centre](https://fdz.iqb.hu-berlin.de/de/) (FDZ) at the [Institute for Educational Quality Improvement](https://www.iqb.hu-berlin.de/) (IQB).
+This vignette illustrates how data providers can use the `check_all()` function from the `eatFDZ` package to assess and improve the quality of their data sets prior to submission to the [Research Data Centre](https://fdz.iqb.hu-berlin.de/en/) (FDZ) at the Institute for Educational Quality Improvement (IQB).
+
 For data to be reusable in a research data center context, it must meet high standards regarding structure, consistency, documentation, and data protection. In particular, data sets should be FAIR (findable, accessible, interoperable, and reusable), well-documented, and prepared in a way that allows for efficient and reliable secondary use. To support this process, `check_all()` provides a comprehensive set of automated checks that help identify potential issues early on. This vignette explains how to run `check_all()`, how to interpret its output, and how to use the results to systematically improve data set quality.
+
 Overall, the following aspects are covered by `check_all()`:
 
 - Valid file naming conventions
@@ -23,32 +25,75 @@ Overall, the following aspects are covered by `check_all()`:
 - Consistency between data set and external documentation (e.g., codebooks)
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
-The setup for this illustration is the following:
-``` {r path}
-## if necessary, install eatGADS and eatFDZ
-#install.packages("eatGADS")
-#remotes::install_github("beckerbenj/eatFDZ")
 
-# load eatGADS
-library(eatGADS)
+## Setup
+To run the examples in this vignette, install and load the `eatFDZ` package.  
+
+For installation from GitHub, you can use `remotes::install_github("beckerbenj/eatFDZ")`.
+``` {r path}
 library(eatFDZ)
 
 # path to example data set
 sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 ```
-`eatGADS` is the R package used by the FDZ at IQB for data cleaning purposes. It is available on [CRAN](https://cran.r-project.org/package=eatGADS) and extensively documented via vignettes (e.g., the [Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html) or the [FDZ Data Cleaning Guide](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)).
-
 For illustrative purposes, a small, artificial SPSS example data set of secondary school students in Berlin is used. The data set is intentionally flawed and messy. The example data set is part of the `eatFDZ` package and installed alongside. 
 
+
 ## Quickstart
-```{r load}
-dat <- import_spss(sav_path)
-str(dat$dat) # for a small overview in the variables of the data set
+```{r quickstart}
+out <- check_all(sav_path = sav_path)
+
+report_path <- file.path(tempdir(), "check_report.xlsx")
+write_check_report(out, file_path = report_path)
+
+# report_path
 ```
-The data set is loaded via the `import_spss()` command. The data set contains 14 variables with 10 observations, including demographic variables such as age and sex of the students, their family situation and selected grades.
+Open the Excel file at `report_path`.
 
-Note that the data set is imported as a `GADSdat` object. For detailed explanations on the corresponding object structure and technical details, we refer readers to the `eatGADS` [documentation](https://beckerbenj.github.io/eatGADS/articles/import_spss.html). 
+Hier möchte ich erklären, was "Passing", "Issues detected" und "Not tested" bedeuten.
+
+- **Passing**: corresponding result table is empty (no issues found)
+
+- **Issues detected**: result table contains at least one row
+
+- **Not tested**: check was skipped (e.g., documentation checks without `pdf_path`)
 
 
+## Exporting and interpreting the output
+```{r export}
+report_path <- file.path(tempdir(), "check_report.xlsx")
+write_check_report(out, report_path)
+```
+Hier möchte ich zeigen, wie man den Report exportiert  und was darin enthalten ist (Überblick und einzelne Prüfungen - Reiter entsteht nur, wenn "Issued detected" bei der jeweiligen Prüfung).
+
+Erwähnen, dass statt tempdir() der eigene Projektordner genutzt werden soll.
+
+
+## Common customisations
+Hier möchte ich mit erklären, wie man idVar setzt (wenn ID nicht 1. Variable ist), die Missing Definitionen an die Datensätze angepasst werden, der SDC Scope eingeschränkt wird
+
+## Optional: documentation checks via `pdf_path`
+Was wird hier geprüft (variables refernced in codebook)? 
+
+In der Vignette erstmal als "eval=FALSE" bis ich Beispiel-Codebook erstellt habe.
+
+„If pdf_path is not provided, docu_check is reported as Not tested.“
+
+
+## Troubleshooting
+- docu_check Not tested → pdf_path fehlt
+- many encoding findings → check encoding / metadata
+- unexpected ID findings → specify idVar
+- SDC flags many categories → interpret as risk indicator; restrict sdcVars if needed
+- where are outputs saved → show paths / tempdir() vs user-defined folder
+- Why does batch processing take long? → SDC / docu checks can be time-consuming; run per file / restrict scope.
+- recursive = FALSE: Datensätze sind in Unterordnern
+
+## Further resources
+Wenn Datensatz im Anschluss an die Prüfung aufbereitet werden soll, dann sind hier gute Referenzen:
+
+[FDZ Data Cleaning Guide](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
+
+[Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)
