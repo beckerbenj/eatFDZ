@@ -12,6 +12,21 @@ This vignette illustrates how data providers can use the `check_all()` function 
 
 For data to be reusable in a research data center context, it must meet high standards regarding structure, consistency, documentation, and data protection. In particular, data sets should be FAIR (findable, accessible, interoperable, and reusable), well-documented, and prepared in a way that allows for efficient and reliable secondary use. To support this process, `check_all()` provides a comprehensive set of automated checks that help identify potential issues early on. This vignette explains how to run `check_all()`, how to interpret its output, and how to use the results to systematically improve data set quality.
 
+## What `check_all()` does (and what it does not do)
+
+**`check_all()` does:**
+- run a set of automated checks on a `.sav` file (imported as a `GADSdat` object)
+- return a structured set of result tables (plus an overview)
+- help you spot typical issues, such as invalid variable names, missing labels, missing IDs, missing tags, and potential low-frequency disclosure risks
+
+**`check_all()` does not:**
+- automatically fix your data
+- replace project-specific, expert review of the data and documentation
+- guarantee anonymization; the SDC check should be interpreted as a *risk indicator*
+
+
+## Checks covered by `check_all()`
+
 Overall, the following aspects are covered by `check_all()`:
 
 - Valid file naming conventions
@@ -22,16 +37,16 @@ Overall, the following aspects are covered by `check_all()`:
 - Correct specification of missing value labels and ranges
 - Identification of undocumented or irregular missing values
 - Detection of low-frequency categories (statistical disclosure control)
-- Consistency between data set and external documentation (e.g., codebooks)
+- Optional: consistency between data set and external documentation (e.g., codebooks)
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Setup
-To run the examples in this vignette, install and load the `eatFDZ` package.  
+To run the examples in this vignette, install and load the `eatFDZ` package. For installation from GitHub, you can use `remotes::install_github("beckerbenj/eatFDZ")`.
 
-For installation from GitHub, you can use `remotes::install_github("beckerbenj/eatFDZ")`.
+Then load the package and set the path to your data set.
 ``` {r path}
 library(eatFDZ)
 
@@ -41,58 +56,175 @@ sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 For illustrative purposes, a small, artificial SPSS example data set of secondary school students in Berlin is used. The data set is intentionally flawed and messy. The example data set is part of the `eatFDZ` package and installed alongside. 
 
 
-## Quickstart
+## Quickstart: create an Excel check report
+
 ```{r quickstart}
 out <- check_all(sav_path = sav_path)
-
 report_path <- file.path(tempdir(), "check_report.xlsx")
 write_check_report(out, file_path = report_path)
-
-# report_path
 ```
-Open the Excel file at `report_path`.
+For real projects, instead of `tempdir()` save reports to a dedicated folder.
 
-Hier möchte ich erklären, was "Passing", "Issues detected" und "Not tested" bedeuten.
-
-- **Passing**: corresponding result table is empty (no issues found)
-
-- **Issues detected**: result table contains at least one row
-
-- **Not tested**: check was skipped (e.g., documentation checks without `pdf_path`)
+Open the generated Excel file at `report_path`.
 
 
-## Exporting and interpreting the output
-```{r export}
-report_path <- file.path(tempdir(), "check_report.xlsx")
-write_check_report(out, report_path)
-```
-Hier möchte ich zeigen, wie man den Report exportiert  und was darin enthalten ist (Überblick und einzelne Prüfungen - Reiter entsteht nur, wenn "Issued detected" bei der jeweiligen Prüfung).
+## How to read the Excel report
 
-Erwähnen, dass statt tempdir() der eigene Projektordner genutzt werden soll.
+The Excel report is designed for fast navigation:
+
+- `out$Overview`: a compact summary indicating whether each check passed, found issues, or was not run
+- additional list elements: one result table per check where issues were found (each a `data.frame`)
+
+- **Passing**: no issues found, there won't be a corresponding result table
+
+- **Issues detected**: the result table contains at least one row
+
+- **Not tested**: the check was skipped (e.g., documentation checks when `pdf_path` is not provided)
+
+### Typical workflow
+
+1. Open the Excel report.
+2. Start with **Overview** to identify which checks need attention.
+3. For each check with **Issues detected**, review the corresponding sheet.
+4. Fix the issues in the source data and/or metadata.
+5. Re-run `check_all()` and regenerate the report until the Overview is mostly *Passing*.
 
 
 ## Common customisations
-Hier möchte ich mit erklären, wie man idVar setzt (wenn ID nicht 1. Variable ist), die Missing Definitionen an die Datensätze angepasst werden, der SDC Scope eingeschränkt wird
+
+`check_all()` offers a small set of parameters that you can adapt to your project context.
+
+### Specify the identifier variable (`idVar`)
+
+By default, `check_all()` uses the first variable in the data set as the identifier. If your ID variable is not the first one (or you have multiple IDs), set `idVar` explicitly:
+
+```{r idvar, eval=FALSE}
+out <- check_all(
+  sav_path = sav_path,
+  idVar = "student_id"
+)
+```
+
+### Define project-specific missing value rules (`missingRange`, `missingRegex`)
+
+If your project uses a defined range of missing codes (e.g., `-97`, `-98`, `-99`) you can specify this via `missingRange`:
+
+```{r missingrange, eval=FALSE}
+out <- check_all(
+  sav_path = sav_path,
+  missingRange = -99:-97
+)
+```
+
+If missing values are indicated via labels (possibly multilingual), adapt the regular expression `missingRegex`:
+
+```{r missingregex, eval=FALSE}
+out <- check_all(
+  sav_path = sav_path,
+  missingRegex = "missing|omitted|not reached|no answer|keine angabe"
+)
+```
+
+### Restrict statistical disclosure control checks (`sdcVars`)
+
+By default, `check_all()` runs SDC checks on **all variables**. To focus on sensitive variables or key domains, you can specify `sdcVars`:
+
+```{r sdcvars, eval=FALSE}
+out <- check_all(
+  sav_path = sav_path,
+  sdcVars = c("school_id", "class_id", "migration_background")
+)
+```
+
 
 ## Optional: documentation checks via `pdf_path`
-Was wird hier geprüft (variables refernced in codebook)? 
 
-In der Vignette erstmal als "eval=FALSE" bis ich Beispiel-Codebook erstellt habe.
+If you provide `pdf_path`, `check_all()` will run documentation checks (e.g., whether variables are referenced in the codebook/documentation).
 
-„If pdf_path is not provided, docu_check is reported as Not tested.“
+```{r docu, eval=FALSE}
+pdf_path <- "path/to/codebook.pdf"
+
+out <- check_all(
+  sav_path = sav_path,
+  pdf_path = pdf_path
+)
+```
+
+If `pdf_path` is not provided, the documentation check is reported as **Not tested** in the Overview.
+
+
+## Batch processing for multiple data sets
+
+If you need to check multiple `.sav` files (e.g., for several cohorts or waves), you can run `check_all()` in a loop and write one Excel report per file.
+
+```{r batch, eval=FALSE}
+data_dir <- "path/to/sav_files"
+report_dir <- "reports"
+dir.create(report_dir, showWarnings = FALSE, recursive = TRUE)
+
+sav_files <- list.files(data_dir, pattern = "\\.sav$", full.names = TRUE, recursive = FALSE)
+
+for (f in sav_files) {
+  message("Checking: ", f)
+
+  # Create a stable output name
+  base <- sub("\\.sav$", "", basename(f), ignore.case = TRUE)
+  report_path <- file.path(report_dir, paste0(base, "_check_report.xlsx"))
+
+  # Ensure one failing file does not stop the entire batch
+  out <- tryCatch(
+    check_all(sav_path = f),
+    error = function(e) {
+      message("  ERROR: ", conditionMessage(e))
+      return(NULL)
+    }
+  )
+
+  if (!is.null(out)) {
+    write_check_report(out, file_path = report_path)
+    message("  Report written: ", report_path)
+  }
+}
+```
+
+### Searching subfolders
+
+If your `.sav` files are stored in subfolders, set `recursive = TRUE`:
+
+```{r batch-recursive, eval=FALSE}
+sav_files <- list.files(data_dir, pattern = "\\.sav$", full.names = TRUE, recursive = TRUE)
+```
 
 
 ## Troubleshooting
-- docu_check Not tested → pdf_path fehlt
-- many encoding findings → check encoding / metadata
-- unexpected ID findings → specify idVar
-- SDC flags many categories → interpret as risk indicator; restrict sdcVars if needed
-- where are outputs saved → show paths / tempdir() vs user-defined folder
-- Why does batch processing take long? → SDC / docu checks can be time-consuming; run per file / restrict scope.
-- recursive = FALSE: Datensätze sind in Unterordnern
+
+### `docu_check` shows “Not tested”
+- **Cause:** you did not provide `pdf_path`
+- **Fix:** call `check_all(..., pdf_path = "path/to/codebook.pdf")`
+
+### Many encoding-related findings
+- **Cause:** non-UTF-8 characters or inconsistent encoding in names/labels/metadata
+- **Fix:** check how the `.sav` file was created/exported; if needed, set the `encoding` argument (and ensure your toolchain uses UTF-8 consistently)
+
+### Unexpected missing or duplicate IDs
+- **Cause:** the wrong ID variable was used (default is the first variable)
+- **Fix:** set `idVar` explicitly
+
+### Many SDC flags
+- **Cause:** small sample sizes, fine-grained categories, or non-sensitive variables being checked
+- **Fix:** interpret SDC flags as *risk indicators*; consider restricting `sdcVars` to variables relevant for disclosure risk
+
+### Reports are saved “somewhere I cannot find”
+- **Cause:** you wrote to `tempdir()`, which is session-specific
+- **Fix:** save reports into a dedicated project folder (e.g., `reports/`) and print the path after writing
+
+### Batch processing is slow
+- **Cause:** SDC checks and documentation checks can be time-consuming
+- **Fix:** restrict `sdcVars`; run docu checks only when needed; process files individually if required
+
 
 ## Further resources
-Wenn Datensatz im Anschluss an die Prüfung aufbereitet werden soll, dann sind hier gute Referenzen:
+If you want to continue with systematic cleaning and preparation after running `check_all()`, see:
 
 [FDZ Data Cleaning Guide](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
 
