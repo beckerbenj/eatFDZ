@@ -20,7 +20,7 @@
 #'@param case_sensitive If \code{TRUE}, upper and lower case are differentiated for variable name matching. If \code{FALSE}, case is ignored.
 #'@param encoding Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.
 #'
-#'@return A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
+#'@return A \code{data.frame} with the variable names, variable labels, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
 #'
 #'@examples
 #' # File pathes
@@ -52,9 +52,11 @@ check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALS
     # test
     test <- lapply(nams, function(nam) {
       out <- quanteda::kwic(tok_docu, pattern = nam, window = post_words, case_insensitive = !case_sensitive)
+      lab <- gads$labels[gads$labels$varName == nam, "varLabel"][1]
       post <- out$post
       if(nrow(out) == 0) post <- NA
       data.frame(variable = nam,
+                 varlabel = lab,
                  count = nrow(out),
                  post = post, stringsAsFactors = FALSE)
     })
@@ -62,7 +64,7 @@ check_docu <- function(sav_path, pdf_path, post_words = 2, case_sensitive = FALS
   })
   #if(length(sav_path) > 1) browser()
   out_df <- eatTools::do_call_rbind_withName(out_list, name = basename(sav_path), colName = "data_set")
-  out_df[, c("variable", "count", "post", "data_set")]
+  out_df[, c("variable", "varlabel", "count", "post", "data_set")]
 }
 
 
