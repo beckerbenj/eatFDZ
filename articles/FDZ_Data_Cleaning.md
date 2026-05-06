@@ -22,6 +22,7 @@ following aspects should be adressed when cleaning data:
 The setup for this illustration is the following:
 
 ``` r
+
 ## if necessary, install eatGADS and eatFDZ
 #install.packages("eatGADS")
 #remotes::install_github("beckerbenj/eatFDZ")
@@ -47,6 +48,7 @@ intentionally flawed and messy. The example data set is part of the
 ## Loading the data
 
 ``` r
+
 dat <- import_spss(sav_path)
 str(dat$dat) # for a small overview in the variables of the data set
 ```
@@ -90,6 +92,7 @@ removes non-ASCII characters from a character vector or a `GADSdat`
 object.
 
 ``` r
+
 dat$dat$ID_name
 ```
 
@@ -97,6 +100,7 @@ dat$dat$ID_name
     ##  [8] "Mila"    "Clara"   "Malek"
 
 ``` r
+
 dat <- fixEncoding(dat, input = "other")
 dat$dat$ID_name
 ```
@@ -123,6 +127,7 @@ variable `books` contains a value label `omitted`, which has not been
 tagged as missing.
 
 ``` r
+
 extractMeta(dat, vars = c("books")) # usually, we wouldn't know yet that this variable contains these value labels. This is for demonstration purposes to see the before and after effect of the function
 ```
 
@@ -144,6 +149,7 @@ extractMeta(dat, vars = c("books")) # usually, we wouldn't know yet that this va
     ## 18 more than 500 books    valid
 
 ``` r
+
 missinglabels <- paste("missing", "unknown",
                        "omitted",
                        sep = "|")
@@ -156,6 +162,7 @@ dat1 <- checkMissings(dat, missingLabel = missinglabels)
     ## 'miss' is inserted into column missings for 3 rows.
 
 ``` r
+
 extractMeta(dat1, vars = c("books"))
 ```
 
@@ -185,6 +192,7 @@ checks whether value labels exist for a specified range of numeric
 values and whether missing tags are provided accordingly:
 
 ``` r
+
 extractMeta(dat1, vars = c("school")) # usually, we wouldn't know yet that this variable contains these value labels. This is for demonstration purposes to see the before and after effect of the function
 ```
 
@@ -206,6 +214,7 @@ extractMeta(dat1, vars = c("school")) # usually, we wouldn't know yet that this 
     ## 25    valid
 
 ``` r
+
 dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
 ```
 
@@ -215,6 +224,7 @@ dat2 <- checkMissingsByValues(dat1, missingValues = -50:-99)
     ## 'miss' is inserted into column missings for 1 rows.
 
 ``` r
+
 extractMeta(dat2, vars = c("school"))
 ```
 
@@ -248,6 +258,7 @@ tags missing values as missings by specifying them under `value` and
 marks them as `miss` under `missings.`
 
 ``` r
+
 extractMeta(dat2, vars = c("info"))
 ```
 
@@ -255,6 +266,7 @@ extractMeta(dat2, vars = c("info"))
     ## 3    info General notes     A8            NA      no    NA     <NA>     <NA>
 
 ``` r
+
 dat3 <- changeMissings(dat2, varName = "info", value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
 extractMeta(dat3, vars = c("info"))
 ```
@@ -271,6 +283,7 @@ same time using
 [`changeMissings()`](https://beckerbenj.github.io/eatGADS/reference/changeMissings.html).
 
 ``` r
+
 extractMeta(dat2, vars = c("info", "career"))
 ```
 
@@ -282,6 +295,7 @@ extractMeta(dat2, vars = c("info", "career"))
     ## 29     <NA>
 
 ``` r
+
 dat3 <- changeMissings(dat2, varName = c("info", "career"), value = c("-97", "-98", "-99"), missings = c("miss", "miss", "miss"))
 extractMeta(dat3, vars = c("info", "career"))
 ```
@@ -313,6 +327,7 @@ and describe the same person, they are recoded using a template. First,
 a path for the template is created.
 
 ``` r
+
 f <- tempfile()
 ID_recode_template <- file.path("f") # use your own file path instead of the tempfile
 ```
@@ -329,6 +344,7 @@ and in the course of this a new variable with the variable suffix `_FDZ`
 and an explanatory label suffix.
 
 ``` r
+
 dat3 <- autoRecode(dat3, var = "ID", var_suffix = "_FDZ", csv_path = ID_recode_template, label_suffix = " (recoded by FDZ)")
 ```
 
@@ -340,6 +356,7 @@ template, which can be applied with
 [`autoRecode()`](https://beckerbenj.github.io/eatGADS/reference/autoRecode.html)
 
 ``` r
+
 template <- read.csv(ID_recode_template)
 dat3 <- autoRecode(dat3, var = "ID", suffix = "_FDZ", csv_path = ID_recode_template, template = template,
                    label_suffix = "(rekodiert FDZ)") # Apply template and overwrite
@@ -350,6 +367,7 @@ deletes variables from the data set. In this case, the old ID variable
 is deleted.
 
 ``` r
+
 dat3 <- removeVars(dat3, vars = c("ID"))
 ```
 
@@ -366,6 +384,7 @@ emptied entirely in the Scientific Use Files. To convert the string
 variables into numeric ones, all string variables are identified first.
 
 ``` r
+
 all_types <- do.call(rbind, lapply(namesGADS(dat3), function(nam) data.frame(varName = nam, type = class(dat3$dat[[nam]]))))
 all_types[all_types$type == "character", ]
 ```
@@ -388,6 +407,7 @@ converts the string variables identified in advance into numeric
 variables using a for loop.
 
 ``` r
+
 charNames <- all_types[all_types$type == "character", "varName"]
 for(charName in charNames) {
   dat4 <- multiChar2fac(dat3, vars = charName, var_suffix = "", label_suffix = "")
@@ -402,6 +422,7 @@ variables. If the option `var_suffix` is used, a new variable is
 created.
 
 ``` r
+
 dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "_FDZ", label_suffix = "")
 ```
 
@@ -409,6 +430,7 @@ If the `var_suffix` option is left blank, the existing variable is
 overwritten.
 
 ``` r
+
 dat4 <- multiChar2fac(dat4, vars = c("ID_name", "info", "subjfav", "birth"), var_suffix = "", label_suffix = "")
 ```
 
@@ -421,6 +443,7 @@ empties the listed variables and adds an explanation to the variable
 label on why the information was removed.
 
 ``` r
+
 extractMeta(dat4, vars = c("info", "ID_name"))
 ```
 
@@ -431,6 +454,7 @@ extractMeta(dat4, vars = c("info", "ID_name"))
     ## 5    info General notes     A8            NA     yes   -97     <NA>     miss
 
 ``` r
+
 dat4_empty <- c("info",
                 "ID_name")
 dat5 <- emptyTheseVariables(dat4,
@@ -467,6 +491,7 @@ is created with `valLabel`.
 1.  Changing variable labels
 
 ``` r
+
 extractMeta(dat5, vars = c("school"))
 ```
 
@@ -488,6 +513,7 @@ extractMeta(dat5, vars = c("school"))
     ## 27    valid
 
 ``` r
+
 dat6 <- changeVarLabels(dat5, varName = "school", varLabel = "School type")
 extractMeta(dat6, vars = c("school"))
 ```
@@ -512,6 +538,7 @@ extractMeta(dat6, vars = c("school"))
 2.  Changing value labels
 
 ``` r
+
 extractMeta(dat6, vars = c("books"))
 ```
 
@@ -533,6 +560,7 @@ extractMeta(dat6, vars = c("books"))
     ## 20 more than 500 books    valid
 
 ``` r
+
 dat7 <- changeValLabels(dat6, varName = "books", value = 5, valLabel = "201-500 books")
 extractMeta(dat7, vars = c("books"))
 ```
@@ -571,6 +599,7 @@ replaces the old values (`oldValues`) by new ones (`newValues`) and
 changes the value labels of the new groupings.
 
 ``` r
+
 extractMeta(dat7, vars = c("age"))
 ```
 
@@ -578,6 +607,7 @@ extractMeta(dat7, vars = c("age"))
     ## 9     age      Age  F10.0            NA      no    NA     <NA>     <NA>
 
 ``` r
+
 dat8 <- cloneVariable(dat7, varName = "age", new_varName = "age_FDZ", label_suffix = " (Zur Anonymisierung aggregiert (FDZ))")
 dat8 <- recodeGADS(dat8, varName = "age_FDZ", oldValues = c(13, 14, 15, 17),
                   newValues = c(13, 13, 15, 15))
@@ -601,6 +631,7 @@ variable, which was summarized before in `gr_var`. The individual steps
 are therefore performed for each of the variables in turn.
 
 ``` r
+
 extractMeta(dat8, vars = c("grade_math"))
 ```
 
@@ -610,6 +641,7 @@ extractMeta(dat8, vars = c("grade_math"))
     ## 28     <NA>
 
 ``` r
+
 dat9 <- dat8
 gr_var <- c("grade_math", "grade_germ", "grade_eng")
 for (varname in gr_var) {
@@ -650,6 +682,7 @@ places it at the beginning of the record so it has a consistent, visible
 place.
 
 ``` r
+
 version_name <- "Version_v1_2023_11"
 dat10 <- createVariable(dat9, varName = version_name)
 dat10 <- relocateVariable(dat10, var = version_name, after = NULL)
@@ -662,6 +695,7 @@ Newly created variables are initially placed at the end of a data set.
 rearranges the variables by specifying the variables in their new order.
 
 ``` r
+
 dat11 <- orderLike(dat10, newOrder = c("Version_v1_2023_11", "ID", "ID_name", "info", "home", "birth", "age", "age_FDZ", "sex", "siblings", "books", "school", "subjfav", "grade_math", "grade_math_FDZ", "grade_germ", "grade_germ_FDZ", "grade_eng", "grade_eng_FDZ", "career"))
 ```
 
@@ -672,6 +706,7 @@ emptied original variable.
 sets the variables after the selected one.
 
 ``` r
+
 dat11 <- relocateVariable(dat11, var = "age_FDZ", after = "age")
 ```
 
@@ -686,6 +721,7 @@ are offered for this purpose. The file paths must be adapted in each
 case.
 
 ``` r
+
 write_spss(dat11, filePath = "filePath.sav")
 write_stata(dat11, filePath = "filePath.dta")
 ```
