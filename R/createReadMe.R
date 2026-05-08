@@ -18,4 +18,20 @@ createReadMe <- function(in_path, out_path = NULL,
 
   # Input = singular directory path     -> ReadMe = file list
   # Input = list of > 0 control file(s) -> ReadMe = list from control file(s)
+  if (length(in_path) == 1) {
+    content <- create_RM_from_dir(in_path = in_path,
+                                  out_path = out_path,
+                                  flat_depth = flat_depth)
+  } else {
+    content <- create_RM_from_tab(in_path = in_path,
+                                  out_path = out_path)
+  }
+
+
+}
+create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
+}
+create_RM_from_tab <- function(in_path, out_path, create_table) {
+
+}
 }
