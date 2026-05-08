@@ -40,6 +40,8 @@ create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
   if (is.null(out_path)) {
     out_path <- in_path
   }
+
+  file_table <- create_file_table(path = in_path)
 }
 create_RM_from_tab <- function(in_path, out_path, create_table) {
 
@@ -58,5 +60,59 @@ check_path_or_null <- function(arg, argName) {
     stop("'", argName, "' has to be either NULL, or an existing directory or file path.",
          call. = FALSE)
   }
+}
+
+create_file_table <- function(path) {
+  # list all files in a directory by going through subdirectories recursively
+  out <- list()
+
+  all_files <- list.files(path = path,
+                          full.names = TRUE,
+                          recursive = FALSE)
+  all_files <- all_files[!dir.exists(all_files)] # remove folders to only have true files
+  all_files <- basename(all_files)
+  all_sub_dirs <- list.dirs(path = path,
+                            full.names = TRUE,
+                            recursive = FALSE)
+
+  if (length(all_files) > 0) {
+    this_dir <- basename(path)
+    file_tab <- data.frame(file_name = all_files,
+                           name_length = nchar(all_files),
+                           extension = stri_extract_last(str = all_files,
+                                                         regex = "\\..{2,4}$"))
+    file_tab$extension <- sub(pattern = "\\.",
+                              replacement = "",
+                              x = file_tab$extension)
+    file_tab$description <- paste(lapply(file_tab$extension, switch,
+                                         sav = "Dataset",
+                                         dta = "Dataset",
+                                         csv = "Dataset",
+                                         txt = "ReadMe",
+                                         pdf = "Documentation",
+                                         pdfa = "Documentation",
+                                         xlsx = "Codebook",
+                                         sha = "Checksum",
+                                         "Unspecified file"),
+                                  "in", this_dir)
+    out[[1]] <- file_tab
+    names(out)[1] <- "files"
+  } else {
+    if (length(all_sub_dirs) == 0) return()
+  }
+
+  if (length(all_sub_dirs) > 0) {
+    for (subdir in all_sub_dirs) {
+      pointer <- length(out) + 1
+      sub_content <- create_file_table(subdir)
+      if (is.null(sub_content)) next # Don't list empty subdirs
+      out[[pointer]] <- sub_content
+      names(out)[[pointer]] <- basename(subdir)
+    }
+  } else {
+    return(out)
+  }
+
+  return(out)
 }
 }
