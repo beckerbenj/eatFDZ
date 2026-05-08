@@ -42,7 +42,16 @@ create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
   }
 
   file_table <- create_file_table(path = in_path)
+
+  ## create ReadMe file ##
+  positions_name_length <- grep(pattern = "name_length",
+                                x = attributes(unlist(file_table))$names)
+  max_name_length <- max(as.numeric(unlist(file_table)[positions_name_length]))
+  file_list <- flatten_file_table(dirname = "",
+                                  file_table = file_table,
+                                  flat_depth = flat_depth)
 }
+
 create_RM_from_tab <- function(in_path, out_path, create_table) {
 
 }
@@ -115,4 +124,42 @@ create_file_table <- function(path) {
 
   return(out)
 }
+
+flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warning_issued = FALSE) {
+  # name of folder
+  out <- data.frame(file_name = dirname,
+                    description = "",
+                    depth = if (depth == 0) depth else depth - 1)
+
+  # list direct files
+  if (names(file_table)[[1]] == "files") {
+    out <- rbind(out,
+                 data.frame(file_name = file_table$files$file_name,
+                            description = file_table$files$file_name,
+                            depth = depth))
+    if (length(file_table) == 1) return(out) # no further subdirectories
+  }
+
+  # go throught subdirectories recursively
+  if (!is.null(flat_depth) && flat_depth == depth) {
+    depth <- depth
+  } else {
+    depth <- depth + 1
+    if (depth > 10 && !warning_issued && is.null(flat_depth)) {
+      warning("This directory has an appending depth of more than 10 levels, i.e. there are at least",
+              " 10 subdirectory levels between the top directory and its deepest subdirectory.",
+              " Consider setting the 'flat_depth' argument to a reasonable value.",
+              call. = FALSE)
+      warning_issued <- TRUE
+    }
+  }
+  for (i in 2:length(file_table)) {
+    out <- rbind(out,
+                 flatten_file_table(dirname = names(file_table)[[i]],
+                                    file_table = file_table[[i]],
+                                    flat_depth = flat_depth,
+                                    depth = depth,
+                                    warning_issued = warning_issued))
+  }
+  return(out)
 }
