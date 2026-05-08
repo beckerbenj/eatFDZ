@@ -29,9 +29,34 @@ createReadMe <- function(in_path, out_path = NULL,
 
 
 }
+
 create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
+  if (!dir.exists(in_path)) {
+    stop("Directory '", in_path, "' does not exist.",
+         call. = FALSE)
+  }
+  check_path_or_null(out_path)
+
+  if (is.null(out_path)) {
+    out_path <- in_path
+  }
 }
 create_RM_from_tab <- function(in_path, out_path, create_table) {
 
+}
+
+
+#### auxiliary ####
+
+check_path_or_null <- function(arg, argName) {
+  if (missing(argName)) {
+    argName <- deparse(substitute(arg))
+  }
+  if (is.null(arg) || (is.character(arg) && dir.exists(arg))) {
+    return(NULL)
+  } else {
+    stop("'", argName, "' has to be either NULL, or an existing directory or file path.",
+         call. = FALSE)
+  }
 }
 }
