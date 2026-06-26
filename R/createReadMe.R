@@ -15,7 +15,13 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
   }
+  check_path_or_null(out_path)
   lang <- match.arg(lang, several.ok = TRUE)
+  check_whole_number(margin)
+  check_whole_number(col_width)
+  check_whole_number(max_width)
+  check_whole_number(indent_per_level)
+  check_whole_number(max_indent)
   create_table <- match.arg(create_table)
   if (!is.null(flat_depth)) eatGADS:::check_numericArgument(flat_depth)
 
@@ -36,8 +42,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     content <- create_RM_from_tab(in_path = in_path,
                                   out_path = out_path)
   }
-
-
+  return(content)
 }
 
 create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_width,
@@ -46,7 +51,6 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     stop("Directory '", in_path, "' does not exist.",
          call. = FALSE)
   }
-  check_path_or_null(out_path)
 
   if (is.null(out_path)) {
     out_path <- in_path
@@ -116,19 +120,40 @@ create_RM_from_tab <- function(in_path, out_path, create_table) {
 }
 
 
-#### auxiliary ####
+#### auxiliary: checks ####
 
 check_path_or_null <- function(arg, argName) {
   if (missing(argName)) {
     argName <- deparse(substitute(arg))
   }
-  if (is.null(arg) || (is.character(arg) && dir.exists(arg))) {
+  if (is.null(arg)) {
+    return(NULL)
+  }
+  if (is.character(arg) && dir.exists(arg)) {
+    return(NULL)
+  }
+  if (is.character(arg) && dir.exists(dirname(arg))) {
     return(NULL)
   } else {
     stop("'", argName, "' has to be either NULL, or an existing directory or file path.",
          call. = FALSE)
   }
 }
+
+check_whole_number <- function(arg, argName) {
+  if (missing(argName)) {
+    argName <- deparse(substitute(arg))
+  }
+  eatGADS:::check_numericArgument(arg = arg, argName = argName)
+  if (arg == round(arg)) {
+    return(NULL)
+  } else {
+    stop("'", argName, "' has to be a whole number.",
+         call. = FALSE)
+  }
+}
+
+#### auxiliary: substantive ####
 
 create_file_table <- function(path, prev_depth = 0) {
   # list all files in a directory by going through subdirectories recursively
