@@ -8,6 +8,8 @@
 #'
 #' @export
 createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
+                         margin = 4, col_width = 90, max_width = 300,
+                         indent_per_level = 2, max_indent = 10,
                          create_table = c("none", "control", "overview"), flat_depth = NULL) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
@@ -22,6 +24,13 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   if (length(in_path) == 1) {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
+                                  lang = lang,
+                                  margin = margin,
+                                  col_width = col_width,
+                                  max_width = max_width,
+                                  indent_per_level = indent_per_level,
+                                  max_indent = max_indent,
+                                  create_table = create_table,
                                   flat_depth = flat_depth)
   } else {
     content <- create_RM_from_tab(in_path = in_path,
@@ -31,7 +40,8 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 
 }
 
-create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
+create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_width,
+                               indent_per_level, max_indent, create_table, flat_depth) {
   if (!dir.exists(in_path)) {
     stop("Directory '", in_path, "' does not exist.",
          call. = FALSE)
@@ -76,6 +86,26 @@ create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
                                                  "$)"))
   file_table2write <- file_table_flat[, -cols_of_selected_lang]
   rm(cols_of_selected_lang)
+
+  # paste together all alternative descriptions
+  for (i in seq_along(lang)) {
+    this_lang_col <- grep(x = names(file_table_flat),
+                           pattern = paste0("_", lang[[i]], "$"))
+    file_table2write$description <- file_table_flat[, this_lang_col]
+    these_lines <- file_table_as_text(content = file_table2write,
+                                      margin = margin,
+                                      col_width = col_width,
+                                      prefix = "- ",
+                                      indent_per_level = indent_per_level,
+                                      max_indent = max_indent,
+                                      header = TRUE)
+    if (i == 1) {
+      lines2write <- list(these_lines)
+      names(lines2write) <- lang[[i]]
+    } else {
+      lines2write[[lang[[i]]]] <-these_lines
+    }
+    rm(this_lang_col, these_lines)
   }
 
 
@@ -195,5 +225,89 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
                                     depth = depth,
                                     warning_issued = warning_issued))
   }
+  return(out)
+}
+
+file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- ",
+                               indent_per_level = 2, max_indent = 10, header = TRUE) {
+  filenames <- content$file_name
+  descriptions <- content$description
+  depths <- content$depth
+
+  lengths_name <- nchar(filenames, type = "char")
+  lengths_indentation <- depths * indent_per_level
+  lengths_indentation[lengths_indentation > max_indent] <- max_indent
+  lengths_indented_name <- lengths_name + lengths_indentation
+  col_width <- max(c(max(lengths_indented_name) + margin,
+                     col_width))
+
+  groups <- unique(content$group)
+  full_lines <- sapply(seq_along(groups), function(group_index) {
+    this_group <- subset(content,
+                         subset = group == groups[[group_index]],
+                         select = c(file_name, description, depth))
+
+    this_depth <- this_group$depth[[1]]
+    lines_above <- abs(this_depth[[1]] - max(depths)) + 1
+
+    # no lines above if previous group had no direct files
+    if (group_index == 1 || nrow(subset(content, group == groups[[group_index - 1]])) == 1) {
+      lines_above <- 0
+    }
+
+    # reduce header indentation
+    if (header) {
+      this_depth <- c(this_depth, rep(this_depth + 1, nrow(this_group) - 1))
+    }
+
+    this_section <- these_filenames <- sapply(seq_along(this_group$file_name), function(x) {
+      paste0(paste0(rep(" ",
+                        indent_per_level * this_depth[[x]]),
+                    collapse = ""),
+             this_group$file_name[[x]])
+    })
+
+    # paste together lines and fill left column with blanks if necessary
+    lines_with_description <- this_group$description != ""
+    if (any(lines_with_description)) {
+      these_descriptions <- paste0(prefix, this_group$description[lines_with_description])
+
+      this_section[lines_with_description] <- fill_with_blanks(col1 = these_filenames[lines_with_description],
+                                                               col2 = these_descriptions,
+                                                               width = col_width)
+    }
+
+    # add blank lines above, depending on depth of group
+    this_section <- c(rep("", lines_above),
+                      this_section)
+  })
+  full_lines <- unlist(full_lines)
+  return(full_lines)
+}
+
+fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
+  if (length(col1) != length(col2)) {
+    length_diff <- length(col1) - length(col2)
+    if (length_diff > 0) {
+      col2 <- c(col2, rep("", length_diff))
+    } else {
+      col1 <- c(col1, rep("", length_diff))
+    }
+  }
+
+  length_col1 <- nchar(col1, type = "char")
+  fill_blanks <- width - length_col1
+
+  if (use_tabs) {
+    fill_tabs <- floor(fill_blanks / 8)
+    fill_blanks <- fill_blanks %% 8
+    tabs <- sapply(fill_tabs, function(x) paste0(rep("\t", x), collapse = ""))
+    blanks <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
+    filler <- paste0(blanks, tabs)
+  } else {
+    filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
+  }
+
+  out <- paste0(col1, filler, col2)
   return(out)
 }
