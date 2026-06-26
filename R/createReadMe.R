@@ -7,12 +7,13 @@
 #' @examples
 #'
 #' @export
-createReadMe <- function(in_path, out_path = NULL,
+createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                          create_table = c("none", "control", "overview"), flat_depth = NULL) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
   }
+  lang <- match.arg(lang, several.ok = TRUE)
   create_table <- match.arg(create_table)
   if (!is.null(flat_depth)) eatGADS:::check_numericArgument(flat_depth)
 
@@ -45,6 +46,36 @@ create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
   file_table_flat <- flatten_file_table(dirname = basename(in_path),
                                         file_table = file_table_deep,
                                         flat_depth = flat_depth)
+  names(file_table_flat) <- sub(x = names(file_table_flat),
+                                pattern = "description",
+                                replacement = "description_en")
+  # translate descriptions if necessary
+  if ("de" %in% lang) {
+    # reassamble file_table_flat: cols up to English description, German description, other cols
+    position_descr_col <- which(names(file_table_flat) == "description_en")
+    first_cols <- file_table_flat[, 1:position_descr_col]
+    last_cols <- file_table_flat[, (position_descr_col + 1):ncol(file_table_flat)]
+    description_de <- stri_replace_all_fixed(str = file_table_flat$description_en,
+                                             pattern = c("Dataset",
+                                                         "Documentation",
+                                                         "Checksum",
+                                                         "Unspecified file"),
+                                             replacement = c("Datensatz",
+                                                             "Dokumentation",
+                                                             "Checksumme",
+                                                             "Unspezifizierte Datei"),
+                                             vectorise_all = FALSE)
+    file_table_flat <- cbind(first_cols, description_de, last_cols)
+    rm(position_descr_col, first_cols, description_de, last_cols)
+  }
+
+  # select language specific descriptions based on user input
+  cols_of_selected_lang <- grep(x = names(file_table_flat),
+                                pattern = paste0("(_",
+                                                 paste(lang, collapse = "$)|(_"),
+                                                 "$)"))
+  file_table2write <- file_table_flat[, -cols_of_selected_lang]
+  rm(cols_of_selected_lang)
   }
 
 
@@ -92,17 +123,17 @@ create_file_table <- function(path, prev_depth = 0) {
     file_tab$extension <- sub(pattern = "\\.",
                               replacement = "",
                               x = file_tab$extension)
-    file_tab$description <- paste(lapply(file_tab$extension, switch,
-                                         sav = "Dataset",
-                                         dta = "Dataset",
-                                         csv = "Dataset",
-                                         txt = "ReadMe",
-                                         pdf = "Documentation",
-                                         pdfa = "Documentation",
-                                         xlsx = "Codebook",
-                                         sha = "Checksum",
-                                         "Unspecified file"),
-                                  "in", this_dir)
+    file_tab$description_en <- paste(lapply(file_tab$extension, switch,
+                                            sav = "Dataset",
+                                            dta = "Dataset",
+                                            csv = "Dataset",
+                                            txt = "ReadMe",
+                                            pdf = "Documentation",
+                                            pdfa = "Documentation",
+                                            xlsx = "Codebook",
+                                            sha = "Checksum",
+                                            "Unspecified file"),
+                                     "in", this_dir)
     out[[1]] <- file_tab
     names(out)[1] <- "files"
   } else {
