@@ -39,17 +39,15 @@ create_RM_from_dir <- function(in_path, out_path, create_table, flat_depth) {
 
   if (is.null(out_path)) {
     out_path <- in_path
-  }
-
-  file_table <- create_file_table(path = in_path)
+  file_table_deep <- create_file_table(path = in_path)
 
   ## create ReadMe file ##
-  positions_name_length <- grep(pattern = "name_length",
-                                x = attributes(unlist(file_table))$names)
-  max_name_length <- max(as.numeric(unlist(file_table)[positions_name_length]))
-  file_list <- flatten_file_table(dirname = "",
-                                  file_table = file_table,
-                                  flat_depth = flat_depth)
+  file_table_flat <- flatten_file_table(dirname = basename(in_path),
+                                        file_table = file_table_deep,
+                                        flat_depth = flat_depth)
+  }
+
+
 }
 
 create_RM_from_tab <- function(in_path, out_path, create_table) {
@@ -71,7 +69,7 @@ check_path_or_null <- function(arg, argName) {
   }
 }
 
-create_file_table <- function(path) {
+create_file_table <- function(path, prev_depth = 0) {
   # list all files in a directory by going through subdirectories recursively
   out <- list()
 
@@ -87,6 +85,7 @@ create_file_table <- function(path) {
   if (length(all_files) > 0) {
     this_dir <- basename(path)
     file_tab <- data.frame(file_name = all_files,
+                           depth = prev_depth,
                            name_length = nchar(all_files),
                            extension = stri_extract_last(str = all_files,
                                                          regex = "\\..{2,4}$"))
@@ -113,7 +112,7 @@ create_file_table <- function(path) {
   if (length(all_sub_dirs) > 0) {
     for (subdir in all_sub_dirs) {
       pointer <- length(out) + 1
-      sub_content <- create_file_table(subdir)
+      sub_content <- create_file_table(subdir, prev_depth = prev_depth + 1)
       if (is.null(sub_content)) next # Don't list empty subdirs
       out[[pointer]] <- sub_content
       names(out)[[pointer]] <- basename(subdir)
@@ -129,14 +128,16 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
   # name of folder
   out <- data.frame(file_name = dirname,
                     description = "",
-                    depth = if (depth == 0) depth else depth - 1)
+                    depth = depth,
+                    group = dirname)
 
   # list direct files
   if (names(file_table)[[1]] == "files") {
     out <- rbind(out,
                  data.frame(file_name = file_table$files$file_name,
-                            description = file_table$files$file_name,
-                            depth = depth))
+                            description = file_table$files$description,
+                            depth = depth,
+                            group = dirname))
     if (length(file_table) == 1) return(out) # no further subdirectories
   }
 
@@ -155,7 +156,9 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
   }
   for (i in 2:length(file_table)) {
     out <- rbind(out,
-                 flatten_file_table(dirname = names(file_table)[[i]],
+                 flatten_file_table(dirname = paste(dirname,
+                                                    names(file_table)[[i]],
+                                                    sep = "/"),
                                     file_table = file_table[[i]],
                                     flat_depth = flat_depth,
                                     depth = depth,
