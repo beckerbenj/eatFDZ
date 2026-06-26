@@ -126,6 +126,52 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     }
   }
 
+  # allocate base output
+  out_list <- list(ReadMe = lines2write,
+                   files = NULL)
+
+  ## return file table as requested ##
+  if (create_table == "none") return(out_list)
+
+  if (create_table == "overview") {
+    out_list$files <- file_table_flat
+    return(out_list)
+  }
+
+  if (create_table == "control") {
+    file_table_flat$n_in_group <- sapply(seq_along(file_table_flat$group), function(x) {
+      sum(grepl(pattern = paste0("^", file_table_flat$group[[x]], "$"),
+                x = file_table_flat$group))
+    })
+
+    # identify "super-groups"; directories that only contain directories but no direct files
+    super_groups <- file_table_flat$group[file_table_flat$n_in_group == 1]
+    file_table_flat$super_group <- NA
+    for (this_super_group in super_groups) {
+      group_in_super_group <- grepl(pattern = this_super_group, x = file_table_flat$group)
+      file_table_flat$super_group[group_in_super_group] <- this_super_group
+    }
+
+    # apply super-group if possible, revert to normal group if necessary
+    file_table_flat$apply_group <- file_table_flat$super_group
+    no_super_group <- is.na(file_table_flat$apply_group)
+    file_table_flat$apply_group[no_super_group] <- file_table_flat$group[no_super_group]
+    applied_group_names <- unique(file_table_flat$apply_group)
+
+    file_list <- lapply(applied_group_names, function(grup) {
+      this_group <- subset(x = file_table_flat,
+                           subset = apply_group == grup,
+                           select = c("file_name", paste("description", lang, sep = "_")))
+      descr_cols <- grep(x = names(this_group), pattern = "description")
+      this_group[1, descr_cols] <- "/flag//header"
+      this_group[this_group[, descr_cols[[1]]] == "", descr_cols] <- "/flag//subheader"
+      return(this_group)
+    })
+    names(file_list) <- applied_group_names
+
+    out_list$files <- file_list
+    return(out_list)
+  }
 }
 
 create_RM_from_tab <- function(in_path, out_path, create_table) {
