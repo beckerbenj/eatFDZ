@@ -52,8 +52,6 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
          call. = FALSE)
   }
 
-  if (is.null(out_path)) {
-    out_path <- in_path
   file_table_deep <- create_file_table(path = in_path)
 
   ## create ReadMe file ##
@@ -112,6 +110,21 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     rm(this_lang_col, these_lines)
   }
 
+  ## write ReadMe if requested via out_path ##
+  if (!is.null(out_path)) {
+    for (this_lang in lang) {
+      if (length(lang) > 1) {
+        out_ext <- stri_extract_last_regex(out_path, "\\.[[:alnum:]]{2,4}$")
+        this_out_path <- sub(x = out_path,
+                             pattern = "\\.[[:alnum:]]{2,4}$",
+                             replacement = paste0("_", this_lang, out_ext))
+      } else {
+        this_out_path <- out_path
+      }
+      writeLines(text = lines2write[[this_lang]],
+                 con = this_out_path)
+    }
+  }
 
 }
 
