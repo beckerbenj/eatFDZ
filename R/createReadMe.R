@@ -269,24 +269,40 @@ create_file_table <- function(path, prev_depth = 0) {
   return(out)
 }
 
-flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warning_issued = FALSE) {
-  # name of folder
-  out <- data.frame(file_name = dirname,
-                    description = "",
-                    depth = depth,
-                    group = dirname)
+flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warning_issued = FALSE,
+                               ignore_empty_base = TRUE) {
+  # ignore base of directory (first level) if it has no direct files and if the skip is requested
+  # (relevant for template creation)
+  if (isTRUE(ignore_empty_base) && depth == 0 && names(file_table)[[1]] != "files") {
+    empty_base <- TRUE
+    start_col <- 1
+    depth <- -1
+  } else {
+    empty_base <- FALSE
+    # name of folder
+    out <- data.frame(file_name = dirname,
+                      description = "",
+                      depth = depth,
+                      group = dirname)
 
-  # list direct files
-  if (names(file_table)[[1]] == "files") {
-    out <- rbind(out,
-                 data.frame(file_name = file_table$files$file_name,
-                            description = file_table$files$description,
-                            depth = depth,
-                            group = dirname))
-    if (length(file_table) == 1) return(out) # no further subdirectories
+    # list direct files
+    if (names(file_table)[[1]] == "files") {
+      out <- rbind(out,
+                   data.frame(file_name = file_table$files$file_name,
+                              description = file_table$files$description,
+                              depth = depth,
+                              group = dirname))
+      if (length(file_table) == 1) {
+        return(out) # no further subdirectories
+      } else {
+        start_col <- 2 # otherwise 2nd col will have the first subdir
+      }
+    } else {
+      start_col <- 1
+    }
   }
 
-  # go throught subdirectories recursively
+  # warn if directory is very deep
   if (!is.null(flat_depth) && flat_depth == depth) {
     depth <- depth
   } else {
@@ -299,15 +315,27 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
       warning_issued <- TRUE
     }
   }
-  for (i in 2:length(file_table)) {
-    out <- rbind(out,
-                 flatten_file_table(dirname = paste(dirname,
-                                                    names(file_table)[[i]],
-                                                    sep = "/"),
-                                    file_table = file_table[[i]],
-                                    flat_depth = flat_depth,
-                                    depth = depth,
-                                    warning_issued = warning_issued))
+
+  # go throught subdirectories recursively
+  for (i in start_col:length(file_table)) {
+    if (isTRUE(empty_base)) {
+      subdir <- names(file_table)[[i]]
+    } else {
+      subdir <- paste(dirname,
+                      names(file_table)[[i]],
+                      sep = "/")
+    }
+    new_row <- flatten_file_table(dirname = subdir,
+                                  file_table = file_table[[i]],
+                                  flat_depth = flat_depth,
+                                  depth = depth,
+                                  warning_issued = warning_issued,
+                                  ignore_empty_base = FALSE)
+    if (!exists("out")) {
+      out <- new_row
+    } else {
+      out <- rbind(out, new_row)
+    }
   }
   return(out)
 }
