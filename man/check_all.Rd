@@ -53,6 +53,7 @@ of the dataset. The checks include:
   \item \code{\link{check_id}}: Validates the uniqueness and non-missingness of identifier variables.
   \item \code{\link{check_var_labels}}: Checks for the existence of variable labels.
   \item \code{\link[eatGADS]{checkMissingValLabels}}: Ensures missing value labels are correctly defined.
+  \item \code{\link[eatGADS]{checkEmptyValLabels}}: Identifies value labels whose corresponding values do not occur in the data.
   \item \code{\link{check_missing_range}}: Validates whether values fall within a defined missing value range.
   \item \code{\link{check_missing_regex}}: Identifies missing value labels based on a regular expression.
   \item \code{\link{sdc_check}}: Performs a statistical disclosure control check for variables with low category frequencies.

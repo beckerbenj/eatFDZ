@@ -10,6 +10,7 @@
 #'   \item \code{\link{check_id}}: Validates the uniqueness and non-missingness of identifier variables.
 #'   \item \code{\link{check_var_labels}}: Checks for the existence of variable labels.
 #'   \item \code{\link[eatGADS]{checkMissingValLabels}}: Ensures missing value labels are correctly defined.
+#'   \item \code{\link[eatGADS]{checkEmptyValLabels}}: Identifies value labels whose corresponding values do not occur in the data.
 #'   \item \code{\link{check_missing_range}}: Validates whether values fall within a defined missing value range.
 #'   \item \code{\link{check_missing_regex}}: Identifies missing value labels based on a regular expression.
 #'   \item \code{\link{sdc_check}}: Performs a statistical disclosure control check for variables with low category frequencies.
@@ -86,6 +87,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   # value labels
   # ----------------------------------------------------------
   missing_valLables <- eatGADS::checkMissingValLabels(gads, output = "data.frame")
+  empty_valLabels <- eatGADS::checkEmptyValLabels(gads, output = "data.frame")
 
   # missing tags
   # ----------------------------------------------------------
@@ -116,7 +118,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                                  bad_encoding_var_names, bad_encoding_meta_data,
                                  missing_ids, duplicate_ids,
                                  missing_varLabels,
-                                 missing_valLables,
+                                 missing_valLables, empty_valLabels,
                                  missing_range_tags, missing_regex_tags,
                                  sdc_check_out,
                                  character_vars,
@@ -126,7 +128,7 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
     "special_signs_variable_names", "special_signs_meta_data",
     "missing_IDs", "duplicate_IDs",
     "missing_variable_labels",
-    "missing_value_labels",
+    "missing_value_labels", "empty_value_labels",
     "missing_range_tags", "missing_regex_tags",
     "statistical_disclosure_control",
     "character_variables",
