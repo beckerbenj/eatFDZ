@@ -56,6 +56,8 @@ of the dataset. The checks include:
   \item \code{\link[eatGADS]{checkEmptyValLabels}}: Identifies value labels whose corresponding values do not occur in the data.
   \item \code{\link{check_missing_range}}: Validates whether values fall within a defined missing value range.
   \item \code{\link{check_missing_regex}}: Identifies missing value labels based on a regular expression.
+  \item \code{\link{check_empty_vars}}: Identifies variables containing only missing values.
+  \item \code{\link{check_constant_vars}}: Identifies variables containing exactly one distinct valid value.
   \item \code{\link{sdc_check}}: Performs a statistical disclosure control check for variables with low category frequencies.
   \item \code{\link{check_docu}}: Verifies that all variables are referenced in external documentation (e.g., codebooks in \code{.pdf} format).
 }
