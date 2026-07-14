@@ -30,6 +30,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   # BUT: length 1 could be either mode  -> decide by path ending:
   #  (A) no file extension of 2-4 characters = directory mode
   #  (B) file extension = table mode
+  func_mode <- "table"
   if (length(in_path) == 1) {
     file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
     if (is.na(file_ext)) {
@@ -37,7 +38,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
         stop("Directory '", in_path, "' does not exist.",
              call. = FALSE)
       }
-      mode <- "directory"
+      func_mode <- "directory"
     } else {
       if (!all(file.exists(in_path))) {
         stop("Could not find file(s): '",
@@ -45,12 +46,23 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
              "'",
              call. = FALSE)
       }
-      mode <- "table"
+      func_mode <- "table"
     }
   }
 
   # call respective sub-function; returned content may be NULL or a table, depending on create_table
-  if (mode == "directory") {
+  if (func_mode == "table") {
+    content <- create_RM_from_tab(in_path = in_path,
+                                  out_path = out_path,
+                                  lang = lang,
+                                  margin = margin,
+                                  col_width = col_width,
+                                  max_width = max_width,
+                                  indent_per_level = indent_per_level,
+                                  max_indent = max_indent,
+                                  create_table = create_table,
+                                  sep = sep)
+  } else {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
@@ -62,17 +74,6 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   create_table = create_table,
                                   flat_depth = flat_depth,
                                   skip_empty_base = skip_empty_base)
-  } else {
-    content <- create_RM_from_tab(in_path = in_path,
-                                  out_path = out_path,
-                                  lang = lang,
-                                  margin = margin,
-                                  col_width = col_width,
-                                  max_width = max_width,
-                                  indent_per_level = indent_per_level,
-                                  max_indent = max_indent,
-                                  create_table = create_table,
-                                  sep = sep)
   }
   return(content)
 }
@@ -126,8 +127,7 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
                                       margin = margin,
                                       col_width = col_width,
                                       indent_per_level = indent_per_level,
-                                      max_indent = max_indent,
-                                      header = TRUE)
+                                      max_indent = max_indent)
     if (i == 1) {
       lines2write <- list(these_lines)
       names(lines2write) <- lang[[i]]
@@ -390,6 +390,7 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
   filenames <- content$file_name
   descriptions <- content$description
   depths <- content$depth
+  groups <- unique(content$group)
 
   lengths_name <- nchar(filenames, type = "char")
   lengths_indentation <- depths * indent_per_level
@@ -398,25 +399,16 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
   col_width <- max(c(max(lengths_indented_name) + margin,
                      col_width))
 
-  groups <- unique(content$group)
   full_lines <- sapply(seq_along(groups), function(group_index) {
     this_group <- subset(content,
                          subset = group == groups[[group_index]],
                          select = c(file_name, description, depth))
 
-    this_depth <- this_group$depth[[1]]
-    lines_above <- abs(this_depth[[1]] - max(depths)) + 1
-
-    # no lines above if previous group had no direct files
-    if (group_index == 1 || nrow(subset(content, group == groups[[group_index - 1]])) == 1) {
-      lines_above <- 0
+    # indent lines
+    this_depth <- this_group$depth
+    if (header && length(this_depth) > 1) { # increase body indentation against header if requested
+      this_depth[2:length(this_depth)] <- this_depth[2:length(this_depth)] + 1
     }
-
-    # reduce header indentation
-    if (header) {
-      this_depth <- c(this_depth, rep(this_depth + 1, nrow(this_group) - 1))
-    }
-
     this_section <- these_filenames <- sapply(seq_along(this_group$file_name), function(x) {
       paste0(paste0(rep(" ",
                         indent_per_level * this_depth[[x]]),
@@ -424,7 +416,7 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
              this_group$file_name[[x]])
     })
 
-    # paste together lines and fill left column with blanks if necessary
+    # construct and paste lines of file names and descriptions; fill left column with blanks if necessary
     lines_with_description <- this_group$description != ""
     if (any(lines_with_description)) {
       these_descriptions <- paste0(prefix, this_group$description[lines_with_description])
@@ -434,7 +426,11 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
                                                                width = col_width)
     }
 
-    # add blank lines above, depending on depth of group
+    # add lines above as padding against previous group (add none if previous group has no direct files)
+    lines_above <- abs(this_depth[[1]] - max(depths)) + 1
+    if (group_index == 1 || nrow(subset(content, group == groups[[group_index - 1]])) == 1) {
+      lines_above <- 0
+    }
     this_section <- c(rep("", lines_above),
                       this_section)
   })
