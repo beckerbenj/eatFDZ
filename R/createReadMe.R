@@ -17,13 +17,10 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   }
   check_path_or_null(out_path)
   lang <- match.arg(lang, several.ok = TRUE)
-  check_whole_number(margin)
-  check_whole_number(col_width)
-  check_whole_number(max_width)
-  check_whole_number(indent_per_level)
-  check_whole_number(max_indent)
   create_table <- match.arg(create_table)
-  if (!is.null(flat_depth)) eatGADS:::check_numericArgument(flat_depth)
+  lapply(c("margin", "col_width", "max_width", "indent_per_level", "max_indent"),
+         function(x) check_whole_positive(get(x), x))
+  if (!is.null(flat_depth)) check_whole_positive(flat_depth)
 
   # Input = singular directory path     -> ReadMe = file list
   # Input = list of > 0 control file(s) -> ReadMe = list from control file(s)
@@ -199,15 +196,15 @@ check_path_or_null <- function(arg, argName) {
   }
 }
 
-check_whole_number <- function(arg, argName) {
+check_whole_positive <- function(arg, argName) {
   if (missing(argName)) {
     argName <- deparse(substitute(arg))
   }
   eatGADS:::check_numericArgument(arg = arg, argName = argName)
-  if (arg == round(arg)) {
+  if (arg == round(arg) && arg > 0) {
     return(NULL)
   } else {
-    stop("'", argName, "' has to be a whole number.",
+    stop("'", argName, "' has to be a whole number > 0.",
          call. = FALSE)
   }
 }
