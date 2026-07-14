@@ -201,7 +201,25 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
   }
 }
 
-create_RM_from_tab <- function(in_path, out_path, create_table) {
+create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_width,
+                               indent_per_level, max_indent, create_table, sep) {
+  file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
+  if (any(!file_ext %in% c(".csv", "xlsx"))) {
+    stop("Unsupported file format in file(s): '",
+         paste0(in_path[!file_ext %in% c(".csv", "xlsx")], collapse = "', '"),
+         "'",
+         call. = FALSE)
+  }
+
+  for (i in seq_along(in_path)) {
+    if (file_ext[[i]] == ".csv") {
+      this_content <- read.csv(file = in_path[[i]],
+                               sep = sep)
+    } else {
+      this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[i]],
+                                          sheet = 1)
+    }
+  }
 
 }
 
