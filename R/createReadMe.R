@@ -498,8 +498,10 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
     }
     this_section <- c(rep("", lines_above),
                       this_section)
+    return(this_section)
   })
   full_lines <- unlist(full_lines)
+  attr(full_lines, "total_width") <- col_width + nchar(prefix) +max(nchar(descriptions))
   return(full_lines)
 }
 
@@ -513,7 +515,10 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
     }
   }
 
-  length_col1 <- nchar(col1, type = "char")
+  length_col1 <- nchar(gsub(x = col1,
+                            pattern = "\t",
+                            replacement = "        "),
+                       type = "char")
   fill_blanks <- width - length_col1
 
   if (use_tabs) {
@@ -528,4 +533,36 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
 
   out <- paste0(col1, filler, col2)
   return(out)
+}
+
+add_header <- function(lines, header, width, center = TRUE) {
+  # double full width lower: \u2017
+  # single full width lower: \u005f
+  # single full width upper: \u203e
+  # single half width upper: \u00af
+  # vertical: \u2502
+  line_above_upper <- paste0(rep("\u005f", width), collapse = "")
+  line_above_lower <- NA
+  line_below_upper <- paste0(rep("\u005f", width), collapse = "")
+  line_below_lower <- paste0(rep("\u00af", width), collapse = "")
+
+  if (center) {
+    header <- sapply(header, function(header_line) {
+      width_header <- nchar(header_line)
+      if (width_header >= width) return(header_line)
+      padding_left <- floor((width - width_header) / 2)
+      left_padded <- fill_with_blanks("", header_line, padding_left)
+      new_header_line <- fill_with_blanks(left_padded, "", width)
+      return(new_header_line)
+    })
+  }
+
+  new_lines <- c(na.omit(c(line_above_upper, line_above_lower)),
+                 "",
+                 header,
+                 "",
+                 na.omit(c(line_below_upper, line_below_lower)),
+                 "",
+                 lines)
+  return(new_lines)
 }
