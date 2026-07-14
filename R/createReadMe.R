@@ -211,16 +211,81 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
          call. = FALSE)
   }
 
-  for (i in seq_along(in_path)) {
-    if (file_ext[[i]] == ".csv") {
-      this_content <- read.csv(file = in_path[[i]],
+  content_list <- lapply(seq_along(in_path), function(path_index) {
+    if (file_ext[[path_index]] == ".csv") {
+      this_content <- read.csv(file = in_path[[path_index]],
                                sep = sep)
     } else {
-      this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[i]],
+      this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[path_index]],
                                           sheet = 1)
     }
-  }
 
+    subhead_lines <- which(grepl(x = this_content$flag,
+                                 pattern = "subheader"))
+    # define sections and set indentation levels
+    this_content$depth <- 0 # header is always depth 0
+    this_content$group <- this_content$file_name[[1]]
+    for (i in seq_along(subhead_lines)) {
+      section_start <- subhead_lines[[i]]
+      if (i == length(subhead_lines)) {
+        section_end <- nrow(this_content)
+      } else {
+        section_end <- subhead_lines[[i + 1]] - 1
+      }
+      section_depth <- as.numeric(sub(x = this_content$flag[[section_start]],
+                                      pattern = "subheader/",
+                                      replacement = ""))
+      this_content$depth[section_start:section_end] <- section_depth
+      this_content$group[section_start:section_end] <- this_content$file_name[[section_start]]
+    }
+    return(this_content)
+  })
+
+  # paste and save full texts per language
+  lines2write <- list()
+  for (this_lang in lang) {
+    # paste together file tables of this language
+    file_table2write <- do.call("rbind",
+                                lapply(content_list, function(single_content) {
+                                  subset(x = single_content,
+                                         select = c("file_name",
+                                                    paste0("description_", this_lang),
+                                                    "depth",
+                                                    "group",
+                                                    "flag"))
+                                }))
+    names(file_table2write) <- sub(x = names(file_table2write),
+                                   pattern = paste0("description_", this_lang),
+                                   replacement = "description")
+
+    # move description information to column file_name for printing
+    header_lines <- which(grepl(x = file_table2write$flag,
+                                pattern = "(header)|(subheader)"))
+    file_table2write$file_name[header_lines] <- file_table2write$description[header_lines]
+    file_table2write <- file_table2write[, names(file_table2write) != "flag"]
+
+    # create text table
+    text_table_single_content <- file_table_as_text(content = file_table2write,
+                                                    margin = margin,
+                                                    col_width = col_width,
+                                                    indent_per_level = indent_per_level,
+                                                    max_indent = max_indent)
+    lines2write[[this_lang]] <- text_table_single_content
+
+    ## write ReadMe if requested via out_path ##
+    if (!is.null(out_path)) {
+      if (length(lang) > 1) {
+        out_ext <- stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
+        this_out_path <- sub(x = out_path,
+                             pattern = "\\.[[:alnum:]]{2,4}$",
+                             replacement = paste0("_", this_lang, out_ext))
+      } else {
+        this_out_path <- out_path
+      }
+      writeLines(text = lines2write[[this_lang]],
+                 con = this_out_path)
+    }
+  }
 }
 
 
