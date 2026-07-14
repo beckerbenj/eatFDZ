@@ -10,7 +10,8 @@
 createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                          margin = 4, col_width = 90, max_width = 300,
                          indent_per_level = 2, max_indent = 10,
-                         create_table = c("none", "control", "overview"), flat_depth = NULL) {
+                         create_table = c("none", "control", "overview"), sep = c(";", ","),
+                         flat_depth = NULL, skip_empty_base = FALSE) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
@@ -18,13 +19,38 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   check_path_or_null(out_path)
   lang <- match.arg(lang, several.ok = TRUE)
   create_table <- match.arg(create_table)
+  sep <- match.arg(sep)
   lapply(c("margin", "col_width", "max_width", "indent_per_level", "max_indent"),
          function(x) check_whole_positive(get(x), x))
   if (!is.null(flat_depth)) check_whole_positive(flat_depth)
+  eatGADS:::check_logicalArgument(skip_empty_base)
 
   # Input = singular directory path     -> ReadMe = file list
   # Input = list of > 0 control file(s) -> ReadMe = list from control file(s)
+  # BUT: length 1 could be either mode  -> decide by path ending:
+  #  (A) no file extension of 2-4 characters = directory mode
+  #  (B) file extension = table mode
   if (length(in_path) == 1) {
+    file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
+    if (is.na(file_ext)) {
+      if (!dir.exists(in_path)) {
+        stop("Directory '", in_path, "' does not exist.",
+             call. = FALSE)
+      }
+      mode <- "directory"
+    } else {
+      if (!all(file.exists(in_path))) {
+        stop("Could not find file(s): '",
+             paste0(in_path[!file.exists(in_path)], collapse = "', '"),
+             "'",
+             call. = FALSE)
+      }
+      mode <- "table"
+    }
+  }
+
+  # call respective sub-function; returned content may be NULL or a table, depending on create_table
+  if (mode == "directory") {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
@@ -34,27 +60,32 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   indent_per_level = indent_per_level,
                                   max_indent = max_indent,
                                   create_table = create_table,
-                                  flat_depth = flat_depth)
+                                  flat_depth = flat_depth,
+                                  skip_empty_base = skip_empty_base)
   } else {
     content <- create_RM_from_tab(in_path = in_path,
-                                  out_path = out_path)
+                                  out_path = out_path,
+                                  lang = lang,
+                                  margin = margin,
+                                  col_width = col_width,
+                                  max_width = max_width,
+                                  indent_per_level = indent_per_level,
+                                  max_indent = max_indent,
+                                  create_table = create_table,
+                                  sep = sep)
   }
   return(content)
 }
 
 create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_width,
-                               indent_per_level, max_indent, create_table, flat_depth) {
-  if (!dir.exists(in_path)) {
-    stop("Directory '", in_path, "' does not exist.",
-         call. = FALSE)
-  }
-
+                               indent_per_level, max_indent, create_table, flat_depth, skip_empty_base) {
   file_table_deep <- create_file_table(path = in_path)
 
   ## create ReadMe file ##
   file_table_flat <- flatten_file_table(dirname = basename(in_path),
                                         file_table = file_table_deep,
-                                        flat_depth = flat_depth)
+                                        flat_depth = flat_depth,
+                                        skip_empty_base = skip_empty_base)
   names(file_table_flat) <- sub(x = names(file_table_flat),
                                 pattern = "description",
                                 replacement = "description_en")
@@ -94,7 +125,6 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     these_lines <- file_table_as_text(content = file_table2write,
                                       margin = margin,
                                       col_width = col_width,
-                                      prefix = "- ",
                                       indent_per_level = indent_per_level,
                                       max_indent = max_indent,
                                       header = TRUE)
@@ -111,7 +141,7 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
   if (!is.null(out_path)) {
     for (this_lang in lang) {
       if (length(lang) > 1) {
-        out_ext <- stri_extract_last_regex(out_path, "\\.[[:alnum:]]{2,4}$")
+        out_ext <- stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
         this_out_path <- sub(x = out_path,
                              pattern = "\\.[[:alnum:]]{2,4}$",
                              replacement = paste0("_", this_lang, out_ext))
@@ -267,10 +297,10 @@ create_file_table <- function(path, prev_depth = 0) {
 }
 
 flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warning_issued = FALSE,
-                               ignore_empty_base = TRUE) {
+                               skip_empty_base = TRUE) {
   # ignore base of directory (first level) if it has no direct files and if the skip is requested
   # (relevant for template creation)
-  if (isTRUE(ignore_empty_base) && depth == 0 && names(file_table)[[1]] != "files") {
+  if (isTRUE(skip_empty_base) && depth == 0 && names(file_table)[[1]] != "files") {
     empty_base <- TRUE
     start_col <- 1
     depth <- -1
@@ -327,7 +357,7 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
                                   flat_depth = flat_depth,
                                   depth = depth,
                                   warning_issued = warning_issued,
-                                  ignore_empty_base = FALSE)
+                                  skip_empty_base = FALSE)
     if (!exists("out")) {
       out <- new_row
     } else {
