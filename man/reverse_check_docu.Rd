@@ -4,12 +4,7 @@
 \alias{reverse_check_docu}
 \title{Reverse check documentation of data sets.}
 \usage{
-reverse_check_docu(
-  white_list = c(english_words, german_words),
-  pdf_path,
-  sav_path,
-  encoding = NULL
-)
+reverse_check_docu(white_list = NULL, pdf_path, sav_path, encoding = NULL)
 }
 \arguments{
 \item{white_list}{A character vector containing all words which should not be flagged. Defaults to a combination of a German and English corpus.}

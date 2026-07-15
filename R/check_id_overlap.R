@@ -32,7 +32,7 @@ check_id_overlap <- function(sav_paths, id_vars, plot = TRUE) {
   message("ID variables found in each dataset:")
   print(lapply(id_data, names))
 
-  results <- setNames(vector("list", length(id_vars)), id_vars)
+  results <- stats::setNames(vector("list", length(id_vars)), id_vars)
 
   for (id in id_vars) {
     message("\nChecking ID: ", id)
