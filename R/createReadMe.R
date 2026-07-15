@@ -10,8 +10,9 @@
 createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                          margin = 4, col_width = 90, max_width = 300,
                          indent_per_level = 2, max_indent = 10,
-                         create_table = c("none", "control", "overview"), sep = c(";", ","),
-                         flat_depth = NULL, skip_empty_base = FALSE) {
+                         create_table = c("none", "control", "overview", "text"),
+                         sep = c(";", ","),
+                         flat_depth = NULL, skip_empty_base = FALSE,
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
@@ -75,7 +76,51 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   flat_depth = flat_depth,
                                   skip_empty_base = skip_empty_base)
   }
-  return(content)
+
+  ## return file table as requested ##
+  if (create_table == "none") return(NULL)
+
+  if (create_table == "overview") return(content$files)
+
+  if (create_table == "text") return(content$text)
+
+  if (create_table == "control") {
+    readme_filetab <- content$files
+    readme_filetab$n_in_group <- sapply(seq_along(readme_filetab$group), function(x) {
+      sum(grepl(pattern = paste0("^", readme_filetab$group[[x]], "$"),
+                x = readme_filetab$group))
+    })
+
+    # identify "super-groups"; directories that only contain directories but no direct files
+    super_groups <- readme_filetab$group[readme_filetab$n_in_group == 1]
+    readme_filetab$super_group <- NA
+    for (this_super_group in super_groups) {
+      group_in_super_group <- grepl(pattern = this_super_group, x = readme_filetab$group)
+      readme_filetab$super_group[group_in_super_group] <- this_super_group
+    }
+
+    # apply super-group if possible, revert to normal group if necessary
+    readme_filetab$apply_group <- readme_filetab$super_group
+    no_super_group <- is.na(readme_filetab$apply_group)
+    readme_filetab$apply_group[no_super_group] <- readme_filetab$group[no_super_group]
+    applied_group_names <- unique(readme_filetab$apply_group)
+
+    control_table <- lapply(applied_group_names, function(grup) {
+      this_group <- subset(x = readme_filetab,
+                           subset = readme_filetab$apply_group == grup,
+                           select = c("file_name",
+                                      paste("description", lang, sep = "_"),
+                                      "depth"))
+      this_group$flag <- ""
+      subhead_rows <- this_group[, paste("description", lang, sep = "_")[[1]]] == ""
+      this_group$flag[subhead_rows] <- paste0("subheader/", this_group$depth[subhead_rows])
+      this_group$flag[1] <- "header"
+      this_group <- this_group[, names(this_group) != "depth"]
+      return(this_group)
+    })
+    names(control_table) <- applied_group_names
+    return(control_table)
+  }
 }
 
 create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_width,
@@ -96,16 +141,16 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     position_descr_col <- which(names(file_table_flat) == "description_en")
     first_cols <- file_table_flat[, 1:position_descr_col]
     last_cols <- file_table_flat[, (position_descr_col + 1):ncol(file_table_flat)]
-    description_de <- stri_replace_all_fixed(str = file_table_flat$description_en,
-                                             pattern = c("Dataset",
-                                                         "Documentation",
-                                                         "Checksum",
-                                                         "Unspecified file"),
-                                             replacement = c("Datensatz",
-                                                             "Dokumentation",
-                                                             "Checksumme",
-                                                             "Unspezifizierte Datei"),
-                                             vectorise_all = FALSE)
+    description_de <- stringi::stri_replace_all_fixed(str = file_table_flat$description_en,
+                                                      pattern = c("Dataset",
+                                                                  "Documentation",
+                                                                  "Checksum",
+                                                                  "Unspecified file"),
+                                                      replacement = c("Datensatz",
+                                                                      "Dokumentation",
+                                                                      "Checksumme",
+                                                                      "Unspezifizierte Datei"),
+                                                      vectorise_all = FALSE)
     file_table_flat <- cbind(first_cols, description_de, last_cols)
     rm(position_descr_col, first_cols, description_de, last_cols)
   }
@@ -132,7 +177,7 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
       lines2write <- list(these_lines)
       names(lines2write) <- lang[[i]]
     } else {
-      lines2write[[lang[[i]]]] <-these_lines
+      lines2write[[lang[[i]]]] <- these_lines
     }
     rm(this_lang_col, these_lines)
   }
@@ -141,7 +186,7 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
   if (!is.null(out_path)) {
     for (this_lang in lang) {
       if (length(lang) > 1) {
-        out_ext <- stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
+        out_ext <- stringi::stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
         this_out_path <- sub(x = out_path,
                              pattern = "\\.[[:alnum:]]{2,4}$",
                              replacement = paste0("_", this_lang, out_ext))
@@ -153,52 +198,9 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
     }
   }
 
-  # allocate base output
-  out_list <- list(ReadMe = lines2write,
-                   files = NULL)
-
-  ## return file table as requested ##
-  if (create_table == "none") return(out_list)
-
-  if (create_table == "overview") {
-    out_list$files <- file_table_flat
-    return(out_list)
-  }
-
-  if (create_table == "control") {
-    file_table_flat$n_in_group <- sapply(seq_along(file_table_flat$group), function(x) {
-      sum(grepl(pattern = paste0("^", file_table_flat$group[[x]], "$"),
-                x = file_table_flat$group))
-    })
-
-    # identify "super-groups"; directories that only contain directories but no direct files
-    super_groups <- file_table_flat$group[file_table_flat$n_in_group == 1]
-    file_table_flat$super_group <- NA
-    for (this_super_group in super_groups) {
-      group_in_super_group <- grepl(pattern = this_super_group, x = file_table_flat$group)
-      file_table_flat$super_group[group_in_super_group] <- this_super_group
-    }
-
-    # apply super-group if possible, revert to normal group if necessary
-    file_table_flat$apply_group <- file_table_flat$super_group
-    no_super_group <- is.na(file_table_flat$apply_group)
-    file_table_flat$apply_group[no_super_group] <- file_table_flat$group[no_super_group]
-    applied_group_names <- unique(file_table_flat$apply_group)
-
-    file_list <- lapply(applied_group_names, function(grup) {
-      this_group <- subset(x = file_table_flat,
-                           subset = apply_group == grup,
-                           select = c("file_name", paste("description", lang, sep = "_")))
-      descr_cols <- grep(x = names(this_group), pattern = "description")
-      this_group[1, descr_cols] <- "/flag//header"
-      this_group[this_group[, descr_cols[[1]]] == "", descr_cols] <- "/flag//subheader"
-      return(this_group)
-    })
-    names(file_list) <- applied_group_names
-
-    out_list$files <- file_list
-    return(out_list)
-  }
+  out_list <- list(text = lines2write,
+                   files = file_table_flat)
+  return(out_list)
 }
 
 create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_width,
@@ -213,8 +215,8 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
 
   content_list <- lapply(seq_along(in_path), function(path_index) {
     if (file_ext[[path_index]] == ".csv") {
-      this_content <- read.csv(file = in_path[[path_index]],
-                               sep = sep)
+      this_content <- utils::read.csv(file = in_path[[path_index]],
+                                      sep = sep)
     } else {
       this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[path_index]],
                                           sheet = 1)
@@ -275,7 +277,7 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
     ## write ReadMe if requested via out_path ##
     if (!is.null(out_path)) {
       if (length(lang) > 1) {
-        out_ext <- stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
+        out_ext <- stringi::stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
         this_out_path <- sub(x = out_path,
                              pattern = "\\.[[:alnum:]]{2,4}$",
                              replacement = paste0("_", this_lang, out_ext))
@@ -286,6 +288,12 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
                  con = this_out_path)
     }
   }
+  flat_file_table <- do.call("rbind", lapply(content_list, function(this_content) {
+    this_content[, names(this_content) != "flag"]
+  }))
+  out_list <- list(text = lines2write,
+                   files = flat_file_table)
+  return(out_list)
 }
 
 
@@ -342,8 +350,8 @@ create_file_table <- function(path, prev_depth = 0) {
     file_tab <- data.frame(file_name = all_files,
                            depth = prev_depth,
                            name_length = nchar(all_files),
-                           extension = stri_extract_last(str = all_files,
-                                                         regex = "\\..{2,4}$"))
+                           extension = stringi::stri_extract_last_regex(str = all_files,
+                                                                        pattern = "\\..{2,4}$"))
     file_tab$extension <- sub(pattern = "\\.",
                               replacement = "",
                               x = file_tab$extension)
@@ -466,8 +474,8 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
 
   full_lines <- sapply(seq_along(groups), function(group_index) {
     this_group <- subset(content,
-                         subset = group == groups[[group_index]],
-                         select = c(file_name, description, depth))
+                         subset = content$group == groups[[group_index]],
+                         select = c("file_name", "description", "depth"))
 
     # indent lines
     this_depth <- this_group$depth
@@ -493,7 +501,7 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
 
     # add lines above as padding against previous group (add none if previous group has no direct files)
     lines_above <- abs(this_depth[[1]] - max(depths)) + 1
-    if (group_index == 1 || nrow(subset(content, group == groups[[group_index - 1]])) == 1) {
+    if (group_index == 1 || nrow(subset(content, content$group == groups[[group_index - 1]])) == 1) {
       lines_above <- 0
     }
     this_section <- c(rep("", lines_above),
@@ -557,11 +565,11 @@ add_header <- function(lines, header, width, center = TRUE) {
     })
   }
 
-  new_lines <- c(na.omit(c(line_above_upper, line_above_lower)),
+  new_lines <- c(stats::na.omit(c(line_above_upper, line_above_lower)),
                  "",
                  header,
                  "",
-                 na.omit(c(line_below_upper, line_below_lower)),
+                 stats::na.omit(c(line_below_upper, line_below_lower)),
                  "",
                  lines)
   return(new_lines)
