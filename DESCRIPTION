@@ -23,7 +23,8 @@ Imports:
     haven,
     zip,
     utils,
-    openxlsx2
+    openxlsx2,
+    eulerr
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
