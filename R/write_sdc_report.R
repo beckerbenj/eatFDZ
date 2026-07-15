@@ -12,58 +12,78 @@
 #' @export
 write_sdc_report <- function(x, file_path, overwrite = FALSE) {
 
+  template_sheet <- "Vorlage"
   template_path <- system.file(
-    "templates", "Datenschutzpruefung.xlsx", package = "eatFDZ"
-  )
-
-  if (!nzchar(template_path)) {
-    stop("The Excel template is missing from 'eatFDZ'.", call. = FALSE)
-  }
-
+    "templates",
+    "Datenschutzpruefung.xlsx",
+    package = "eatFDZ")
   dataset_names <- names(x)
 
   if (is.null(dataset_names) ||
-      any(is.na(dataset_names) | dataset_names == "")) {
+      anyNA(dataset_names) ||
+      any(!nzchar(dataset_names))) {
     stop("'x' must be a named list.", call. = FALSE)
   }
 
   wb <- openxlsx2::wb_load(template_path)
 
+  manual_cols <- unlist(
+    openxlsx2::wb_to_df(
+      wb,
+      sheet = template_sheet,
+      dims = "F2:N2",
+      col_names = FALSE,
+      check_names = FALSE), use.names = FALSE)
+
+  sheet_names <- substr(gsub("[\\\\/:*?\\[\\]]", "_", basename(dataset_names)), 1L, 31L)
+
   for (i in seq_along(x)) {
     dat <- x[[i]]
+    sheet <- sheet_names[[i]]
 
-    sheet <- paste0(i, "_", basename(dataset_names[[i]]))
-    sheet <- openxlsx2::clean_worksheet_name(sheet, replacement = "_")
-    sheet <- substr(sheet, 1, 31)
+    # Remove columns that are not included in the Excel template
+    dat[c(
+      "existVarLab",
+      "nKatOhneMissings",
+      "nValid",
+      "exclude")] <- NULL
+
+    # Add empty columns for subsequent manual processing
+    dat[manual_cols] <- NA_character_
 
     wb <- openxlsx2::wb_clone_worksheet(
-      wb, old = "Template", new = sheet
-    )
+      wb,
+      old = template_sheet,
+      new = sheet)
 
     table_name <- openxlsx2::wb_get_tables(
-      wb, sheet = sheet
-    )$tab_name[[1]]
+      wb,
+      sheet = sheet)$tab_name[[1L]]
 
-    wb <- openxlsx2::wb_add_data(
+    wb <- openxlsx2::wb_remove_tables(
+      wb,
+      sheet = sheet,
+      table = table_name,
+      remove_data = FALSE)
+
+    wb <- openxlsx2::wb_add_data_table(
       wb,
       sheet = sheet,
       x = dat,
-      start_row = 3,
-      start_col = 1,
-      col_names = FALSE,
-      na = "_openxlsx_NULL"
-    )
-
-    wb <- openxlsx2::wb_update_table(
-      wb,
-      sheet = sheet,
-      dims = paste0("A2:N", nrow(dat) + 2),
-      tabname = table_name
-    )
+      dims = "A2",
+      table_style = "TableStyleLight1",
+      table_name = paste0("SdcTable", i),
+      na = "_openxlsx_NULL")
   }
 
-  wb <- openxlsx2::wb_remove_worksheet(wb, sheet = "Template")
-  openxlsx2::wb_save(wb, file = file_path, overwrite = overwrite)
+  wb <- openxlsx2::wb_remove_worksheet(
+    wb,
+    sheet = template_sheet)
+
+  openxlsx2::wb_save(
+    wb,
+    file = file_path,
+    overwrite = overwrite)
 
   invisible(file_path)
 }
