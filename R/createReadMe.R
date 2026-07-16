@@ -12,7 +12,8 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                          create_table = c("none", "control", "overview", "text"),
                          sep = c(";", ","),
                          flat_depth = NULL, skip_empty_base = FALSE,
-                         header = NULL, content_box = NULL, remarks = NULL, footer = NULL) {
+                         header = NULL, content_box = NULL, remarks = NULL, footer = NULL,
+                         replace_id = NULL) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
@@ -25,6 +26,37 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
          function(x) check_whole_positive(get(x), x))
   if (!is.null(flat_depth)) check_whole_positive(flat_depth)
   eatGADS:::check_logicalArgument(skip_empty_base)
+
+  for (this_arg in c("header", "content_box", "remarks", "footer")) {
+    if (is.null(get(this_arg))) next
+    if (length(get(this_arg)) == 1 && file.exists(get(this_arg))) {
+      file_ext <- stringi::stri_extract_last_regex(str = get(this_arg),
+                                                   pattern = "\\..{2,4}$")
+      if (!file_ext %in% c(".csv", "xlsx")) {
+        stop("Unsupported file format in file: '", get(this_arg), "'",
+             call. = FALSE)
+      }
+      if (file_ext == ".csv") {
+        assign(this_arg, utils::read.csv(file = get(this_arg), sep = sep, blank.lines.skip = FALSE))
+      } else {
+        assign(this_arg, openxlsx::read.xlsx(xlsxFile = get(this_arg), sheet = 1, skipEmptyRows = FALSE))
+      }
+
+      sapply(lang, function(this_lang) {
+        matching <- grepl(x = names(get(this_arg)),
+                          pattern = paste0("_", this_lang, "$"))
+        if (!any(matching)) {
+          stop("No matching column name in ", this_arg,
+               ' for language "', this_lang, '"')
+        }
+      })
+    }
+  }
+
+  if (!is.null(replace_id) && (!is.character(replace_id) || length(replace_id) != 2)) {
+    stop('"replace_id" needs to be a character vector of length 2.',
+         call. = FALSE)
+  }
 
   # Input = singular directory path     -> ReadMe = file list
   # Input = list of > 0 control file(s) -> ReadMe = list from control file(s)
@@ -65,7 +97,8 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   header = header,
                                   content_box = content_box,
                                   remarks = remarks,
-                                  footer = footer)
+                                  footer = footer,
+                                  replace_id = replace_id)
   } else {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
@@ -213,7 +246,7 @@ create_RM_from_dir <- function(in_path, out_path, lang,
 create_RM_from_tab <- function(in_path, out_path, lang,
                                margin, col_width, indent_per_level, max_indent,
                                create_table, sep,
-                               header, content_box, remarks, footer) {
+                               header, content_box, remarks, footer, replace_id) {
   file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
   if (any(!file_ext %in% c(".csv", "xlsx"))) {
     stop("Unsupported file format in file(s): '",
