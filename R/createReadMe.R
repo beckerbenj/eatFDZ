@@ -523,21 +523,12 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
     }
   }
 
-  length_col1 <- nchar(gsub(x = col1,
-                            pattern = "\t",
-                            replacement = "        "),
+  length_col1 <- nchar(tabs_to_blanks(col1),
                        type = "char")
   fill_blanks <- width - length_col1
+  filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
 
-  if (use_tabs) {
-    fill_tabs <- floor(fill_blanks / 8)
-    fill_blanks <- fill_blanks %% 8
-    tabs <- sapply(fill_tabs, function(x) paste0(rep("\t", x), collapse = ""))
-    blanks <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
-    filler <- paste0(blanks, tabs)
-  } else {
-    filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
-  }
+  if (use_tabs) filler <- sapply(filler, blanks_to_tabs)
 
   out <- paste0(col1, filler, col2)
   return(out)
@@ -553,6 +544,19 @@ add_header <- function(lines, header, width, center = TRUE) {
   line_above_lower <- NA
   line_below_upper <- paste0(rep("\u005f", width), collapse = "")
   line_below_lower <- paste0(rep("\u00af", width), collapse = "")
+tabs_to_blanks <- function(text) {
+  gsub(x = text,
+       pattern = "\t",
+       replacement = "        ")
+}
+blanks_to_tabs <- function(text) {
+  tabs_first <- gsub(x = text,
+                     pattern = " {8}",
+                     replacement = "\t")
+  blank_first <- paste0(gsub(x = tabs_first, pattern = "\\t", replacement = ""),
+                        gsub(x = tabs_first, pattern = " ", replacement = ""))
+  return(blank_first)
+}
 
   if (center) {
     header <- sapply(header, function(header_line) {
