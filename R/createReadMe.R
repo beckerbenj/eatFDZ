@@ -534,16 +534,6 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
   return(out)
 }
 
-add_header <- function(lines, header, width, center = TRUE) {
-  # double full width lower: \u2017
-  # single full width lower: \u005f
-  # single full width upper: \u203e
-  # single half width upper: \u00af
-  # vertical: \u2502
-  line_above_upper <- paste0(rep("\u005f", width), collapse = "")
-  line_above_lower <- NA
-  line_below_upper <- paste0(rep("\u005f", width), collapse = "")
-  line_below_lower <- paste0(rep("\u00af", width), collapse = "")
 tabs_to_blanks <- function(text) {
   gsub(x = text,
        pattern = "\t",
@@ -558,6 +548,7 @@ blanks_to_tabs <- function(text) {
   return(blank_first)
 }
 
+add_header <- function(text, header, width, center = TRUE) {
   if (center) {
     header <- sapply(header, function(header_line) {
       width_header <- nchar(header_line)
@@ -569,12 +560,25 @@ blanks_to_tabs <- function(text) {
     })
   }
 
-  new_lines <- c(stats::na.omit(c(line_above_upper, line_above_lower)),
-                 "",
-                 header,
-                 "",
-                 stats::na.omit(c(line_below_upper, line_below_lower)),
-                 "",
-                 lines)
-  return(new_lines)
+  new_text <- c(header, text)
+  return(new_text)
 }
+
+add_spanning_border <- function(text, linetype, width, where = c("above", "below")) {
+  # double full width lower: \u2017
+  # single full width lower: \u005f
+  # single full width upper: \u203e
+  # single half width upper: \u00af
+  # vertical: \u2502
+  lineTypes <- data.frame(upper = c("\u005f", "\u005f"),
+                          lower = c("", "\u00af"))
+  this_line_upper <- paste0(rep(lineTypes$upper[[linetype]], width), collapse = "")
+  this_line_lower <- paste0(rep(lineTypes$lower[[linetype]], width), collapse = "")
+  this_line_combined <- c(this_line_upper, this_line_lower)
+  this_line_combined <- this_line_combined[this_line_combined != ""]
+
+  if ("above" %in% where) text <- c(this_line_combined, text)
+  if ("below" %in% where) text <- c(text, this_line_combined)
+  return(text)
+}
+
