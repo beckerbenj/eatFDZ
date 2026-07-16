@@ -32,3 +32,21 @@ test_that("write_sdc_report erzeugt eine Excel-Datei", {
     openxlsx2::wb_load(file_path)
   )
 })
+
+test_that("write_sdc_report requires a named list", {
+  x <- list(
+    data.frame(
+      variable = "IDSTUD",
+      varLab = "Schueler-ID")
+  )
+  file_path <- tempfile(fileext = ".xlsx")
+  expect_error(
+    write_sdc_report(
+      x,
+      file_path = file_path
+    ),
+    "'x' must be a named list.",
+    fixed = TRUE
+  )
+  expect_false(file.exists(file_path))
+})
