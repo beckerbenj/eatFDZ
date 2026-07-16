@@ -12,7 +12,6 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 Imports: eatGADS (>= 1.2.0), readtext, quanteda, eatTools, readxl, stringi, openxlsx, plyr, haven, zip, utils
-RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,
@@ -22,3 +21,4 @@ Depends:
 URL: https://beckerbenj.github.io/eatFDZ/
 VignetteBuilder: knitr
 Remotes: beckerbenj/eatGADS
+Config/roxygen2/version: 8.0.0
