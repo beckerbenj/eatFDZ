@@ -17,7 +17,7 @@ For data to be reusable in a research data center context, it must meet high sta
 **`check_all()` does:**
 - run a set of automated checks on a `.sav` file (imported as a `GADSdat` object)
 - return a structured set of result tables (plus an overview)
-- help you spot typical issues, such as invalid variable names, missing labels, missing IDs, missing tags, and potential low-frequency disclosure risks
+- help you spot typical issues, such as invalid or unusually long variable names, missing labels, missing or duplicate IDs, incorrectly defined missing values, character variables, and potential low-frequency disclosure risks
 
 **`check_all()` does not:**
 - automatically fix your data
@@ -30,13 +30,15 @@ For data to be reusable in a research data center context, it must meet high sta
 Overall, the following aspects are covered by `check_all()`:
 
 - Valid file naming conventions
-- Consistent and valid variable names
+- Variable names containing special characters or other invalid elements
+- Variable names exceeding 30 characters
 - Proper encoding of metadata
 - Unique and non-missing identifier variables
 - Presence of variable labels
-- Correct specification of missing value labels and ranges
-- Identification of undocumented or irregular missing values
+- Values within a project-specific missing value range that have not been declared as missing
+- Value labels indicating missing values that have not been declared as missing
 - Detection of low-frequency categories (statistical disclosure control)
+- Variables stored as character variables
 - Optional: consistency between data set and external documentation (e.g., codebooks)
 
 ```{r setup, include = FALSE}
@@ -96,7 +98,7 @@ The Excel report is designed for fast navigation:
 
 ### Specify the identifier variable (`idVar`)
 
-By default, `check_all()` uses the first variable in the data set as the identifier. If your ID variable is not the first one (or you have multiple IDs), set `idVar` explicitly:
+By default, `check_all()` uses the first variable in the data set as the identifier. If your ID variable is not the first one (or you have multiple IDs), set `idVar` explicitly. These are checked for missing and duplicate values:
 
 ```{r idvar, eval=FALSE}
 out <- check_all(
@@ -116,7 +118,7 @@ out <- check_all(
 )
 ```
 
-If missing values are indicated via labels (possibly multilingual), adapt the regular expression `missingRegex`:
+If missing values are indicated via labels (possibly multilingual), adapt the regular expression `missingRegex`. Separate multiple search terms with `|`:
 
 ```{r missingregex, eval=FALSE}
 out <- check_all(
@@ -161,29 +163,18 @@ If you need to check multiple `.sav` files (e.g., for several cohorts or waves),
 data_dir <- "path/to/sav_files"
 report_dir <- "reports"
 dir.create(report_dir, showWarnings = FALSE, recursive = TRUE)
-
 sav_files <- list.files(data_dir, pattern = "\\.sav$", full.names = TRUE, recursive = FALSE)
 
-for (f in sav_files) {
-  message("Checking: ", f)
-
-  # Create a stable output name
-  base <- sub("\\.sav$", "", basename(f), ignore.case = TRUE)
-  report_path <- file.path(report_dir, paste0(base, "_check_report.xlsx"))
-
-  # Ensure one failing file does not stop the entire batch
-  out <- tryCatch(
-    check_all(sav_path = f),
-    error = function(e) {
-      message("  ERROR: ", conditionMessage(e))
-      return(NULL)
-    }
+for (sav_file in sav_files) {
+  report_file <- paste0(
+    tools::file_path_sans_ext(basename(sav_file)),
+    "_check_report.xlsx"
   )
-
-  if (!is.null(out)) {
-    write_check_report(out, file_path = report_path)
-    message("  Report written: ", report_path)
-  }
+  tryCatch(
+    check_all(sav_file) |>
+      write_check_report(file.path(report_dir, report_file)),
+    error = function(e) message(basename(sav_file), ": ", e$message)
+  )
 }
 ```
 
@@ -195,16 +186,239 @@ If your `.sav` files are stored in subfolders, set `recursive = TRUE`:
 sav_files <- list.files(data_dir, pattern = "\\.sav$", full.names = TRUE, recursive = TRUE)
 ```
 
+## Understanding the individual checks
+
+### File name
+
+Before the data are imported, the file name is checked with `check_file_name()`. This check does not appear as a separate row in `Overview`. An invalid file name may therefore trigger a message or error before the remaining checks are run.
+
+A good file name should:
+
+* clearly identify the data set,
+* not contain umlauts or problematic special characters,
+* include a comprehensible version number.
+
+### `lengthy_variable_names`
+
+This check reports variable names containing more than 30 characters.
+
+Long variable names may cause problems when data are processed in different statistical software and can make analysis scripts more difficult to read. Shorten the names systematically while documenting their full meaning in the variable labels.
+
+### `special_signs_variable_names`
+
+This table contains variable names with problematic special characters or character encodings.
+
+Variable names should preferably consist only of letters, numbers, and underscores. Spaces, umlauts, dots, and other special characters may be handled differently depending on the software.
+
+Examples:
+
+* `größe` could be changed to `groesse`,
+* `test.score` could be changed to `test_score`.
+
+Changes to variable names must also be reflected in the codebook and all analysis scripts. These changes can be performed automatically using `eatGADS::fixEncoding()` or when importing the data with `eatGADS::import_spss()`.
+
+### `special_signs_meta_data`
+
+This check searches for problematic characters in the metadata, particularly in variable and value labels.
+
+Findings may be caused by incorrect character encoding or incompatible special characters. Check whether the text is displayed correctly in R, SPSS, and exported files.
+
+For example, `eatGADS::fixEncoding()` can be used to correct encoding problems. Changes should always be made to a working copy and checked again afterwards.
+
+### `missing_IDs`
+
+This table contains observations with missing values in the specified identifier variables.
+
+Missing IDs are generally problematic in person-, class-, or school-level data sets because observations cannot be assigned reliably or linked to other data sets.
+
+Check:
+
+* whether the ID was lost during import,
+* whether empty strings or special missing codes are present,
+* whether the affected observation belongs in the data set,
+* whether the ID can be reconstructed reliably.
+
+IDs should not be invented without a documented basis.
+
+### `duplicate_IDs`
+
+This table reports values that occur more than once in the specified identifier variables.
+
+Duplicate IDs may indicate accidentally duplicated rows, incorrect merges, or unsuitable key variables. However, they may also be correct if an ID is unique only within a higher-level unit.
+
+First check the expected data structure. In hierarchical data, for example, only the combination of `IDSCHOOL`, `IDCLASS`, and `IDSTUD` may form a unique key.
+
+### `missing_variable_labels`
+
+This table contains variables without an informative variable label.
+
+Variable names alone are usually insufficient for ensuring that data remain understandable in the long term. A variable label should briefly describe what the variable measures or contains.
+
+Examples of unsuitable labels include:
+
+* empty labels,
+* placeholders such as `XXX`,
+* labels that merely repeat the variable name,
+* internal processing notes without substantive meaning.
+
+Variable labels can be added or changed in a `GADSdat` object using, for example, `eatGADS::changeVarLabels()`.
+
+### `missing_value_labels`
+
+This check reports numeric values occurring in the data for which no value label is available.
+
+Not every numeric variable requires value labels. Unlabelled values may be appropriate for continuous variables such as age, test scores, or time measurements. For categorical variables, however, the categories must be documented clearly.
+
+For each reported variable, consider:
+
+* Is it categorical or continuous?
+* Are all valid categories labelled?
+* Do missing codes also have informative labels?
+
+Value labels can be added using, for example, `eatGADS::changeValLabels()`.
+
+### `empty_value_labels`
+
+This check reports value labels that are empty or contain no meaningful description.
+
+Empty value labels make it difficult to interpret coded categories and may indicate incomplete metadata or obsolete value definitions.
+
+Check whether:
+
+* the value represents a valid category that requires a label,
+* the value is a missing code that should be described,
+* the value definition is obsolete and can be removed.
+
+Use clear and consistent descriptions and update the corresponding codebook where necessary.
+
+### `missing_range_tags`
+
+This check searches for values within `missingRange` that fall within the expected missing-value range but are not defined as missing.
+
+Example: The value `-99` has the value label `no response`, but is marked as a valid value in the metadata.
+
+First determine whether the reported value actually represents missing data. Missing-value definitions can then be corrected using, for example, `eatGADS::changeMissings()`.
+
+A value must not be changed solely because it falls within the missing-value range if it can be a substantively valid value for a particular variable.
+
+### `missing_regex_tags`
+
+This check searches for value labels containing a term from `missingRegex` whose corresponding values are not defined as missing.
+
+This can identify missing codes outside the usual numeric range. At the same time, imprecise search terms may produce false positives. Always review the complete value label and its substantive context.
+
+### `empty_variables`
+
+This check reports variables that contain no valid information, for example because all values are missing.
+
+Empty variables may result from filter routing, data collection problems, failed imports, or processing errors. They may also be intentional in specific data set versions or subsamples.
+
+Check:
+
+* whether values were lost during processing,
+* whether the variable was intended only for a different group or survey branch,
+* whether the variable is still required for harmonisation or documentation.
+
+Remove variables that have no documented purpose. Intentionally empty variables should be explained in the documentation.
+
+### `constant_variables`
+
+This check reports variables that contain only one value across all observations.
+
+Constant variables may indicate data collection or processing errors, but they can also be intentional, for example when all observations belong to the same country, wave, or experimental condition.
+
+Check:
+
+* whether variation was expected,
+* whether values were overwritten or lost,
+* whether the variable is needed for later merging or documentation.
+
+Remove constant variables that provide no relevant information. Retain them only when their purpose is clear and documented.
+
+### `statistical_disclosure_control`
+
+This check identifies small categories that may indicate a potential disclosure risk.
+
+Small frequencies are not automatically unacceptable. The risk depends, among other things, on:
+
+* how sensitive the information is,
+* whether the category can be combined with other characteristics,
+* whether individuals or institutions could become identifiable,
+* which access mode is intended for the data set.
+
+Possible measures include:
+
+* combining categories in a substantively meaningful way,
+* removing particularly sensitive categories or variables from a data version,
+* applying more restrictive access conditions,
+* documenting justified exceptions.
+
+This check covers only automatically detectable findings and does not replace a complete statistical disclosure control assessment.
+
+### `character_variables`
+
+This table contains variables stored as character variables.
+
+Character variables are not necessarily incorrect. However, open-text responses may:
+
+* contain direct or indirect identifiers,
+* use inconsistent spellings,
+* be difficult to process automatically,
+* lack structured value labels.
+
+For each character variable, check whether it:
+
+* must remain a text variable,
+* can be converted into a numeric variable with value labels,
+* should be categorised,
+* must be emptied or removed for data protection reasons.
+
+Structured character variables can be converted using, for example, `eatGADS::multiChar2fac()`.
+
+### `docu_check`
+
+This check compares the variable names in the data set with the supplied PDF documentation.
+
+For each variable, it checks whether the variable name is mentioned in the codebook. The `count` column in the detailed results is particularly important. Filtering this column allows you to identify variables that were not found automatically in the documentation:
+
+* `count == 0`: The variable was not found in the documentation.
+* `count > 0`: The variable name was found at least once.
+
+Depending on the package version, the detailed table may also contain documented variables. The documentation check should therefore be interpreted using `count`, rather than only the number of rows in the table.
+
+A missing match can have several causes:
+
+* The variable is genuinely missing from the codebook.
+* The variable name is written differently in the codebook.
+* The variable name appears only in an image or scanned page.
+* The PDF does not contain searchable text.
+* The data set and codebook belong to different versions.
+
+The check only determines whether a variable name was found. It does not assess whether the substantive description is complete, understandable, or correct.
+
+
+## When is a data set ready for submission?
+
+From the perspective of the automated checks, a data set is well prepared for submission when:
+
+- all unexpected findings have been resolved,
+- remaining findings have been reviewed and documented,
+- identifiers are complete and unique according to the intended data structure,
+- categorical variables have informative variable and value labels,
+- missing codes are labelled correctly and defined as missing,
+- sensitive categories with low frequencies have been assessed,
+- character variables have been reviewed deliberately,
+- every variable is included in the relevant documentation,
+- the data set, codebook, and check report refer to the same version.
+
+A fully passing `Overview` is a useful goal, but it may not be possible or substantively appropriate for every data set. What matters is that each reported finding has been reviewed and addressed in a transparent and traceable way.
+
 
 ## Troubleshooting
 
 ### `docu_check` shows “Not tested”
 - **Cause:** you did not provide `pdf_path`
 - **Fix:** call `check_all(..., pdf_path = "path/to/codebook.pdf")`
-
-### Many encoding-related findings
-- **Cause:** non-UTF-8 characters or inconsistent encoding in names/labels/metadata
-- **Fix:** check how the `.sav` file was created/exported; if needed, set the `encoding` argument (and ensure your toolchain uses UTF-8 consistently)
 
 ### Unexpected missing or duplicate IDs
 - **Cause:** the wrong ID variable was used (default is the first variable)
@@ -218,14 +432,6 @@ sav_files <- list.files(data_dir, pattern = "\\.sav$", full.names = TRUE, recurs
 - **Cause:** you wrote to `tempdir()`, which is session-specific
 - **Fix:** save reports into a dedicated project folder (e.g., `reports/`) and print the path after writing
 
-### Batch processing is slow
-- **Cause:** SDC checks and documentation checks can be time-consuming
-- **Fix:** restrict `sdcVars`; run docu checks only when needed; process files individually if required
-
 
 ## Further resources
-If you want to continue with systematic cleaning and preparation after running `check_all()`, see:
-
-[FDZ Data Cleaning Guide](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
-
-[Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)
+`check_all()` identifies potential issues but does not modify the data set. Guidance on cleaning and preparing data with `eatGADS` and `eatFDZ` is provided in the [FDZ Data Cleaning](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html) and the [Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html).
