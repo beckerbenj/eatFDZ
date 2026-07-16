@@ -313,6 +313,11 @@ create_RM_from_tab <- function(in_path, out_path, lang,
       this_content$depth[section_start:section_end] <- section_depth
       this_content$group[section_start:section_end] <- this_content$file_name[[section_start]]
     }
+    if (!is.null(replace_id)) {
+      this_content$file_name <- gsub(x = this_content$file_name,
+                                     pattern = replace_id[[1]],
+                                     replacement = replace_id[[2]])
+    }
     return(this_content)
   })
 
@@ -571,7 +576,7 @@ file_table_as_text <- function(content, margin, col_width, prefix = "- ",
   groups <- unique(content$group)
 
   lengths_name <- nchar(filenames, type = "char")
-  lengths_indentation <- depths * indent_per_level
+  lengths_indentation <- (depths + 1) * indent_per_level
   lengths_indentation[lengths_indentation > max_indent] <- max_indent
   lengths_indented_name <- lengths_name + lengths_indentation
   col_width <- max(c(max(lengths_indented_name) + margin,
