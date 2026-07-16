@@ -144,3 +144,30 @@ This function serves the general purpose of creating a ReadMe that describes the
  }
 }
 
+\examples{
+# Create dummy directory
+somedir <- tempfile("example")
+dir.create(somedir)
+dir.create(file.path(somedir, "literature"))
+dir.create(file.path(somedir, "data"))
+file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
+file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_2026.pdf"))
+
+# Direcory mode
+createReadMe(somedir, lang = "en", create_table = "overview")
+
+control_table <- createReadMe(somedir, lang = "en", create_table = "control")
+control_table
+write.table(control_table, file.path(somedir, "ReadMeControl.csv"), row.names = FALSE,
+            sep = ",", col.names = c("file_name", "description_en", "flag"))
+
+# Table mode
+read.csv(file.path(somedir, "ReadMeControl.csv"))
+createReadMe(file.path(somedir, "ReadMeControl.csv"), lang = "en", create_table = "text",
+             sep = ",", header = c("This", "is a", "HUGE HEADER"))
+
+# Clean-up
+unlink(somedir, recursive = TRUE)
+
+
+}

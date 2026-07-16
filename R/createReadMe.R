@@ -105,6 +105,30 @@
 #' }
 #'
 #' @examples
+#' # Create dummy directory
+#' somedir <- tempfile("example")
+#' dir.create(somedir)
+#' dir.create(file.path(somedir, "literature"))
+#' dir.create(file.path(somedir, "data"))
+#' file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
+#' file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_2026.pdf"))
+#'
+#' # Direcory mode
+#' createReadMe(somedir, lang = "en", create_table = "overview")
+#'
+#' control_table <- createReadMe(somedir, lang = "en", create_table = "control")
+#' control_table
+#' write.table(control_table, file.path(somedir, "ReadMeControl.csv"), sep = ",",
+#'             row.names = FALSE, col.names = c("file_name", "description_en", "flag"))
+#'
+#' # Table mode
+#' read.csv(file.path(somedir, "ReadMeControl.csv"))
+#' createReadMe(file.path(somedir, "ReadMeControl.csv"), lang = "en", create_table = "text",
+#'              sep = ",", header = c("This", "is a", "HUGE HEADER"))
+#'
+#' # Clean-up
+#' unlink(somedir, recursive = TRUE)
+#'
 #'
 #' @export
 createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
@@ -829,10 +853,10 @@ add_spanning_border <- function(text, linetype, width = NULL, where = c("above",
 
 add_overall_head <- function(text, header, lang, width) {
   if (is.null(header)) return(text)
-  if (length(header) > 1) {
+  if (is.list(header) && length(header) > 1) {
     this_header <- header[grepl(x = names(header), pattern = paste0("_", lang, "$"))]
   } else {
-    this_header <- header
+    this_header <- unlist(header)
   }
 
   text <- add_spanning_border(text = text,
@@ -851,11 +875,11 @@ add_overall_head <- function(text, header, lang, width) {
 
 add_remarks_section <- function(text, section, lang, width) {
   if (is.null(section)) return(text)
-  if (length(section) > 1) {
+  if (is.list(section) && length(section) > 1) {
     this_section <- section[grepl(x = names(section), pattern = paste0("_", lang, "$"))]
     this_section <- unlist(this_section)
   } else {
-    this_section <- section
+    this_section <- unlist(section)
   }
 
   text <- add_header(text = text,
@@ -874,11 +898,11 @@ add_remarks_section <- function(text, section, lang, width) {
 
 add_footer <- function(text, footer, lang, width) {
   if (is.null(footer)) return(text)
-  if (length(footer) > 1) {
+  if (is.list(footer) && length(footer) > 1) {
     this_footer <- footer[grepl(x = names(footer), pattern = paste0("_", lang, "$"))]
     this_footer <- unlist(this_footer)
   } else {
-    this_footer <- footer
+    this_footer <- unlist(footer)
   }
 
   text <- add_spanning_border(text = text,
