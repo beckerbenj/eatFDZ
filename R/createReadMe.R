@@ -8,20 +8,20 @@
 #'
 #' @export
 createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
-                         margin = 4, col_width = 90, max_width = 300,
-                         indent_per_level = 2, max_indent = 10,
+                         margin = 4, col_width = 90, indent_per_level = 2, max_indent = 10,
                          create_table = c("none", "control", "overview", "text"),
                          sep = c(";", ","),
                          flat_depth = NULL, skip_empty_base = FALSE,
+                         header = NULL, content_box = NULL, remarks = NULL, footer = NULL) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
   }
   check_path_or_null(out_path)
-  lang <- match.arg(lang, several.ok = TRUE)
+  # lang <- match.arg(lang, several.ok = TRUE)
   create_table <- match.arg(create_table)
   sep <- match.arg(sep)
-  lapply(c("margin", "col_width", "max_width", "indent_per_level", "max_indent"),
+  lapply(c("margin", "col_width", "indent_per_level", "max_indent"),
          function(x) check_whole_positive(get(x), x))
   if (!is.null(flat_depth)) check_whole_positive(flat_depth)
   eatGADS:::check_logicalArgument(skip_empty_base)
@@ -58,23 +58,28 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   lang = lang,
                                   margin = margin,
                                   col_width = col_width,
-                                  max_width = max_width,
                                   indent_per_level = indent_per_level,
                                   max_indent = max_indent,
                                   create_table = create_table,
-                                  sep = sep)
+                                  sep = sep,
+                                  header = header,
+                                  content_box = content_box,
+                                  remarks = remarks,
+                                  footer = footer)
   } else {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
                                   margin = margin,
                                   col_width = col_width,
-                                  max_width = max_width,
                                   indent_per_level = indent_per_level,
                                   max_indent = max_indent,
                                   create_table = create_table,
                                   flat_depth = flat_depth,
-                                  skip_empty_base = skip_empty_base)
+                                  skip_empty_base = skip_empty_base,
+                                  header = header,
+                                  remarks = remarks,
+                                  footer = footer)
   }
 
   ## return file table as requested ##
@@ -123,8 +128,10 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   }
 }
 
-create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_width,
-                               indent_per_level, max_indent, create_table, flat_depth, skip_empty_base) {
+create_RM_from_dir <- function(in_path, out_path, lang,
+                               margin, col_width, indent_per_level, max_indent,
+                               create_table, flat_depth, skip_empty_base,
+                               header, remarks, footer) {
   file_table_deep <- create_file_table(path = in_path)
 
   ## create ReadMe file ##
@@ -203,8 +210,10 @@ create_RM_from_dir <- function(in_path, out_path, lang, margin, col_width, max_w
   return(out_list)
 }
 
-create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_width,
-                               indent_per_level, max_indent, create_table, sep) {
+create_RM_from_tab <- function(in_path, out_path, lang,
+                               margin, col_width, indent_per_level, max_indent,
+                               create_table, sep,
+                               header, content_box, remarks, footer) {
   file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
   if (any(!file_ext %in% c(".csv", "xlsx"))) {
     stop("Unsupported file format in file(s): '",
@@ -264,6 +273,7 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
     header_lines <- which(grepl(x = file_table2write$flag,
                                 pattern = "(header)|(subheader)"))
     file_table2write$file_name[header_lines] <- file_table2write$description[header_lines]
+    file_table2write$description[header_lines] <- ""
     file_table2write <- file_table2write[, names(file_table2write) != "flag"]
 
     # create text table
@@ -272,6 +282,20 @@ create_RM_from_tab <- function(in_path, out_path, lang, margin, col_width, max_w
                                                     col_width = col_width,
                                                     indent_per_level = indent_per_level,
                                                     max_indent = max_indent)
+    total_width <- attr(text_table_single_content, "total_width")
+    text_table_single_content <- add_spanning_border(text = text_table_single_content,
+                                                     linetype = 2,
+                                                     width = total_width,
+                                                     where = "above")
+    text_table_single_content <- add_header(text = text_table_single_content,
+                                            header = c(" F o r s c h u n g s d a t e n z e n t r u m   ( F D Z )",
+                                                       "",
+                                                       " a m   I Q B  ( B e r l i n )"),
+                                            width = total_width)
+    text_table_single_content <- add_spanning_border(text = text_table_single_content,
+                                                     linetype = 2,
+                                                     width = total_width,
+                                                     where = "above")
     lines2write[[this_lang]] <- text_table_single_content
 
     ## write ReadMe if requested via out_path ##
@@ -458,8 +482,8 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
   return(out)
 }
 
-file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- ",
-                               indent_per_level = 2, max_indent = 10, header = TRUE) {
+file_table_as_text <- function(content, margin, col_width, prefix = "- ",
+                               indent_per_level, max_indent, header = TRUE) {
   filenames <- content$file_name
   descriptions <- content$description
   depths <- content$depth
@@ -478,14 +502,13 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
                          select = c("file_name", "description", "depth"))
 
     # indent lines
-    this_depth <- this_group$depth
-    if (header && length(this_depth) > 1) { # increase body indentation against header if requested
-      this_depth[2:length(this_depth)] <- this_depth[2:length(this_depth)] + 1
+    these_indentations <- this_group$depth * indent_per_level
+    if (header && length(these_indentations) > 1) { # increase body indentation against header if requested
+      these_indentations[2:length(these_indentations)] <-
+        (these_indentations[2:length(these_indentations)] + 1) * indent_per_level
     }
     this_section <- these_filenames <- sapply(seq_along(this_group$file_name), function(x) {
-      paste0(paste0(rep(" ",
-                        indent_per_level * this_depth[[x]]),
-                    collapse = ""),
+      paste0(paste0(rep(" ", these_indentations[[x]]), collapse = ""),
              this_group$file_name[[x]])
     })
 
@@ -500,7 +523,7 @@ file_table_as_text <- function(content, margin = 4, col_width = 90, prefix = "- 
     }
 
     # add lines above as padding against previous group (add none if previous group has no direct files)
-    lines_above <- abs(this_depth[[1]] - max(depths)) + 1
+    lines_above <- abs(this_group$depth[[1]] - max(depths)) + 1
     if (group_index == 1 || nrow(subset(content, content$group == groups[[group_index - 1]])) == 1) {
       lines_above <- 0
     }
