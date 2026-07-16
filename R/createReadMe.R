@@ -204,20 +204,51 @@ create_RM_from_dir <- function(in_path, out_path, lang,
   rm(cols_of_selected_lang)
 
   # paste together all alternative descriptions
-  for (i in seq_along(lang)) {
+  for (this_lang in lang) {
     this_lang_col <- grep(x = names(file_table_flat),
-                           pattern = paste0("_", lang[[i]], "$"))
+                           pattern = paste0("_", this_lang, "$"))
     file_table2write$description <- file_table_flat[, this_lang_col]
     these_lines <- file_table_as_text(content = file_table2write,
                                       margin = margin,
                                       col_width = col_width,
                                       indent_per_level = indent_per_level,
                                       max_indent = max_indent)
-    if (i == 1) {
+    total_width <- attr(these_lines, "total_width")
+
+    # content subheader
+    these_lines <- add_spanning_border(text = these_lines,
+                                       width = total_width,
+                                       linetype = 3,
+                                       where = "above")
+    these_lines <- add_header(text = these_lines,
+                              header = paste0("default///content_", this_lang),
+                              width = total_width,
+                              center = FALSE,
+                              brace = TRUE)
+    these_lines <- c("", "", these_lines)
+
+    these_lines <- add_overall_head(text = these_lines,
+                                    header = header,
+                                    lang = this_lang,
+                                    width = total_width)
+
+    these_lines <- c(these_lines, "", "")
+    these_lines <- add_remarks_section(text = these_lines,
+                                       section = remarks,
+                                       lang = this_lang,
+                                       width = total_width)
+
+    these_lines <- c(these_lines, "", "")
+    these_lines <- add_footer(text = these_lines,
+                              footer = footer,
+                              lang = this_lang,
+                              width = total_width)
+
+    if (this_lang == lang[[1]]) {
       lines2write <- list(these_lines)
-      names(lines2write) <- lang[[i]]
+      names(lines2write) <- this_lang
     } else {
-      lines2write[[lang[[i]]]] <- these_lines
+      lines2write[[this_lang]] <- these_lines
     }
     rm(this_lang_col, these_lines)
   }
@@ -316,19 +347,36 @@ create_RM_from_tab <- function(in_path, out_path, lang,
                                                     indent_per_level = indent_per_level,
                                                     max_indent = max_indent)
     total_width <- attr(text_table_single_content, "total_width")
+
+    # content subheader
     text_table_single_content <- add_spanning_border(text = text_table_single_content,
-                                                     linetype = 2,
                                                      width = total_width,
+                                                     linetype = 3,
                                                      where = "above")
     text_table_single_content <- add_header(text = text_table_single_content,
-                                            header = c(" F o r s c h u n g s d a t e n z e n t r u m   ( F D Z )",
-                                                       "",
-                                                       " a m   I Q B  ( B e r l i n )"),
+                                            header = paste0("default///content_", this_lang),
+                                            width = total_width,
+                                            center = FALSE,
+                                            brace = TRUE)
+    text_table_single_content <- c("", "", text_table_single_content)
+
+    text_table_single_content <- add_overall_head(text = text_table_single_content,
+                                                  header = header,
+                                                  lang = this_lang,
+                                                  width = total_width)
+
+    text_table_single_content <- c(text_table_single_content, "", "")
+    text_table_single_content <- add_remarks_section(text = text_table_single_content,
+                                                     section = remarks,
+                                                     lang = this_lang,
+                                                     width = total_width)
+
+    text_table_single_content <- c(text_table_single_content, "", "")
+    text_table_single_content <- add_footer(text = text_table_single_content,
+                                            footer = footer,
+                                            lang = this_lang,
                                             width = total_width)
-    text_table_single_content <- add_spanning_border(text = text_table_single_content,
-                                                     linetype = 2,
-                                                     width = total_width,
-                                                     where = "above")
+
     lines2write[[this_lang]] <- text_table_single_content
 
     ## write ReadMe if requested via out_path ##
@@ -604,30 +652,66 @@ blanks_to_tabs <- function(text) {
   return(blank_first)
 }
 
-add_header <- function(text, header, width, center = TRUE) {
+add_header <- function(text, header, width,
+                       center = TRUE, brace = FALSE, where = c("above", "below")) {
+  if (length(header) == 1 && grepl(x = header, pattern = "^default///")) {
+    default_headers <- list(content_de = " I N H A L T ",
+                            content_en = " C O N T E N T S ",
+                            remarks_de = " H I N W E I S E ",
+                            remarks_en = " A D D I T I O N A L   R E M A R K S ")
+    header <- sub(x = header, pattern = "^default///", replacement = "")
+    header <- default_headers[[header]]
+  }
+  where <- match.arg(where)
+  nline <- length(header)
+
   if (center) {
-    header <- sapply(header, function(header_line) {
+    header <- sapply(unlist(header), function(header_line) {
       width_header <- nchar(header_line)
       if (width_header >= width) return(header_line)
+
       padding_left <- floor((width - width_header) / 2)
-      left_padded <- fill_with_blanks("", header_line, padding_left)
-      new_header_line <- fill_with_blanks(left_padded, "", width)
+      if (brace) marg_col <- " " else marg_col <- ""
+
+      left_padded <- fill_with_blanks(marg_col, header_line, padding_left)
+      new_header_line <- fill_with_blanks(left_padded, marg_col, width)
       return(new_header_line)
     })
   }
 
-  new_text <- c(header, text)
+  if (brace) {
+    if (center) header <- sapply(unlist(header), function(header_line) {
+      substr(x = header_line, start = 1, stop = nchar(header) - 1)
+    })
+    nline <- length(header)
+    if (nline == 1) {
+      header <- paste0("[", header, "]")
+    } else {
+      header[[1]] <- paste0("\u250c", header[[1]], "\u2510")
+      header[[length(header)]] <- paste0("\u2514", header[[1]], "\u2518")
+      if (nline > 2) {
+        header[2:(length(header) - 1)] <- paste0("\u2502", header[2:(length(header) - 1)], "\u2502")
+      }
+    }
+  }
+
+  if (where == "above") {
+    new_text <- c(header, text)
+  } else {
+    new_text <- c(text, header)
+  }
   return(new_text)
 }
 
-add_spanning_border <- function(text, linetype, width, where = c("above", "below")) {
+add_spanning_border <- function(text, linetype, width = NULL, where = c("above", "below")) {
+  if (is.null(width)) width <- nchar(tabs_to_blanks(text), type = "char")
   # double full width lower: \u2017
   # single full width lower: \u005f
   # single full width upper: \u203e
   # single half width upper: \u00af
   # vertical: \u2502
-  lineTypes <- data.frame(upper = c("\u005f", "\u005f"),
-                          lower = c("", "\u00af"))
+  lineTypes <- data.frame(upper = c("\u005f", "\u005f", "\u00af"),
+                          lower = c("", "\u00af", ""))
   this_line_upper <- paste0(rep(lineTypes$upper[[linetype]], width), collapse = "")
   this_line_lower <- paste0(rep(lineTypes$lower[[linetype]], width), collapse = "")
   this_line_combined <- c(this_line_upper, this_line_lower)
@@ -638,3 +722,68 @@ add_spanning_border <- function(text, linetype, width, where = c("above", "below
   return(text)
 }
 
+add_overall_head <- function(text, header, lang, width) {
+  if (is.null(header)) return(text)
+  if (length(header) > 1) {
+    this_header <- header[grepl(x = names(header), pattern = paste0("_", lang, "$"))]
+  } else {
+    this_header <- header
+  }
+
+  text <- add_spanning_border(text = text,
+                              linetype = 2,
+                              width = width,
+                              where = "above")
+  text <- add_header(text = text,
+                     header = this_header,
+                     width = width)
+  text <- add_spanning_border(text = text,
+                              linetype = 2,
+                              width = width,
+                              where = "above")
+  return(text)
+}
+
+add_remarks_section <- function(text, section, lang, width) {
+  if (is.null(section)) return(text)
+  if (length(section) > 1) {
+    this_section <- section[grepl(x = names(section), pattern = paste0("_", lang, "$"))]
+    this_section <- unlist(this_section)
+  } else {
+    this_section <- section
+  }
+
+  text <- add_header(text = text,
+                     header = paste0("default///remarks_", lang),
+                     width = width,
+                     center = FALSE,
+                     brace = TRUE,
+                     where = "below")
+  text <- add_spanning_border(text = text,
+                              width = width,
+                              linetype = 3,
+                              where = "below")
+  text <- c(text, this_section)
+  return(text)
+}
+
+add_footer <- function(text, footer, lang, width) {
+  if (is.null(footer)) return(text)
+  if (length(footer) > 1) {
+    this_footer <- footer[grepl(x = names(footer), pattern = paste0("_", lang, "$"))]
+    this_footer <- unlist(this_footer)
+  } else {
+    this_footer <- footer
+  }
+
+  text <- add_spanning_border(text = text,
+                              linetype = 2,
+                              width = width,
+                              where = "below")
+  text <- c(text, this_footer)
+  text <- add_spanning_border(text = text,
+                              linetype = 2,
+                              width = width,
+                              where = "below")
+  return(text)
+}
