@@ -104,3 +104,29 @@ if (!file.exists(template_footer)) {
               row.names = FALSE)
 }
 
+
+#### Actual tests ####
+test_that("Invalid inputs are rejected", {
+  expect_error(createReadMe(1:5),
+               "^'in_path'")
+  expect_error(createReadMe(file.path(pathbase, "SUF_Remote")),
+               "^Directory ")
+  expect_error(createReadMe(studybase, out_path = file.path(pathbase, "templates")),
+               "^'out_path'")
+  expect_error(createReadMe(studybase, margin = 4.5),
+               "^'margin'")
+  expect_error(createReadMe(studybase, header = file.path(pathstud1, filesstud1[[3]])),
+               "^Unsupported file format")
+  expect_error(createReadMe(studybase, footer = file.path(pathbase, "template_footer.csv"),
+                            sep = ",", lang = "fr"),
+               "^No matching column")
+  expect_error(createReadMe(studybase, footer = file.path(pathbase, "template_footer.csv"),
+                            sep = ",", replace_id = "_Antrag"),
+               "^'replace_id'")
+  expect_error(createReadMe(file.path(pathbase, "template_IQB-BT_2021_v1.tab")),
+               "^Could not find")
+  expect_error(createReadMe(file.path(pathstud1, filesstud1[[3]])),
+               "^Unsupported file format")
+  expect_error(createReadMe(file.path(pathbase, "template_IQB-BT_2021_v1.csv"), lang = "fr"),
+               "^No matching column")
+})
