@@ -291,4 +291,39 @@ test_that("Directory mode lists all files", {
                          }))
 })
 
+test_that("Directory mode describes files correctly", {
+  ### overview table ###
+  # dont skip base
+  study_overview_noskip <- createReadMe(studybase, create_table = "overview")
+  expect_equal(sum(grepl(x = study_overview_noskip$description_de, pattern = "^Datensatz")),
+               9)
+  # skip base
+  study_overview_skip <- createReadMe(studybase, create_table = "overview", skip_empty_base = TRUE)
+  expect_equal(sum(grepl(x = study_overview_skip$description_de, pattern = "^Datensatz")),
+               9)
+
+  ### control table ###
+  # dont skip base
+  study_control_noskip <- createReadMe(studybase, create_table = "control")
+  expect_equal(sum(grepl(x = study_control_noskip[[1]]$description_en, pattern = "^Dataset")),
+               2)
+  expect_equal(sum(grepl(x = study_control_noskip[[2]]$description_en, pattern = "^Dataset")),
+               7)
+  # skip base
+  study_control_skip <- createReadMe(studybase, create_table = "control", skip_empty_base = TRUE)
+  expect_equal(sum(grepl(x = study_control_noskip[[1]]$description_en, pattern = "^Dataset")),
+               2)
+  expect_equal(sum(grepl(x = study_control_noskip[[2]]$description_en, pattern = "^Dataset")),
+               7)
+
+  ### ReadMe text ###
+  # dont skip base
+  study_text_noskip <- createReadMe(studybase, create_table = "text")
+  expect_equal(sum(grepl(x = study_text_noskip$de, pattern = "- Datensatz in")), 9)
+  expect_equal(sum(grepl(x = study_text_noskip$en, pattern = "- Dataset in")), 9)
+  # skip base
+  study_text_skip <- createReadMe(studybase, create_table = "text", skip_empty_base = TRUE)
+  expect_equal(sum(grepl(x = study_text_skip$de, pattern = "- Datensatz in")), 9)
+  expect_equal(sum(grepl(x = study_text_skip$en, pattern = "- Dataset in")), 9)
+})
 })
