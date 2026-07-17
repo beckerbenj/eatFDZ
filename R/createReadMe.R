@@ -143,7 +143,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
   }
-  check_path_or_null(out_path)
+  check_file_path_or_null(out_path)
   # lang <- match.arg(lang, several.ok = TRUE)
   create_table <- match.arg(create_table)
   sep <- match.arg(sep)
@@ -155,8 +155,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   for (this_arg in c("header", "content_box", "remarks", "footer")) {
     if (is.null(get(this_arg))) next
     if (length(get(this_arg)) == 1 && file.exists(get(this_arg))) {
-      file_ext <- stringi::stri_extract_last_regex(str = get(this_arg),
-                                                   pattern = "\\..{2,4}$")
+      file_ext <- get_file_extension(get(this_arg))
       if (!file_ext %in% c(".csv", "xlsx")) {
         stop("Unsupported file format in file: '", get(this_arg), "'",
              call. = FALSE)
@@ -190,7 +189,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   #  (B) file extension = table mode
   func_mode <- "table"
   if (length(in_path) == 1) {
-    file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
+    file_ext <- get_file_extension(in_path)
     if (is.na(file_ext)) {
       if (!dir.exists(in_path)) {
         stop("Directory '", in_path, "' does not exist.",
@@ -387,7 +386,7 @@ create_RM_from_dir <- function(in_path, out_path, lang,
   if (!is.null(out_path)) {
     for (this_lang in lang) {
       if (length(lang) > 1) {
-        out_ext <- stringi::stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
+        out_ext <- get_file_extension(out_path)
         this_out_path <- sub(x = out_path,
                              pattern = "\\.[[:alnum:]]{2,4}$",
                              replacement = paste0("_", this_lang, out_ext))
@@ -408,7 +407,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
                                margin, col_width, indent_per_level, max_indent,
                                create_table, sep,
                                header, content_box, remarks, footer, replace_id) {
-  file_ext <- stringi::stri_extract_last_regex(str = in_path, pattern = "\\..{2,4}$")
+  file_ext <- get_file_extension(in_path)
   if (any(!file_ext %in% c(".csv", "xlsx"))) {
     stop("Unsupported file format in file(s): '",
          paste0(in_path[!file_ext %in% c(".csv", "xlsx")], collapse = "', '"),
@@ -529,7 +528,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
     ## write ReadMe if requested via out_path ##
     if (!is.null(out_path)) {
       if (length(lang) > 1) {
-        out_ext <- stringi::stri_extract_last_regex(str = out_path, pattern = "\\.[[:alnum:]]{2,4}$")
+        out_ext <- get_file_extension(out_path)
         this_out_path <- sub(x = out_path,
                              pattern = "\\.[[:alnum:]]{2,4}$",
                              replacement = paste0("_", this_lang, out_ext))
@@ -549,24 +548,25 @@ create_RM_from_tab <- function(in_path, out_path, lang,
 }
 
 
-#### auxiliary: checks ####
+#### auxiliary: checks and minor helpers ####
 
-check_path_or_null <- function(arg, argName) {
+check_file_path_or_null <- function(arg, argName) {
   if (missing(argName)) {
     argName <- deparse(substitute(arg))
   }
+
+  # NULL is valid
   if (is.null(arg)) {
     return(NULL)
   }
-  if (is.character(arg) && dir.exists(arg)) {
+
+  # character is valid IF it is a file name with a valid path
+  if (is.character(arg) && !is.na(get_file_extension(arg)) && dir.exists(dirname(arg))) {
     return(NULL)
   }
-  if (is.character(arg) && dir.exists(dirname(arg))) {
-    return(NULL)
-  } else {
-    stop("'", argName, "' needs to be either NULL, or an existing directory or file path.",
-         call. = FALSE)
-  }
+  # other cases = error
+  stop("'", argName, "' needs to be either NULL, or an existing directory or file path.",
+       call. = FALSE)
 }
 
 check_whole_positive <- function(arg, argName) {
@@ -580,6 +580,24 @@ check_whole_positive <- function(arg, argName) {
     stop("'", argName, "' needs to be a whole number > 0.",
          call. = FALSE)
   }
+}
+
+get_file_extension <- function(path) {
+  stringi::stri_extract_last_regex(str = path, pattern = "\\.[[:alnum:]]{2,4}$")
+}
+
+tabs_to_blanks <- function(text) {
+  gsub(x = text,
+       pattern = "\t",
+       replacement = "        ")
+}
+blanks_to_tabs <- function(text) {
+  tabs_first <- gsub(x = text,
+                     pattern = " {8}",
+                     replacement = "\t")
+  blank_first <- paste0(gsub(x = tabs_first, pattern = "\\t", replacement = ""),
+                        gsub(x = tabs_first, pattern = " ", replacement = ""))
+  return(blank_first)
 }
 
 #### auxiliary: substantive ####
@@ -602,8 +620,7 @@ create_file_table <- function(path, prev_depth = 0) {
     file_tab <- data.frame(file_name = all_files,
                            depth = prev_depth,
                            name_length = nchar(all_files),
-                           extension = stringi::stri_extract_last_regex(str = all_files,
-                                                                        pattern = "\\..{2,4}$"))
+                           extension = get_file_extension(all_files))
     file_tab$extension <- sub(pattern = "\\.",
                               replacement = "",
                               x = file_tab$extension)
@@ -783,20 +800,6 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
 
   out <- paste0(col1, filler, col2)
   return(out)
-}
-
-tabs_to_blanks <- function(text) {
-  gsub(x = text,
-       pattern = "\t",
-       replacement = "        ")
-}
-blanks_to_tabs <- function(text) {
-  tabs_first <- gsub(x = text,
-                     pattern = " {8}",
-                     replacement = "\t")
-  blank_first <- paste0(gsub(x = tabs_first, pattern = "\\t", replacement = ""),
-                        gsub(x = tabs_first, pattern = " ", replacement = ""))
-  return(blank_first)
 }
 
 add_header <- function(text, header, width,
