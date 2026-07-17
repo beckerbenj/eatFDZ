@@ -326,4 +326,31 @@ test_that("Directory mode describes files correctly", {
   expect_equal(sum(grepl(x = study_text_skip$de, pattern = "- Datensatz in")), 9)
   expect_equal(sum(grepl(x = study_text_skip$en, pattern = "- Dataset in")), 9)
 })
+
+test_that("Directory mode sets depth and group correctly", {
+  # dont skip base
+  study_overview_noskip <- createReadMe(studybase, create_table = "overview")
+  expect_equal(study_overview_noskip$depth,
+               c(0, rep(1, length(filesstud1) + 1),
+                 1, rep(2, length(filesstud2_sub1) + length(filesstud2_sub1) + 2)))
+  expect_identical(study_overview_noskip$group,
+                   c(basename(studybase),
+                     rep(file.path(basename(studybase), basename(pathstud1)), length(filesstud1) + 1),
+                     file.path(basename(studybase), basename(pathstud2)),
+                     rep(file.path(basename(studybase), basename(pathstud2), basename(pathstud2_sub1)),
+                         length(filesstud2_sub1) + 1),
+                     rep(file.path(basename(studybase), basename(pathstud2), basename(pathstud2_sub2)),
+                         length(filesstud2_sub2) + 1)))
+  # skip base
+  study_overview_skip <- createReadMe(studybase, create_table = "overview", skip_empty_base = TRUE)
+  expect_equal(study_overview_skip$depth,
+               c(rep(0, length(filesstud1) + 1),
+                 0, rep(1, length(filesstud2_sub1) + length(filesstud2_sub1) + 2)))
+  expect_identical(study_overview_skip$group,
+                   c(rep(basename(pathstud1), length(filesstud1) + 1),
+                     basename(pathstud2),
+                     rep(file.path(basename(pathstud2), basename(pathstud2_sub1)),
+                         length(filesstud2_sub1) + 1),
+                     rep(file.path(basename(pathstud2), basename(pathstud2_sub2)),
+                         length(filesstud2_sub2) + 1)))
 })
