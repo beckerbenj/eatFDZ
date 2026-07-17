@@ -78,7 +78,7 @@
 #'  but one may also consider not using the function on very deep directory structures.
 #' @param skip_empty_base Directory mode only: Should the first level be ignored, if it contains no
 #'  direct files? This is useful in creating control tables over many folders at once.
-#' @param header,content_box,remarks,footer,replace_id For each of these optional file sections,
+#' @param header,content_box,remarks,footer For each of these optional file sections,
 #'  either a \code{character vector} of the specific text to be added in the corresponding place
 #'  of the ReadMe file, a single valid \code{\link{file.path}} to a control table with the text(s)
 #'  in columns named "[irrelevant]_[\code{lang}]" (i.e., "language-coded"), or a list with
@@ -111,7 +111,7 @@
 #' dir.create(file.path(somedir, "literature"))
 #' dir.create(file.path(somedir, "data"))
 #' file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
-#' file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_2026.pdf"))
+#' file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_Schipolowski_2026.pdf"))
 #'
 #' # Direcory mode
 #' createReadMe(somedir, lang = "en", create_table = "overview")
@@ -351,6 +351,10 @@ create_RM_from_dir <- function(in_path, out_path, lang,
                               brace = TRUE)
     these_lines <- c("", "", these_lines)
 
+    these_lines <- add_content_box(text = these_lines,
+                                   content = content_box,
+                                   lang = this_lang,
+                                   width = total_width)
     these_lines <- add_overall_head(text = these_lines,
                                     header = header,
                                     lang = this_lang,
@@ -489,6 +493,10 @@ create_RM_from_tab <- function(in_path, out_path, lang,
                                             brace = TRUE)
     text_table_single_content <- c("", "", text_table_single_content)
 
+    text_table_single_content <- add_content_box(text = text_table_single_content,
+                                                 content = content_box,
+                                                 lang = this_lang,
+                                                 width = total_width)
     text_table_single_content <- add_overall_head(text = text_table_single_content,
                                                   header = header,
                                                   lang = this_lang,
@@ -870,6 +878,22 @@ add_overall_head <- function(text, header, lang, width) {
                               linetype = 2,
                               width = width,
                               where = "above")
+  return(text)
+}
+
+add_content_box <- function(text, content, lang, width) {
+  if (is.null(content)) return(text)
+  if (is.list(content) && length(content) > 1) {
+    this_header <- content[grepl(x = names(content), pattern = paste0("_", lang, "$"))]
+  } else {
+    this_header <- unlist(content)
+  }
+
+  text <- add_spanning_border(text = text,
+                              linetype = 2,
+                              width = width,
+                              where = "above")
+  text <- c(content, text)
   return(text)
 }
 
