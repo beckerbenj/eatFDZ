@@ -41,8 +41,9 @@
 #'   customisable, but this functionality may be added on request.
 #'  \item \code{content_box} - A higher-level table of content, further abstracting from the
 #'   detailed file table below. It is added between the header and the main body/file table.
-#'   Aesthetic lines will be added above and below. It may be used to list the "intermediate"
-#'   data product packages/"studies" of the overall data package.
+#'   The contents are indented by one tab and aesthetic lines will be added above and below.
+#'   It may be used to list the "intermediate" data product packages/"studies" of the overall
+#'   data package.
 #'  \item \code{remarks} - A section of additional remarks about using the data. It is added below
 #'   the main body/file table with a simple header above it. The header is not yet customisable,
 #'   but this functionality may be added.
@@ -881,7 +882,7 @@ add_overall_head <- function(text, header, lang, width) {
   return(text)
 }
 
-add_content_box <- function(text, content, lang, width) {
+add_content_box <- function(text, content, lang, width, indent = TRUE) {
   if (is.null(content)) return(text)
   if (is.list(content) && length(content) > 1) {
     this_header <- content[grepl(x = names(content), pattern = paste0("_", lang, "$"))]
@@ -893,6 +894,7 @@ add_content_box <- function(text, content, lang, width) {
                               linetype = 2,
                               width = width,
                               where = "above")
+  if (indent) content <- paste0("\t", content)
   text <- c(content, text)
   return(text)
 }
