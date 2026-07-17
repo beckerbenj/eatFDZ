@@ -229,3 +229,66 @@ test_that("Table mode: Outputs have correct formats", {
   expect_gt(length(study_text_1lang[[1]]), 5)
   expect_identical(names(study_text_1lang), "de")
 })
+
+test_that("Directory mode lists all files", {
+  ### overview table ###
+  # dont skip base
+  study_overview_noskip <- createReadMe(studybase, create_table = "overview")
+  expect_all_true(sapply(c(filesstud1, filesstud2_sub1, filesstud2_sub2),
+                  function(this_file_name) this_file_name %in% study_overview_noskip$file_name))
+  expect_equal(study_overview_noskip$depth,
+               c(0, rep(1, length(filesstud1) + 1),
+                 1, rep(2, length(filesstud2_sub1) + length(filesstud2_sub1) + 2)))
+  expect_identical(study_overview_noskip$group,
+                   c(basename(studybase),
+                     rep(file.path(basename(studybase), basename(pathstud1)), length(filesstud1) + 1),
+                     file.path(basename(studybase), basename(pathstud2)),
+                     rep(file.path(basename(studybase), basename(pathstud2), basename(pathstud2_sub1)),
+                         length(filesstud2_sub1) + 1),
+                     rep(file.path(basename(studybase), basename(pathstud2), basename(pathstud2_sub2)),
+                         length(filesstud2_sub2) + 1)))
+  # skip base
+  study_overview_skip <- createReadMe(studybase, create_table = "overview", skip_empty_base = TRUE)
+  expect_all_true(sapply(c(filesstud1, filesstud2_sub1, filesstud2_sub2),
+                         function(this_file_name) this_file_name %in% study_overview_skip$file_name))
+  expect_equal(study_overview_skip$depth,
+               c(rep(0, length(filesstud1) + 1),
+                 0, rep(1, length(filesstud2_sub1) + length(filesstud2_sub1) + 2)))
+  expect_identical(study_overview_skip$group,
+                   c(rep(basename(pathstud1), length(filesstud1) + 1),
+                     basename(pathstud2),
+                     rep(file.path(basename(pathstud2), basename(pathstud2_sub1)),
+                         length(filesstud2_sub1) + 1),
+                     rep(file.path(basename(pathstud2), basename(pathstud2_sub2)),
+                         length(filesstud2_sub2) + 1)))
+
+  ### control table ###
+  # dont skip base
+  study_control_noskip <- createReadMe(studybase, create_table = "control", lang = "en")
+  expect_all_true(sapply(filesstud1,
+                         function(this_file_name) this_file_name %in% study_control_noskip[[1]]$file_name))
+  expect_all_true(sapply(c(filesstud2_sub1, filesstud2_sub2),
+                         function(this_file_name) this_file_name %in% study_control_noskip[[2]]$file_name))
+  # skip base
+  study_control_skip <- createReadMe(studybase, create_table = "control", skip_empty_base = TRUE)
+  expect_all_true(sapply(filesstud1,
+                         function(this_file_name) this_file_name %in% study_control_skip[[1]]$file_name))
+  expect_all_true(sapply(c(filesstud2_sub1, filesstud2_sub2),
+                         function(this_file_name) this_file_name %in% study_control_skip[[2]]$file_name))
+
+  ### ReadMe text ###
+  # dont skip base
+  study_text_noskip <- createReadMe(studybase, create_table = "text")
+  expect_all_true(sapply(c(filesstud1, filesstud2_sub1, filesstud2_sub2),
+                         function(this_file_name) {
+                           sum(grepl(x = study_text_noskip$de, pattern = this_file_name)) == 1
+                         }))
+  # skip base
+  study_text_skip <- createReadMe(studybase, create_table = "text", skip_empty_base = TRUE)
+  expect_all_true(sapply(c(filesstud1, filesstud2_sub1, filesstud2_sub2),
+                         function(this_file_name) {
+                           sum(grepl(x = study_text_skip$de, pattern = this_file_name)) == 1
+                         }))
+})
+
+})
