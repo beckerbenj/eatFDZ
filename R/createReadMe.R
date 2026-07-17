@@ -236,6 +236,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   flat_depth = flat_depth,
                                   skip_empty_base = skip_empty_base,
                                   header = header,
+                                  content_box = content_box,
                                   remarks = remarks,
                                   footer = footer)
   }
@@ -289,7 +290,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 create_RM_from_dir <- function(in_path, out_path, lang,
                                margin, col_width, indent_per_level, max_indent,
                                create_table, flat_depth, skip_empty_base,
-                               header, remarks, footer) {
+                               header, content_box, remarks, footer) {
   file_table_deep <- create_file_table(path = in_path)
 
   ## create ReadMe file ##
@@ -423,6 +424,14 @@ create_RM_from_tab <- function(in_path, out_path, lang,
       this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[path_index]],
                                           sheet = 1)
     }
+    sapply(lang, function(this_lang) {
+      matching <- grepl(x = names(this_content),
+                        pattern = paste0("_", this_lang, "$"))
+      if (!any(matching)) {
+        stop("No matching column name in ", in_path[[path_index]],
+             ' for language "', this_lang, '"')
+      }
+    })
 
     subhead_lines <- which(grepl(x = this_content$flag,
                                  pattern = "subheader"))
@@ -555,7 +564,7 @@ check_path_or_null <- function(arg, argName) {
   if (is.character(arg) && dir.exists(dirname(arg))) {
     return(NULL)
   } else {
-    stop("'", argName, "' has to be either NULL, or an existing directory or file path.",
+    stop("'", argName, "' needs to be either NULL, or an existing directory or file path.",
          call. = FALSE)
   }
 }
@@ -568,7 +577,7 @@ check_whole_positive <- function(arg, argName) {
   if (arg == round(arg) && arg > 0) {
     return(NULL)
   } else {
-    stop("'", argName, "' has to be a whole number > 0.",
+    stop("'", argName, "' needs to be a whole number > 0.",
          call. = FALSE)
   }
 }
