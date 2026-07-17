@@ -176,3 +176,56 @@ test_that("Directory mode: Outputs have correct formats", {
   expect_gt(length(study_text_1lang[[1]]), 5)
   expect_identical(names(study_text_1lang), "de")
 })
+
+test_that("Table mode: Outputs have correct formats", {
+  contrtab <- file.path(pathbase, "template_IQB-BT_2021_v1.csv")
+  ### overview table ###
+  # two languages
+  expect_no_error(study_overview_2lang <- createReadMe(contrtab, create_table = "overview",
+                                                       sep = ","))
+  expect_s3_class(study_overview_2lang, "data.frame")
+  expect_equal(ncol(study_overview_2lang), 5)
+  expect_identical(sort(names(study_overview_2lang)),
+                   sort(c("file_name", "description_de", "description_en", "depth", "group")))
+  # one language
+  expect_no_error(study_overview_1lang <- createReadMe(contrtab, create_table = "overview",
+                                                       sep = ",", lang = "de"))
+  expect_equal(ncol(study_overview_1lang), 4)
+  expect_identical(sort(names(study_overview_1lang)),
+                   sort(c("file_name", "description_de", "depth", "group")))
+
+  ### control table ###
+  # two languages
+  expect_no_error(study_control_2lang <- createReadMe(contrtab, create_table = "control",
+                                                      sep = ","))
+  expect_type(study_control_2lang, "list")
+  expect_s3_class(study_control_2lang[[1]], "data.frame")
+  expect_equal(length(study_control_2lang), 1)
+  expect_equal(ncol(study_control_2lang[[1]]), 4)
+  expect_identical(names(study_control_2lang), basename(pathstud1))
+  expect_identical(sort(names(study_control_2lang[[1]])),
+                   sort(c("file_name", "description_de", "description_en", "flag")))
+  # one language
+  expect_no_error(study_control_1lang <- createReadMe(contrtab, create_table = "control",
+                                                      sep = ",", lang = "en"))
+  expect_equal(ncol(study_control_1lang[[1]]), 3)
+  expect_identical(sort(names(study_control_1lang[[1]])),
+                   sort(c("file_name", "description_en", "flag")))
+
+  ### ReadMe text ###
+  # two languages
+  expect_no_error(study_text_2lang <- createReadMe(contrtab, create_table = "text",
+                                                   sep = ","))
+  expect_type(study_text_2lang, "list")
+  expect_type(study_text_2lang[[1]], "character")
+  expect_equal(length(study_text_2lang), 2)
+  expect_gt(length(study_text_2lang[[1]]), 5)
+  expect_identical(sort(names(study_text_2lang)),
+                   sort(c("de", "en")))
+  # one language
+  expect_no_error(study_text_1lang <- createReadMe(contrtab, create_table = "text",
+                                                   sep = ",", lang = "de"))
+  expect_equal(length(study_text_1lang), 1)
+  expect_gt(length(study_text_1lang[[1]]), 5)
+  expect_identical(names(study_text_1lang), "de")
+})

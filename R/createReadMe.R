@@ -545,11 +545,25 @@ create_RM_from_tab <- function(in_path, out_path, lang,
                  con = this_out_path)
     }
   }
-  flat_file_table <- do.call("rbind", lapply(content_list, function(this_content) {
+
+  # return file table but select language specific descriptions based on user input
+  file_table_flat <- do.call("rbind", lapply(content_list, function(this_content) {
     this_content[, names(this_content) != "flag"]
   }))
+  description_names <- grep(x = names(file_table_flat),
+                            pattern = "description",
+                            value = TRUE)
+  not_select_lang_names <- grep(x = description_names,
+                                pattern = paste0("(_",
+                                                 paste0(lang, collapse = "$)|(_"),
+                                                 "$)"),
+                                invert = TRUE,
+                                value = TRUE)
+  file_table_flat <- file_table_flat[, !names(file_table_flat) %in% not_select_lang_names]
+  rm(description_names, not_select_lang_names)
+  file_table_flat
   out_list <- list(text = lines2write,
-                   files = flat_file_table)
+                   files = file_table_flat)
   return(out_list)
 }
 
