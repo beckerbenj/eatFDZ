@@ -178,7 +178,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   }
 
   if (!is.null(replace_id) && (!is.character(replace_id) || length(replace_id) != 2)) {
-    stop('"replace_id" needs to be a character vector of length 2.',
+    stop("'replace_id' needs to be a character vector of length 2.",
          call. = FALSE)
   }
 
@@ -321,17 +321,23 @@ create_RM_from_dir <- function(in_path, out_path, lang,
   }
 
   # select language specific descriptions based on user input
-  cols_of_selected_lang <- grep(x = names(file_table_flat),
+  description_names <- grep(x = names(file_table_flat),
+                            pattern = "description",
+                            value = TRUE)
+  not_select_lang_names <- grep(x = description_names,
                                 pattern = paste0("(_",
-                                                 paste(lang, collapse = "$)|(_"),
-                                                 "$)"))
-  file_table2write <- file_table_flat[, -cols_of_selected_lang]
-  rm(cols_of_selected_lang)
+                                                 paste0(lang, collapse = "$)|(_"),
+                                                 "$)"),
+                                invert = TRUE,
+                                value = TRUE)
+  file_table_flat <- file_table_flat[, !names(file_table_flat) %in% not_select_lang_names]
+  rm(description_names, not_select_lang_names)
 
   # paste together all alternative descriptions
   for (this_lang in lang) {
     this_lang_col <- grep(x = names(file_table_flat),
                            pattern = paste0("_", this_lang, "$"))
+    file_table2write <- file_table_flat
     file_table2write$description <- file_table_flat[, this_lang_col]
     these_lines <- file_table_as_text(content = file_table2write,
                                       margin = margin,
