@@ -354,3 +354,17 @@ test_that("Directory mode sets depth and group correctly", {
                      rep(file.path(basename(pathstud2), basename(pathstud2_sub2)),
                          length(filesstud2_sub2) + 1)))
 })
+
+test_that("Directory mode sets flags correctly", {
+  # dont skip base
+  study_control_noskip <- createReadMe(studybase, create_table = "control", lang = "en")
+  expect_identical(study_control_noskip[[1]]$flag, c("header", "subheader/1", "", "", "", ""))
+  expect_identical(study_control_noskip[[2]]$flag,
+                   c("header", "subheader/2", "", "", "", "", "subheader/2", "", "", "", ""))
+
+  # skip base
+  study_control_skip <- createReadMe(studybase, create_table = "control", skip_empty_base = TRUE)
+  expect_identical(study_control_skip[[1]]$flag, c("header", "", "", "", ""))
+  expect_identical(study_control_skip[[2]]$flag,
+                   c("header", "subheader/1", "", "", "", "", "subheader/1", "", "", "", ""))
+})
