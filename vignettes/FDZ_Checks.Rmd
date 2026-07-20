@@ -300,7 +300,8 @@ The following sections explain how the individual result tables should be interp
 
 ### Naming and encoding
 
-#### `lengthy_variable_names`
+<details>
+<summary><code>lengthy_variable_names</code></summary>
 
 Reports variable names containing more than 30 characters.
 
@@ -308,7 +309,10 @@ Long variable names may cause problems across statistical software and make anal
 
 Review whether the names can be shortened systematically. The full meaning should be preserved in the variable label and documentation.
 
-#### `special_signs_variable_names`
+</details>
+
+<details>
+<summary><code>special_signs_variable_names</code></summary>
 
 Reports variable names containing problematic characters or encodings.
 
@@ -327,7 +331,10 @@ Changes must also be reflected in the documentation and processing scripts.
 
 Functions such as `eatGADS::fixEncoding()` may help correct encoding problems.
 
-#### `special_signs_meta_data`
+</details>
+
+<details>
+<summary><code>special_signs_meta_data</code></summary>
 
 Reports potentially problematic characters in variable labels or value labels.
 
@@ -340,9 +347,12 @@ Check whether the affected text is displayed correctly in:
 
 Always apply encoding corrections to a working copy and verify the result afterwards.
 
+</details>
+
 ### Identifier variables
 
-#### `missing_IDs`
+<details>
+<summary><code>missing_IDs</code></summary>
 
 Reports observations with missing values in the specified identifier variables.
 
@@ -357,7 +367,10 @@ Check whether:
 
 Do not invent identifiers without a documented basis.
 
-#### `duplicate_IDs`
+</details>
+
+<details>
+<summary><code>duplicate_IDs</code></summary>
 
 Reports identifier values occurring more than once.
 
@@ -372,9 +385,12 @@ Possible causes include:
 
 Determine which variable or combination of variables is expected to identify an observation uniquely.
 
+</details>
+
 ### Labels and missing values
 
-#### `missing_variable_labels`
+<details>
+<summary><code>missing_variable_labels</code></summary>
 
 Reports variables without an informative variable label.
 
@@ -389,7 +405,10 @@ Unsuitable labels include:
 
 Variable labels can be edited using functions such as `eatGADS::changeVarLabels()`.
 
-#### `missing_value_labels`
+</details>
+
+<details>
+<summary><code>missing_value_labels</code></summary>
 
 Reports numeric values occurring in the data for which no value label is available.
 
@@ -403,7 +422,10 @@ For categorical variables, check whether:
 
 Value labels can be edited using functions such as `eatGADS::changeValLabels()`.
 
-#### `empty_value_labels`
+</details>
+
+<details>
+<summary><code>empty_value_labels</code></summary>
 
 Reports value labels that are empty or contain no meaningful description.
 
@@ -413,7 +435,10 @@ Check whether the value represents:
 - a missing code requiring a description,
 - an obsolete definition that should be removed.
 
-#### `missing_range_tags`
+</details>
+
+<details>
+<summary><code>missing_range_tags</code></summary>
 
 Reports values within `missingRange` that are not defined as missing in the metadata.
 
@@ -421,15 +446,21 @@ For example, the value `-99` may have the label `omitted` but still be treated a
 
 First verify whether the value actually represents missing data. Missing-value definitions can then be corrected using functions such as `eatGADS::changeMissings()`.
 
-#### `missing_regex_tags`
+</details>
+
+<details>
+<summary><code>missing_regex_tags</code></summary>
 
 Reports values whose labels contain a term from `missingRegex` but whose values are not defined as missing.
 
 Review the complete label and its substantive context. Search terms may also match valid categories unintentionally.
 
+</details>
+
 ### Data structure
 
-#### `empty_variables`
+<details>
+<summary><code>empty_variables</code></summary>
 
 Reports variables containing no valid information, for example because all values are missing.
 
@@ -443,7 +474,10 @@ Possible explanations include:
 
 Remove variables without a documented purpose. Intentionally empty variables should be explained in the documentation.
 
-#### `constant_variables`
+</details>
+
+<details>
+<summary><code>constant_variables</code></summary>
 
 Reports variables containing only one value across all observations.
 
@@ -457,9 +491,12 @@ Check whether:
 
 Retain constant variables only when their purpose is clear.
 
+</details>
+
 ### Data protection and character variables
 
-#### `statistical_disclosure_control`
+<details>
+<summary><code>statistical_disclosure_control</code></summary>
 
 Reports categories with low frequencies that may indicate a disclosure risk.
 
@@ -479,7 +516,10 @@ Possible measures include:
 
 > **Important:** This automated check does not replace a complete statistical disclosure control assessment.
 
-#### `character_variables`
+</details>
+
+<details>
+<summary><code>character_variables</code></summary>
 
 Reports variables stored as character variables.
 
@@ -499,9 +539,12 @@ For every character variable, decide whether it:
 
 Structured character variables can be converted using functions such as `eatGADS::multiChar2fac()`.
 
+</details>
+
 ### Documentation
 
-#### `docu_check`
+<details>
+<summary><code>docu_check</code></summary>
 
 Compares variable names in the data set with the supplied PDF documentation.
 
@@ -520,7 +563,7 @@ A missing match may mean that:
 
 > **Limitation:** The check only determines whether a variable name was found. It does not assess whether the substantive description is complete, correct, or understandable.
 
-
+</details>
 ---
 
 ## When is a data set ready for submission?
