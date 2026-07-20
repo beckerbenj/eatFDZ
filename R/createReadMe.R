@@ -475,61 +475,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
   return(out_list)
 }
 
-
-#### auxiliary: checks and minor helpers ####
-
-check_file_path_or_null <- function(arg, argName) {
-  if (missing(argName)) {
-    argName <- deparse(substitute(arg))
-  }
-
-  # NULL is valid
-  if (is.null(arg)) {
-    return(NULL)
-  }
-
-  # character is valid IF it is a file name with a valid path
-  if (is.character(arg) && !is.na(get_file_extension(arg)) && dir.exists(dirname(arg))) {
-    return(NULL)
-  }
-  # other cases = error
-  stop("'", argName, "' needs to be either NULL, or an existing directory or file path.",
-       call. = FALSE)
-}
-
-check_whole_positive <- function(arg, argName) {
-  if (missing(argName)) {
-    argName <- deparse(substitute(arg))
-  }
-  eatGADS:::check_numericArgument(arg = arg, argName = argName)
-  if (arg == round(arg) && arg > 0) {
-    return(NULL)
-  } else {
-    stop("'", argName, "' needs to be a whole number > 0.",
-         call. = FALSE)
-  }
-}
-
-get_file_extension <- function(path) {
-  stringi::stri_extract_last_regex(str = path, pattern = "\\.[[:alnum:]]{2,4}$")
-}
-
-tabs_to_blanks <- function(text) {
-  gsub(x = text,
-       pattern = "\t",
-       replacement = "        ")
-}
-blanks_to_tabs <- function(text) {
-  tabs_first <- gsub(x = text,
-                     pattern = " {8}",
-                     replacement = "\t")
-  blank_first <- paste0(gsub(x = tabs_first, pattern = "\\t", replacement = ""),
-                        gsub(x = tabs_first, pattern = " ", replacement = ""))
-  return(blank_first)
-}
-
 #### auxiliary: substantive ####
-
 create_file_table <- function(path, prev_depth = 0) {
   # list all files in a directory by going through subdirectories recursively
   out <- list()
@@ -709,15 +655,6 @@ file_table_as_text <- function(content, margin, col_width, prefix = "- ",
   return(full_lines)
 }
 
-fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
-  if (length(col1) != length(col2)) {
-    length_diff <- length(col1) - length(col2)
-    if (length_diff > 0) {
-      col2 <- c(col2, rep("", length_diff))
-    } else {
-      col1 <- c(col1, rep("", length_diff))
-    }
-  }
 build_ReadMe_text <- function(content, lang, header, content_box, remarks, footer) {
   total_width <- attr(content, "total_width")
   # section order is not fully intuitive but always builds from the
@@ -745,10 +682,6 @@ build_ReadMe_text <- function(content, lang, header, content_box, remarks, foote
                               lang = lang,
                               width = total_width)
 
-  length_col1 <- nchar(tabs_to_blanks(col1),
-                       type = "char")
-  fill_blanks <- width - length_col1
-  filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
   # bottom sections
   content <- c(content, "", "")
   content <- add_remarks_section(text = content,
@@ -756,18 +689,17 @@ build_ReadMe_text <- function(content, lang, header, content_box, remarks, foote
                                  lang = lang,
                                  width = total_width)
 
-  if (use_tabs) filler <- sapply(filler, blanks_to_tabs)
   content <- c(content, "", "")
   content <- add_footer(text = content,
                         footer = footer,
                         lang = lang,
                         width = total_width)
 
-  out <- paste0(col1, filler, col2)
-  return(out)
   return(content)
 }
 
+
+#### auxiliary: text sections ####
 add_header <- function(text, header, width,
                        center = TRUE, brace = FALSE, where = c("above", "below")) {
   if (length(header) == 1 && grepl(x = header, pattern = "^default///")) {
@@ -942,4 +874,82 @@ add_footer <- function(text, footer, lang, width) {
                               width = width,
                               where = "below")
   return(text)
+}
+
+
+#### auxiliary: text transformation ####
+
+get_file_extension <- function(path) {
+  stringi::stri_extract_last_regex(str = path, pattern = "\\.[[:alnum:]]{2,4}$")
+}
+
+tabs_to_blanks <- function(text) {
+  gsub(x = text,
+       pattern = "\t",
+       replacement = "        ")
+}
+
+blanks_to_tabs <- function(text) {
+  tabs_first <- gsub(x = text,
+                     pattern = " {8}",
+                     replacement = "\t")
+  blank_first <- paste0(gsub(x = tabs_first, pattern = "\\t", replacement = ""),
+                        gsub(x = tabs_first, pattern = " ", replacement = ""))
+  return(blank_first)
+}
+
+fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
+  if (length(col1) != length(col2)) {
+    length_diff <- length(col1) - length(col2)
+    if (length_diff > 0) {
+      col2 <- c(col2, rep("", length_diff))
+    } else {
+      col1 <- c(col1, rep("", length_diff))
+    }
+  }
+
+  length_col1 <- nchar(tabs_to_blanks(col1),
+                       type = "char")
+  fill_blanks <- width - length_col1
+  filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
+
+  if (use_tabs) filler <- sapply(filler, blanks_to_tabs)
+
+  out <- paste0(col1, filler, col2)
+  return(out)
+}
+
+
+#### auxiliary: checks ####
+
+check_file_path_or_null <- function(arg, argName) {
+  if (missing(argName)) {
+    argName <- deparse(substitute(arg))
+  }
+
+  # NULL is valid
+  if (is.null(arg)) {
+    return(NULL)
+  }
+
+  # character is valid IF it is a file name with a valid path
+  if (is.character(arg) && !is.na(get_file_extension(arg)) && dir.exists(dirname(arg))) {
+    return(NULL)
+  }
+  # other cases = error
+  stop("'", argName, "' needs to be either NULL, or an existing directory or file path.",
+       call. = FALSE)
+}
+
+check_whole_positive <- function(arg, argName) {
+  if (missing(argName)) {
+    argName <- deparse(substitute(arg))
+  }
+  eatGADS:::check_numericArgument(arg = arg, argName = argName)
+  if (arg == round(arg) && arg > 0) {
+    return(NULL)
+  } else {
+    stop("'", argName, "' needs to be a whole number > 0.",
+         call. = FALSE)
+  }
 }
