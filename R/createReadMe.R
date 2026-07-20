@@ -53,7 +53,7 @@
 #'
 #'
 #' @param in_path Either a single directory path,
-#'  or a character vector of at least one control table path.
+#'  or a \code{character vector} of at least one control table path.
 #' @param out_path Optional \code{\link{file.path}} (incl. file name) for the ReadMe to be created in.
 #'  \link{writeLines} needs to be able to write a plain text ReadMe here.
 #'  If \code{NULL} (the defaul), no file is created.
@@ -62,21 +62,24 @@
 #'  any language acronym that matches a description column in the control tables can be selected.
 #'  If more than one language is specified and an \code{out_path} is provided, one ReadMe will be
 #'  created for each language, using \code{lang} as the file name suffix.
-#' @param margin Formatting option: Numeric value of the minimum number of spaces that should
+#' @param margin Formatting option: \code{numeric} value of the minimum number of spaces that should
 #'  separate file names and file descriptions.
 #'  All formatting options only apply if a ReadMe is written to \code{out_path}.
-#' @param col_width Formatting option: Numeric value of the default width at which the
+#' @param col_width Formatting option: \code{numeric} value of the default width at which the
 #'  file descriptions should start. If \code{max(nchar(file names))} > \code{col_width},
 #'  width will be set to \code{max(nchar(file names))} and \code{margin} will be applied on that.
-#' @param indent_per_level Formatting option: Numeric value of the number of spaces used to
+#' @param indent_per_level Formatting option: \code{numeric} value of the number of spaces used to
 #'  indent a line to indicate its contents are one level lower than another line.
-#' @param max_indent Formatting option: Numeric value of the maximum number
+#' @param max_indent Formatting option: \code{numeric} value of the maximum number
 #'  of indentation spaces to use from \code{indent_per_level}.
-#' @param create_table Control the return value of the function (see below).
-#' @param sep Which column separator is used in the control tables?
-#' @param flat_depth Directory mode only: At which depth should the function start pretending that
-#'  all files and folders are on the same level. Using this may prevent file tables from blowing up
-#'  but one may also consider not using the function on very deep directory structures.
+#' @param create_table Optional \code{character} argument to control the return value of this
+#'  function (see details).
+#' @param sep Which column separator is used in the control tables (c.f. \link{read.table})?
+#' @param flat_depth Directory mode only: \code{numeric} value indicating the depth at which the
+#'  function should start pretending that all files and folders are on the same level.
+#'  If \code{NULL}, every file's depth will be represented truthfully.
+#'  Flattening the depth may prevent file tables from blowing up but you may also consider not
+#'  using the function on a very deep directory structure.
 #' @param skip_empty_base Directory mode only: Should the first level be ignored, if it contains no
 #'  direct files? This is useful in creating control tables over many folders at once.
 #' @param header,content_box,remarks,footer For each of these optional file sections,
