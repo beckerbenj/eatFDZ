@@ -91,6 +91,10 @@
 #'  (in the FDZ context usually: "_Antrag") with the specific ID (e.g., "2601-01a").
 #'  The first element is a \link{regex} expression to be used as \code{pattern}, and replaced by
 #'  the simple string in the second element of the vector. Usually only makes sense in table mode.
+#' @param include_rm Optional \code{logical} argument: Should the ReadMe file be included in itself?
+#'  Only applies if a file is created at \code{out_path}. If \code{NULL} (the default), a default
+#'  setting depending on the function mode will be applied: \code{FALSE} in directory mode, and
+#'  \code{TRUE} in table mode.
 #'
 #' @returns Depending on \code{create_table}, this function may return...\itemize{
 #'  \item \code{"control"} - A \code{list} of \code{data.frame}s, one for each subdirectory.
@@ -141,7 +145,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                          sep = c(";", ","),
                          flat_depth = NULL, skip_empty_base = FALSE,
                          header = NULL, content_box = NULL, remarks = NULL, footer = NULL,
-                         replace_id = NULL) {
+                         replace_id = NULL, include_rm = NULL) {
   if (!is.character(in_path) || length(in_path) == 0) {
     stop("'in_path' needs to be a character vector of length > 0.",
          call. = FALSE)
@@ -184,6 +188,9 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     stop("'replace_id' needs to be a character vector of length 2.",
          call. = FALSE)
   }
+  # include ReadMe in itself: If NULL, decide default per mode; unless there is no ReadMe written
+  if (!is.null(include_rm)) eatGADS:::check_logicalArgument(include_rm)
+  if (is.null(out_path)) include_rm <- FALSE
 
   # Input = singular directory path     -> ReadMe = file list
   # Input = list of > 0 control file(s) -> ReadMe = list from control file(s)
@@ -212,12 +219,14 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 
   # call respective sub-function
   if (func_mode == "table") {
+    if (is.null(include_rm)) include_rm <- TRUE
     content <- create_RM_from_tab(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
                                   sep = sep,
                                   replace_id = replace_id)
   } else {
+    if (is.null(include_rm)) include_rm <- FALSE
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
@@ -229,7 +238,28 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   # create ReadMe file text from function results and user inputs
   lines2write <- list()
   for (this_lang in lang) {
-    text_file_table <- file_table_as_text(content = content$text[[this_lang]],
+    # include ReadMe if requested
+    if (include_rm) {
+      # set default description
+      rm_description_defaults <- list(de = "diese Datei",
+                                      en = "this file")
+      if (this_lang %in% names(rm_description_defaults)) {
+        description_default <- rm_description_defaults[[this_lang]]
+      } else {
+        warning("No default ReadMe description found for language '", this_lang,
+                "'. Reverting to English.")
+        description_default <- rm_description_defaults$en
+      }
+      # put ReadMe on top if the file list
+      this_content <- rbind(data.frame(file_name = c(basename(out_path), ""),
+                                       description = c(description_default, ""),
+                                       depth = c(0, 0),
+                                       group = rep("function_default_ThisReadMeFile", 2)),
+                            content$text[[this_lang]])
+    } else {
+      this_content <- content$text[[this_lang]]
+    }
+    text_file_table <- file_table_as_text(content = this_content,
                                           margin = margin,
                                           col_width = col_width,
                                           indent_per_level = indent_per_level,

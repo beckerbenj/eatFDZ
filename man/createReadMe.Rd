@@ -20,12 +20,13 @@ createReadMe(
   content_box = NULL,
   remarks = NULL,
   footer = NULL,
-  replace_id = NULL
+  replace_id = NULL,
+  include_rm = NULL
 )
 }
 \arguments{
 \item{in_path}{Either a single directory path,
-or a character vector of at least one control table path.}
+or a \code{character vector} of at least one control table path.}
 
 \item{out_path}{Optional \code{\link{file.path}} (incl. file name) for the ReadMe to be created in.
 \link{writeLines} needs to be able to write a plain text ReadMe here.
@@ -37,32 +38,35 @@ any language acronym that matches a description column in the control tables can
 If more than one language is specified and an \code{out_path} is provided, one ReadMe will be
 created for each language, using \code{lang} as the file name suffix.}
 
-\item{margin}{Formatting option: Numeric value of the minimum number of spaces that should
+\item{margin}{Formatting option: \code{numeric} value of the minimum number of spaces that should
 separate file names and file descriptions.
 All formatting options only apply if a ReadMe is written to \code{out_path}.}
 
-\item{col_width}{Formatting option: Numeric value of the default width at which the
+\item{col_width}{Formatting option: \code{numeric} value of the default width at which the
 file descriptions should start. If \code{max(nchar(file names))} > \code{col_width},
 width will be set to \code{max(nchar(file names))} and \code{margin} will be applied on that.}
 
-\item{indent_per_level}{Formatting option: Numeric value of the number of spaces used to
+\item{indent_per_level}{Formatting option: \code{numeric} value of the number of spaces used to
 indent a line to indicate its contents are one level lower than another line.}
 
-\item{max_indent}{Formatting option: Numeric value of the maximum number
+\item{max_indent}{Formatting option: \code{numeric} value of the maximum number
 of indentation spaces to use from \code{indent_per_level}.}
 
-\item{create_table}{Control the return value of the function (see below).}
+\item{create_table}{Optional \code{character} argument to control the return value of this
+function (see details).}
 
-\item{sep}{Which column separator is used in the control tables?}
+\item{sep}{Which column separator is used in the control tables (c.f. \link{read.table})?}
 
-\item{flat_depth}{Directory mode only: At which depth should the function start pretending that
-all files and folders are on the same level. Using this may prevent file tables from blowing up
-but one may also consider not using the function on very deep directory structures.}
+\item{flat_depth}{Directory mode only: \code{numeric} value indicating the depth at which the
+function should start pretending that all files and folders are on the same level.
+If \code{NULL}, every file's depth will be represented truthfully.
+Flattening the depth may prevent file tables from blowing up but you may also consider not
+using the function on a very deep directory structure.}
 
 \item{skip_empty_base}{Directory mode only: Should the first level be ignored, if it contains no
 direct files? This is useful in creating control tables over many folders at once.}
 
-\item{header, content_box, remarks, footer, replace_id}{For each of these optional file sections,
+\item{header, content_box, remarks, footer}{For each of these optional file sections,
 either a \code{character vector} of the specific text to be added in the corresponding place
 of the ReadMe file, a single valid \code{\link{file.path}} to a control table with the text(s)
 in columns named "[irrelevant]_[\code{lang}]" (i.e., "language-coded"), or a list with
@@ -71,7 +75,12 @@ in columns named "[irrelevant]_[\code{lang}]" (i.e., "language-coded"), or a lis
 \item{replace_id}{Optional \code{character vector} of length 2 to replace an ID placeholder
 (in the FDZ context usually: "_Antrag") with the specific ID (e.g., "2601-01a").
 The first element is a \link{regex} expression to be used as \code{pattern}, and replaced by
-the simple string in the second element of the vector.}
+the simple string in the second element of the vector. Usually only makes sense in table mode.}
+
+\item{include_rm}{Optional \code{logical} argument: Should the ReadMe file be included in itself?
+Only applies if a file is created at \code{out_path}. If \code{NULL} (the default), a default
+setting depending on the function mode will be applied: \code{FALSE} in directory mode, and
+\code{TRUE} in table mode.}
 }
 \value{
 Depending on \code{create_table}, this function may return...\itemize{
@@ -134,8 +143,9 @@ This function serves the general purpose of creating a ReadMe that describes the
   customisable, but this functionality may be added on request.
  \item \code{content_box} - A higher-level table of content, further abstracting from the
   detailed file table below. It is added between the header and the main body/file table.
-  Aesthetic lines will be added above and below. It may be used to list the "intermediate"
-  data product packages/"studies" of the overall data package.
+  The contents are indented by one tab and aesthetic lines will be added above and below.
+  It may be used to list the "intermediate" data product packages/"studies" of the overall
+  data package.
  \item \code{remarks} - A section of additional remarks about using the data. It is added below
   the main body/file table with a simple header above it. The header is not yet customisable,
   but this functionality may be added.
@@ -151,15 +161,15 @@ dir.create(somedir)
 dir.create(file.path(somedir, "literature"))
 dir.create(file.path(somedir, "data"))
 file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
-file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_2026.pdf"))
+file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_Schipolowski_2026.pdf"))
 
 # Direcory mode
 createReadMe(somedir, lang = "en", create_table = "overview")
 
 control_table <- createReadMe(somedir, lang = "en", create_table = "control")
 control_table
-write.table(control_table, file.path(somedir, "ReadMeControl.csv"), row.names = FALSE,
-            sep = ",", col.names = c("file_name", "description_en", "flag"))
+write.table(control_table, file.path(somedir, "ReadMeControl.csv"), sep = ",",
+            row.names = FALSE, col.names = c("file_name", "description_en", "flag"))
 
 # Table mode
 read.csv(file.path(somedir, "ReadMeControl.csv"))
