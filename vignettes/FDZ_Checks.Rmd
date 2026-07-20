@@ -36,7 +36,7 @@ This vignette explains how data providers can use the `check_all()` function fro
 
 ---
 
-## What `check_all()` does — and what it does not do
+## What `check_all()` does — and what it does not do {data-toc-skip=""}
 
 `check_all()`:
 
@@ -131,7 +131,7 @@ The `Overview` indicates whether a check:
 
 > **Interpretation:** Not every reported finding is necessarily an error. Some findings may be expected because of the study design or data structure. Nevertheless, every finding should be reviewed.
 
-### Recommended workflow
+### Recommended workflow {data-toc-skip=""}
 
 1. Open the `Overview` sheet.
 2. Identify checks that produced findings.
@@ -156,11 +156,11 @@ The final data set, codebook, and check report should all describe the same vers
 
 The default settings may not be appropriate for every data set. The following arguments can be adapted to the structure and conventions of your project.
 
-### Identifier variables: `idVar`
+### Identifier variables: `idVar` {data-toc-skip=""}
 
 By default, the first variable in the data set is used as the identifier variable.
 
-If the relevant identifier is stored in another variable, specify it explicitly:
+If the relevant identifier is stored in another variable, specify it explicitly. This is also possible for multiple ID variables.
 
 ```{r idvar, eval = FALSE}
 out <- check_all(
@@ -169,24 +169,11 @@ out <- check_all(
 )
 ```
 
-Several identifier variables can be supplied as a character vector:
-
-```{r multiple-ids, eval = FALSE}
-out <- check_all(
-  sav_path = sav_path,
-  idVar = c(
-    "school_id",
-    "class_id",
-    "student_id"
-  )
-)
-```
-
 Interpret duplicate identifiers in relation to the intended data structure. For example, a school ID is expected to occur multiple times in a student-level data set.
 
 If observations are uniquely identified only by a combination of variables, verify the combined key separately.
 
-### Missing-value range: `missingRange`
+### Missing-value range: `missingRange` {data-toc-skip=""}
 
 Projects often use a defined numeric range for missing codes, such as `-97`, `-98`, and `-99`.
 
@@ -203,7 +190,7 @@ The check reports values within this range that occur in the data but are not de
 
 > **Caution:** Do not change a value solely because it falls within the specified range. First verify whether it represents a missing value or a substantively valid response.
 
-### Missing-value labels: `missingRegex`
+### Missing-value labels: `missingRegex` {data-toc-skip=""}
 
 `missingRegex` searches value labels for terms that indicate missing data.
 
@@ -226,7 +213,7 @@ Adapt the expression to the terminology and languages used in your project.
 
 > **Tip:** Avoid overly broad search terms, as they may produce false positives.
 
-### Variables for disclosure control: `sdcVars`
+### Variables for disclosure control: `sdcVars` {data-toc-skip=""}
 
 By default, the statistical disclosure control check is run on all variables.
 
@@ -245,7 +232,7 @@ out <- check_all(
 
 Select variables based on their sensitivity, level of detail, and potential contribution to identification risks.
 
-### Documentation: `pdf_path`
+### Documentation: `pdf_path` {data-toc-skip=""}
 
 If a searchable PDF codebook is available, it can be included in the checks:
 
@@ -260,7 +247,7 @@ out <- check_all(
 
 > **Requirement:** The PDF must contain searchable text. Variable names that appear only in images or scanned pages may not be detected.
 
-### Complete example
+### Complete example {data-toc-skip=""}
 
 A project-specific call may look as follows:
 
