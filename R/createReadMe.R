@@ -773,6 +773,29 @@ add_header <- function(text, header, width,
                             remarks_de = " H I N W E I S E ",
                             remarks_en = " A D D I T I O N A L   R E M A R K S ")
     header <- sub(x = header, pattern = "^default///", replacement = "")
+
+    # check if there is a default for this language and subheader
+    if (!any(grepl(x = names(default_headers), pattern = header))) {
+      old_header <- header
+      revert_to_english <- FALSE
+      if (grepl(x = header, pattern = "^default///content_")) {
+        header <- "default///content_en"
+        revert_to_english <- TRUE
+      }
+      if (grepl(x = header, pattern = "^default///remarks_")) {
+        header <- "default///remarks_en"
+        revert_to_english <- TRUE
+      }
+      if (revert_to_english) {
+        warning("No default content subheader found for language '",
+                substr(stringi::stri_extract_all_regex(str = old_header,
+                                                       pattern = "_.*$"),
+                       2, 3),
+                "'. Reverting to English.")
+      } else {
+        stop("Could not apply default header. Please report this as an issue.")
+      }
+    }
     header <- default_headers[[header]]
   }
   where <- match.arg(where)
