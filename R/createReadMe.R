@@ -216,12 +216,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   col_width = col_width,
                                   indent_per_level = indent_per_level,
                                   max_indent = max_indent,
-                                  create_table = create_table,
                                   sep = sep,
-                                  header = header,
-                                  content_box = content_box,
-                                  remarks = remarks,
-                                  footer = footer,
                                   replace_id = replace_id)
   } else {
     content <- create_RM_from_dir(in_path = in_path,
@@ -231,14 +226,39 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                   col_width = col_width,
                                   indent_per_level = indent_per_level,
                                   max_indent = max_indent,
-                                  create_table = create_table,
                                   flat_depth = flat_depth,
                                   skip_empty_base = skip_empty_base,
-                                  header = header,
-                                  content_box = content_box,
-                                  remarks = remarks,
-                                  footer = footer)
+                                  replace_id = replace_id)
   }
+
+  lines2write <- list()
+  for (this_lang in lang) {
+    text_file_table <- file_table_as_text(content = content$text[[this_lang]],
+                                          margin = margin,
+                                          col_width = col_width,
+                                          indent_per_level = indent_per_level,
+                                          max_indent = max_indent)
+    lines2write[[this_lang]] <- build_ReadMe_text(content = text_file_table,
+                                                  lang = this_lang,
+                                                  header = header,
+                                                  content_box = content_box,
+                                                  remarks = remarks,
+                                                  footer = footer)
+    # write ReadMe if requested via out_path
+    if (!is.null(out_path)) {
+      if (length(lang) > 1) {
+        out_ext <- get_file_extension(out_path)
+        this_out_path <- sub(x = out_path,
+                             pattern = "\\.[[:alnum:]]{2,4}$",
+                             replacement = paste0("_", this_lang, out_ext))
+      } else {
+        this_out_path <- out_path
+      }
+      writeLines(text = lines2write[[this_lang]],
+                 con = this_out_path)
+    }
+  }
+  content$text <- lines2write
 
   ## return file table as requested ##
   if (create_table == "none") return(NULL)
@@ -288,11 +308,11 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 
 create_RM_from_dir <- function(in_path, out_path, lang,
                                margin, col_width, indent_per_level, max_indent,
-                               create_table, flat_depth, skip_empty_base,
-                               header, content_box, remarks, footer) {
+                               flat_depth, skip_empty_base, replace_id) {
+  # list all files in the directory and all subdirectories
   file_table_deep <- create_file_table(path = in_path)
 
-  ## create ReadMe file ##
+  # flatten the file table for easier use
   file_table_flat <- flatten_file_table(dirname = basename(in_path),
                                         file_table = file_table_deep,
                                         flat_depth = flat_depth,
@@ -300,6 +320,7 @@ create_RM_from_dir <- function(in_path, out_path, lang,
   names(file_table_flat) <- sub(x = names(file_table_flat),
                                 pattern = "description",
                                 replacement = "description_en")
+
   # translate descriptions if necessary
   if ("de" %in% lang) {
     # reassamble file_table_flat: cols up to English description, German description, other cols
@@ -317,7 +338,6 @@ create_RM_from_dir <- function(in_path, out_path, lang,
                                                                       "Unspezifizierte Datei"),
                                                       vectorise_all = FALSE)
     file_table_flat <- cbind(first_cols, description_de, last_cols)
-    rm(position_descr_col, first_cols, description_de, last_cols)
   }
 
   # select language specific descriptions based on user input
@@ -331,77 +351,18 @@ create_RM_from_dir <- function(in_path, out_path, lang,
                                 invert = TRUE,
                                 value = TRUE)
   file_table_flat <- file_table_flat[, !names(file_table_flat) %in% not_select_lang_names]
-  rm(description_names, not_select_lang_names)
 
-  # paste together all alternative descriptions
+  # prepare file table for text for each language
+  lines2write <- list()
   for (this_lang in lang) {
-    this_lang_col <- grep(x = names(file_table_flat),
-                           pattern = paste0("_", this_lang, "$"))
-    file_table2write <- file_table_flat
-    file_table2write$description <- file_table_flat[, this_lang_col]
-    these_lines <- file_table_as_text(content = file_table2write,
-                                      margin = margin,
-                                      col_width = col_width,
-                                      indent_per_level = indent_per_level,
-                                      max_indent = max_indent)
-    total_width <- attr(these_lines, "total_width")
-
-    # content subheader
-    these_lines <- add_spanning_border(text = these_lines,
-                                       width = total_width,
-                                       linetype = 3,
-                                       where = "above")
-    these_lines <- add_header(text = these_lines,
-                              header = paste0("default///content_", this_lang),
-                              width = total_width,
-                              center = FALSE,
-                              brace = TRUE)
-    these_lines <- c("", "", these_lines)
-
-    these_lines <- add_content_box(text = these_lines,
-                                   content = content_box,
-                                   lang = this_lang,
-                                   width = total_width)
-    these_lines <- add_overall_head(text = these_lines,
-                                    header = header,
-                                    lang = this_lang,
-                                    width = total_width)
-
-    these_lines <- c(these_lines, "", "")
-    these_lines <- add_remarks_section(text = these_lines,
-                                       section = remarks,
-                                       lang = this_lang,
-                                       width = total_width)
-
-    these_lines <- c(these_lines, "", "")
-    these_lines <- add_footer(text = these_lines,
-                              footer = footer,
-                              lang = this_lang,
-                              width = total_width)
-
-    if (this_lang == lang[[1]]) {
-      lines2write <- list(these_lines)
-      names(lines2write) <- this_lang
-    } else {
-      lines2write[[this_lang]] <- these_lines
-    }
-    rm(this_lang_col, these_lines)
-  }
-
-  ## write ReadMe if requested via out_path ##
-  if (!is.null(out_path)) {
-    for (this_lang in lang) {
-      if (length(lang) > 1) {
-        out_ext <- get_file_extension(out_path)
-        this_out_path <- sub(x = out_path,
-                             pattern = "\\.[[:alnum:]]{2,4}$",
-                             replacement = paste0("_", this_lang, out_ext))
-      } else {
-        this_out_path <- out_path
-      }
-      writeLines(text = lines2write[[this_lang]],
-                 con = this_out_path)
-    }
+    file_table2write <- file_table_flat[, c("file_name",
+                                            paste0("description_", this_lang),
+                                            "depth",
+                                            "group")]
+    names(file_table2write) <- sub(x = names(file_table2write),
+                                   pattern = paste0("description_", this_lang),
+                                   replacement = "description")
+    lines2write[[this_lang]] <- file_table2write
   }
 
   out_list <- list(text = lines2write,
@@ -411,8 +372,7 @@ create_RM_from_dir <- function(in_path, out_path, lang,
 
 create_RM_from_tab <- function(in_path, out_path, lang,
                                margin, col_width, indent_per_level, max_indent,
-                               create_table, sep,
-                               header, content_box, remarks, footer, replace_id) {
+                               sep, replace_id) {
   file_ext <- get_file_extension(in_path)
   if (any(!file_ext %in% c(".csv", "xlsx"))) {
     stop("Unsupported file format in file(s): '",
@@ -421,6 +381,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
          call. = FALSE)
   }
 
+  # read files and transform into flat file table with formatting options
   content_list <- lapply(seq_along(in_path), function(path_index) {
     if (file_ext[[path_index]] == ".csv") {
       this_content <- utils::read.csv(file = in_path[[path_index]],
@@ -464,10 +425,10 @@ create_RM_from_tab <- function(in_path, out_path, lang,
     return(this_content)
   })
 
-  # paste and save full texts per language
+  # prepare file table for text for each language
   lines2write <- list()
   for (this_lang in lang) {
-    # paste together file tables of this language
+    # prepare file table for file_table_as_text
     file_table2write <- do.call("rbind",
                                 lapply(content_list, function(single_content) {
                                   subset(x = single_content,
@@ -488,62 +449,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
     file_table2write$description[header_lines] <- ""
     file_table2write <- file_table2write[, names(file_table2write) != "flag"]
 
-    # create text table
-    text_table_single_content <- file_table_as_text(content = file_table2write,
-                                                    margin = margin,
-                                                    col_width = col_width,
-                                                    indent_per_level = indent_per_level,
-                                                    max_indent = max_indent)
-    total_width <- attr(text_table_single_content, "total_width")
-
-    # content subheader
-    text_table_single_content <- add_spanning_border(text = text_table_single_content,
-                                                     width = total_width,
-                                                     linetype = 3,
-                                                     where = "above")
-    text_table_single_content <- add_header(text = text_table_single_content,
-                                            header = paste0("default///content_", this_lang),
-                                            width = total_width,
-                                            center = FALSE,
-                                            brace = TRUE)
-    text_table_single_content <- c("", "", text_table_single_content)
-
-    text_table_single_content <- add_content_box(text = text_table_single_content,
-                                                 content = content_box,
-                                                 lang = this_lang,
-                                                 width = total_width)
-    text_table_single_content <- add_overall_head(text = text_table_single_content,
-                                                  header = header,
-                                                  lang = this_lang,
-                                                  width = total_width)
-
-    text_table_single_content <- c(text_table_single_content, "", "")
-    text_table_single_content <- add_remarks_section(text = text_table_single_content,
-                                                     section = remarks,
-                                                     lang = this_lang,
-                                                     width = total_width)
-
-    text_table_single_content <- c(text_table_single_content, "", "")
-    text_table_single_content <- add_footer(text = text_table_single_content,
-                                            footer = footer,
-                                            lang = this_lang,
-                                            width = total_width)
-
-    lines2write[[this_lang]] <- text_table_single_content
-
-    ## write ReadMe if requested via out_path ##
-    if (!is.null(out_path)) {
-      if (length(lang) > 1) {
-        out_ext <- get_file_extension(out_path)
-        this_out_path <- sub(x = out_path,
-                             pattern = "\\.[[:alnum:]]{2,4}$",
-                             replacement = paste0("_", this_lang, out_ext))
-      } else {
-        this_out_path <- out_path
-      }
-      writeLines(text = lines2write[[this_lang]],
-                 con = this_out_path)
-    }
+    lines2write[[this_lang]] <- file_table2write
   }
 
   # return file table but select language specific descriptions based on user input
@@ -560,8 +466,7 @@ create_RM_from_tab <- function(in_path, out_path, lang,
                                 invert = TRUE,
                                 value = TRUE)
   file_table_flat <- file_table_flat[, !names(file_table_flat) %in% not_select_lang_names]
-  rm(description_names, not_select_lang_names)
-  file_table_flat
+
   out_list <- list(text = lines2write,
                    files = file_table_flat)
   return(out_list)
@@ -810,16 +715,54 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
       col1 <- c(col1, rep("", length_diff))
     }
   }
+build_ReadMe_text <- function(content, lang, header, content_box, remarks, footer) {
+  total_width <- attr(content, "total_width")
+  # section order is not fully intuitive but always builds from the
+  #  file table - either above or below it
+
+  # file table/content subheader
+  content <- add_spanning_border(text = content,
+                                 width = total_width,
+                                 linetype = 3,
+                                 where = "above")
+  content <- add_header(text = content,
+                        header = paste0("default///content_", lang),
+                        width = total_width,
+                        center = FALSE,
+                        brace = TRUE)
+  content <- c("", "", content)
+
+  # top sections
+  content <- add_content_box(text = content,
+                             content = content_box,
+                             lang = lang,
+                             width = total_width)
+  content <- add_overall_head(text = content,
+                              header = header,
+                              lang = lang,
+                              width = total_width)
 
   length_col1 <- nchar(tabs_to_blanks(col1),
                        type = "char")
   fill_blanks <- width - length_col1
   filler <- sapply(fill_blanks, function(x) paste0(rep(" ", x), collapse = ""))
+  # bottom sections
+  content <- c(content, "", "")
+  content <- add_remarks_section(text = content,
+                                 section = remarks,
+                                 lang = lang,
+                                 width = total_width)
 
   if (use_tabs) filler <- sapply(filler, blanks_to_tabs)
+  content <- c(content, "", "")
+  content <- add_footer(text = content,
+                        footer = footer,
+                        lang = lang,
+                        width = total_width)
 
   out <- paste0(col1, filler, col2)
   return(out)
+  return(content)
 }
 
 add_header <- function(text, header, width,
