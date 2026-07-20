@@ -1,0 +1,723 @@
+# \`check_all()\`: Preparing data for quality review and submission
+
+## Purpose of this vignette
+
+This vignette explains how data providers can use the
+[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+function from the `eatFDZ` package to review and improve their data sets
+before submitting them to the [Research Data
+Centre](https://fdz.iqb.hu-berlin.de/en/) (FDZ) at the Institute for
+Educational Quality Improvement (IQB).
+
+[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+performs automated checks of SPSS `.sav` files and their metadata. These
+checks help identify common problems related to:
+
+- file and variable naming,
+- identifier variables,
+- variable and value labels,
+- missing-value definitions,
+- data structure,
+- potential statistical disclosure risks,
+- character variables,
+- consistency between a data set and its documentation.
+
+> **Scope:** The function supports the technical and
+> documentation-related preparation of data for FAIR-aligned reuse by
+> identifying potential issues that require further review.
+
+------------------------------------------------------------------------
+
+## What `check_all()` does — and what it does not do
+
+[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md):
+
+- imports an SPSS `.sav` file internally as a `GADSdat` object,
+- runs a collection of automated checks,
+- returns an overview and detailed result tables,
+- helps identify issues before the data are submitted,
+- supports a systematic and traceable review process.
+
+[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+does not:
+
+- modify or clean the data,
+- decide automatically whether every finding is an error,
+- replace project-specific knowledge,
+- guarantee anonymisation or data protection compliance.
+
+------------------------------------------------------------------------
+
+## Before you start
+
+**Before running the checks, you should know:**
+
+- the path to the `.sav` file,
+- which variables serve as identifiers,
+- which numeric codes represent missing values,
+- which terms are used in missing-value labels,
+- where the corresponding codebook or documentation is stored.
+
+> **Version consistency:** The data set and documentation should refer
+> to the same version.
+
+------------------------------------------------------------------------
+
+## Setup
+
+Install `eatFDZ` from GitHub if it is not already installed. Then load
+the package.
+
+``` r
+
+remotes::install_github("beckerbenj/eatFDZ")
+library(eatFDZ)
+```
+
+For the examples in this vignette, we use a small artificial SPSS data
+set included in the package:
+
+``` r
+
+sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
+```
+
+The example data set contains intentionally introduced problems so that
+the different checks produce illustrative findings.
+
+> **For your own data:** Replace `sav_path` with the path to your `.sav`
+> file.
+
+------------------------------------------------------------------------
+
+## Quickstart: create an Excel report
+
+**Use this section if you want to run the checks immediately.**
+
+The following code runs the checks and writes the results to an Excel
+file:
+
+``` r
+
+out <- check_all(sav_path = sav_path)
+report_path <- file.path("reports", "check_report.xlsx")
+write_check_report(out, file_path = report_path)
+report_path
+```
+
+**Next step:** Open the Excel file saved at `report_path` and start with
+the `Overview` sheet.
+
+> **Important:** The file name is checked before the data are imported.
+> An invalid file name may therefore produce a message or error before
+> the remaining checks are performed.
+
+A suitable file name should:
+
+- identify the data set clearly,
+- avoid umlauts, spaces, and problematic special characters,
+- include a comprehensible version number where appropriate.
+
+------------------------------------------------------------------------
+
+## Working through the report
+
+The Excel report consists of an `Overview` sheet and additional sheets
+containing detailed findings.
+
+The `Overview` indicates whether a check:
+
+- found no issues,
+- produced findings that require review,
+- was not run.
+
+> **Interpretation:** Not every reported finding is necessarily an
+> error. Some findings may be expected because of the study design or
+> data structure. Nevertheless, every finding should be reviewed.
+
+### Recommended workflow
+
+1.  Open the `Overview` sheet.
+2.  Identify checks that produced findings.
+3.  Open the corresponding result sheets.
+4.  Determine whether each finding represents:
+    - an error that must be corrected,
+    - an expected feature of the data,
+    - or an issue that requires further assessment.
+5.  Correct the source data or metadata where necessary.
+6.  Document findings that are intentional or cannot be changed.
+7.  Run
+    [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+    again.
+8.  Generate a new report for the corrected data set.
+
+The final data set, codebook, and check report should all describe the
+same version of the data.
+
+------------------------------------------------------------------------
+
+## Adapting the checks to your project
+
+**Use this section to adjust the checks to your data structure and
+project conventions.**
+
+The default settings may not be appropriate for every data set. The
+following arguments can be adapted to the structure and conventions of
+your project.
+
+### Identifier variables: `idVar`
+
+By default, the first variable in the data set is used as the identifier
+variable.
+
+If the relevant identifier is stored in another variable, specify it
+explicitly. This is also possible for multiple ID variables.
+
+``` r
+
+out <- check_all(
+  sav_path = sav_path,
+  idVar = "student_id"
+)
+```
+
+Interpret duplicate identifiers in relation to the intended data
+structure. For example, a school ID is expected to occur multiple times
+in a student-level data set.
+
+If observations are uniquely identified only by a combination of
+variables, verify the combined key separately.
+
+### Missing-value range: `missingRange`
+
+Projects often use a defined numeric range for missing codes, such as
+`-97`, `-98`, and `-99`.
+
+Specify this range using `missingRange`:
+
+``` r
+
+out <- check_all(
+  sav_path = sav_path,
+  missingRange = -99:-97
+)
+```
+
+The check reports values within this range that occur in the data but
+are not defined as missing in the metadata.
+
+> **Caution:** Do not change a value solely because it falls within the
+> specified range. First verify whether it represents a missing value or
+> a substantively valid response.
+
+### Missing-value labels: `missingRegex`
+
+`missingRegex` searches value labels for terms that indicate missing
+data.
+
+Multiple terms can be separated using `|`:
+
+``` r
+
+out <- check_all(
+  sav_path = sav_path,
+  missingRegex = paste(
+    "missing",
+    "omitted",
+    "not reached",
+    "no answer",
+    sep = "|"
+  )
+)
+```
+
+Adapt the expression to the terminology and languages used in your
+project.
+
+> **Tip:** Avoid overly broad search terms, as they may produce false
+> positives.
+
+### Variables for disclosure control: `sdcVars`
+
+By default, the statistical disclosure control check is run on all
+variables.
+
+To restrict the check to selected variables, use `sdcVars`:
+
+``` r
+
+out <- check_all(
+  sav_path = sav_path,
+  sdcVars = c(
+    "school_id",
+    "migration_background",
+    "special_educational_need"
+  )
+)
+```
+
+Select variables based on their sensitivity, level of detail, and
+potential contribution to identification risks.
+
+### Documentation: `pdf_path`
+
+If a searchable PDF codebook is available, it can be included in the
+checks:
+
+``` r
+
+out <- check_all(
+  sav_path = sav_path,
+  pdf_path = "path/to/codebook.pdf"
+)
+```
+
+> **Note:** If `pdf_path` is not supplied, the documentation check is
+> shown as not tested.
+
+> **Requirement:** The PDF must contain searchable text. Variable names
+> that appear only in images or scanned pages may not be detected.
+
+### Complete example
+
+A project-specific call may look as follows:
+
+``` r
+
+out <- check_all(
+  sav_path = "data/study_data_v1_0.sav",
+  idVar = "student_id",
+  missingRange = -99:-97,
+  missingRegex = paste(
+    "missing",
+    "omitted",
+    "not reached",
+    "no answer",
+    sep = "|"
+  ),
+  sdcVars = c(
+    "school_id",
+    "migration_background"
+  ),
+  pdf_path = "documentation/codebook_v1_0.pdf"
+)
+
+write_check_report(
+  out,
+  file_path = "reports/study_data_v1_0_check_report.xlsx"
+)
+```
+
+------------------------------------------------------------------------
+
+## Reference: individual checks
+
+**Use this section when a result sheet contains findings and you want to
+understand what they mean.**
+
+The following sections explain how the individual result tables should
+be interpreted.
+
+### Naming and encoding
+
+`lengthy_variable_names`
+
+Reports variable names containing more than 30 characters.
+
+Long variable names may cause problems across statistical software and
+make analysis scripts difficult to read.
+
+Review whether the names can be shortened systematically. The full
+meaning should be preserved in the variable label and documentation.
+
+`special_signs_variable_names`
+
+Reports variable names containing problematic characters or encodings.
+
+Variable names should preferably contain only:
+
+- letters,
+- numbers,
+- underscores.
+
+For example:
+
+- `größe` could be changed to `groesse`,
+- `test.score` could be changed to `test_score`.
+
+Changes must also be reflected in the documentation and processing
+scripts.
+
+Functions such as
+[`eatGADS::fixEncoding()`](https://beckerbenj.github.io/eatGADS/reference/fixEncoding.html)
+may help correct encoding problems.
+
+`special_signs_meta_data`
+
+Reports potentially problematic characters in variable labels or value
+labels.
+
+Check whether the affected text is displayed correctly in:
+
+- R,
+- SPSS,
+- exported files,
+- the codebook.
+
+Always apply encoding corrections to a working copy and verify the
+result afterwards.
+
+### Identifier variables
+
+`missing_IDs`
+
+Reports observations with missing values in the specified identifier
+variables.
+
+Missing IDs can prevent observations from being assigned, linked, or
+traced reliably.
+
+Check whether:
+
+- the ID was lost during data processing,
+- an empty string or missing code was used,
+- the observation should be included,
+- the ID can be reconstructed from a reliable source.
+
+Do not invent identifiers without a documented basis.
+
+`duplicate_IDs`
+
+Reports identifier values occurring more than once.
+
+Possible causes include:
+
+- duplicated rows,
+- incorrect merges,
+- an unsuitable identifier variable,
+- a hierarchical data structure.
+
+> **Interpretation:** A duplicate value is not necessarily incorrect.
+> For example, school and class IDs normally occur repeatedly in
+> student-level data.
+
+Determine which variable or combination of variables is expected to
+identify an observation uniquely.
+
+### Labels and missing values
+
+`missing_variable_labels`
+
+Reports variables without an informative variable label.
+
+Variable labels should briefly describe what a variable measures or
+contains.
+
+Unsuitable labels include:
+
+- empty labels,
+- placeholders such as `XXX`,
+- labels that only repeat the variable name,
+- undocumented internal processing notes.
+
+Variable labels can be edited using functions such as
+[`eatGADS::changeVarLabels()`](https://beckerbenj.github.io/eatGADS/reference/changeVarLabels.html).
+
+`missing_value_labels`
+
+Reports numeric values occurring in the data for which no value label is
+available.
+
+> **Note:** Not every numeric variable requires value labels. Continuous
+> variables such as age, scores, or time measurements may remain
+> unlabelled.
+
+For categorical variables, check whether:
+
+- all valid categories are labelled,
+- all missing codes are labelled,
+- the labels are understandable without additional project knowledge.
+
+Value labels can be edited using functions such as
+[`eatGADS::changeValLabels()`](https://beckerbenj.github.io/eatGADS/reference/changeValLabels.html).
+
+`empty_value_labels`
+
+Reports value labels that are empty or contain no meaningful
+description.
+
+Check whether the value represents:
+
+- a valid category requiring a label,
+- a missing code requiring a description,
+- an obsolete definition that should be removed.
+
+`missing_range_tags`
+
+Reports values within `missingRange` that are not defined as missing in
+the metadata.
+
+For example, the value `-99` may have the label `omitted` but still be
+treated as a valid value.
+
+First verify whether the value actually represents missing data.
+Missing-value definitions can then be corrected using functions such as
+[`eatGADS::changeMissings()`](https://beckerbenj.github.io/eatGADS/reference/changeMissings.html).
+
+`missing_regex_tags`
+
+Reports values whose labels contain a term from `missingRegex` but whose
+values are not defined as missing.
+
+Review the complete label and its substantive context. Search terms may
+also match valid categories unintentionally.
+
+### Data structure
+
+`empty_variables`
+
+Reports variables containing no valid information, for example because
+all values are missing.
+
+Possible explanations include:
+
+- filter routing,
+- data collection problems,
+- failed imports,
+- processing errors,
+- variables intended for another subsample.
+
+Remove variables without a documented purpose. Intentionally empty
+variables should be explained in the documentation.
+
+`constant_variables`
+
+Reports variables containing only one value across all observations.
+
+Constant variables may be intentional, for example when all observations
+belong to the same country, wave, or experimental condition.
+
+Check whether:
+
+- variation was expected,
+- values were overwritten or lost,
+- the variable is required for merging or documentation.
+
+Retain constant variables only when their purpose is clear.
+
+### Data protection and character variables
+
+`statistical_disclosure_control`
+
+Reports categories with low frequencies that may indicate a disclosure
+risk.
+
+Small frequencies are not automatically unacceptable. The actual risk
+depends on:
+
+- the sensitivity of the information,
+- possible combinations with other variables,
+- whether persons or institutions may be identifiable,
+- the intended access conditions.
+
+Possible measures include:
+
+- combining categories,
+- removing sensitive information from a data version,
+- using more restrictive access conditions,
+- documenting a justified exception.
+
+> **Important:** This automated check does not replace a complete
+> statistical disclosure control assessment.
+
+`character_variables`
+
+Reports variables stored as character variables.
+
+Character variables are not necessarily incorrect. However, text fields
+may:
+
+- contain direct or indirect identifiers,
+- include inconsistent spellings,
+- be difficult to analyse,
+- lack structured labels.
+
+For every character variable, decide whether it:
+
+- must remain a text variable,
+- can be converted into a categorical variable,
+- should be recoded,
+- must be removed or emptied for data protection reasons.
+
+Structured character variables can be converted using functions such as
+[`eatGADS::multiChar2fac()`](https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.html).
+
+### Documentation
+
+`docu_check`
+
+Compares variable names in the data set with the supplied PDF
+documentation.
+
+The `count` column indicates how often a variable name was found:
+
+- `count == 0`: the variable name was not found,
+- `count > 0`: the variable name was found at least once.
+
+A missing match may mean that:
+
+- the variable is not documented,
+- the variable name differs between data and documentation,
+- the variable appears only in an image,
+- the PDF does not contain searchable text,
+- the codebook and data set describe different versions.
+
+> **Limitation:** The check only determines whether a variable name was
+> found. It does not assess whether the substantive description is
+> complete, correct, or understandable.
+
+------------------------------------------------------------------------
+
+## When is a data set ready for submission?
+
+From the perspective of the automated checks, a data set is well
+prepared when:
+
+- all unexpected findings have been corrected,
+- remaining findings have been reviewed and documented,
+- identifiers are complete and appropriate for the intended data
+  structure,
+- categorical variables have informative variable and value labels,
+- missing codes are labelled and defined correctly,
+- empty and constant variables have been assessed,
+- low-frequency sensitive categories have been reviewed,
+- character variables have been checked deliberately,
+- every variable is included in the relevant documentation,
+- the data set, documentation, and report refer to the same version.
+
+> **Good to know:** A completely passing `Overview` is a useful goal,
+> but it may not be possible or substantively appropriate for every data
+> set.
+
+**The key requirement is that every reported finding has been reviewed
+and addressed in a transparent and traceable way.**
+
+------------------------------------------------------------------------
+
+## Advanced: checking multiple data sets
+
+Several `.sav` files can be processed in a loop. The following example
+writes one Excel report per data set:
+
+``` r
+
+data_dir <- "path/to/sav_files"
+report_dir <- "reports"
+
+dir.create(report_dir, showWarnings = FALSE)
+
+sav_files <- list.files(
+  data_dir,
+  pattern = "\\.sav$",
+  full.names = TRUE
+)
+
+for (sav_file in sav_files) {
+  report_file <- file.path(
+    report_dir,
+    sub("\\.sav$", "_check_report.xlsx", basename(sav_file))
+  )
+
+  tryCatch(
+    write_check_report(
+      check_all(sav_file),
+      report_file
+    ),
+    error = \(e) {
+      message(basename(sav_file), ": ", conditionMessage(e))
+    }
+  )
+}
+```
+
+If files are stored in subfolders, add `recursive = TRUE` to
+[`list.files()`](https://rdrr.io/r/base/list.files.html).
+
+Project-specific arguments such as `idVar`, `missingRange`, or
+`pdf_path` may differ between files. In that case, define the required
+settings separately for each data set.
+
+------------------------------------------------------------------------
+
+## Troubleshooting
+
+Start with the message shown in R and the corresponding sheet in the
+Excel report.
+
+**The documentation check was not run**
+
+**Possible cause:** No `pdf_path` was supplied.
+
+**Solution:** Include the path to a searchable PDF:
+
+``` r
+
+check_all(
+  sav_path = sav_path,
+  pdf_path = "path/to/codebook.pdf"
+)
+```
+
+**Unexpected missing or duplicate identifiers are reported**
+
+**Possible cause:** The wrong identifier variable was used or the
+finding is expected because of the hierarchical data structure.
+
+**Solution:** Specify `idVar` explicitly and review which variables or
+variable combinations should be unique.
+
+**Many disclosure-control findings are reported**
+
+**Possible cause:** The data set contains small samples, highly detailed
+categories, or variables that are not relevant for disclosure control.
+
+**Solution:** Treat the findings as risk indicators and consider
+restricting `sdcVars` to relevant variables.
+
+**Variable names are not found in the documentation**
+
+**Possible causes:**
+
+- the PDF contains scanned pages,
+- variable names are written differently,
+- the wrong documentation version was supplied.
+
+**Solution:** Verify that the PDF contains searchable text and that the
+data and documentation refer to the same version.
+
+**The report cannot be overwritten**
+
+**Possible cause:** The Excel file is currently open or overwriting has
+not been enabled.
+
+**Solution:** Close the file and, where appropriate, use the available
+overwrite option of
+[`write_check_report()`](https://beckerbenj.github.io/eatFDZ/reference/write_check_report.md).
+
+------------------------------------------------------------------------
+
+## Further resources
+
+> **Note:**
+> [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+> identifies potential issues but does not modify the data set.
+
+Guidance on cleaning and preparing data with `eatGADS` and `eatFDZ` is
+available in:
+
+- [Data Curation at the FDZ at the
+  IQB](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
+- [Data Cleaning Guide with the R package
+  eatGADS](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)
+
+------------------------------------------------------------------------

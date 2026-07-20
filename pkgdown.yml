@@ -1,9 +1,10 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  FDZ_Checks: FDZ_Checks.html
   FDZ_Data_Cleaning: FDZ_Data_Cleaning.html
-last_built: 2026-05-06T14:53Z
+last_built: 2026-07-20T12:56Z
 urls:
   reference: https://beckerbenj.github.io/eatFDZ/reference
   article: https://beckerbenj.github.io/eatFDZ/articles
