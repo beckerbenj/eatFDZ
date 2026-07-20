@@ -31,7 +31,7 @@ This vignette explains how data providers can use the `check_all()` function fro
 - character variables,
 - consistency between a data set and its documentation.
 
-> **Scope:** The function supports the technical and documentation-related preparation of data for FAIR-aligned reuse. However, it does not certify that a data set is fully FAIR, guarantee acceptance by the FDZ, or replace a substantive review of the data and documentation.
+> **Scope:** The function supports the technical and documentation-related preparation of data for FAIR-aligned reuse by identifying potential issues that require further review.
 
 
 ---
@@ -51,10 +51,7 @@ This vignette explains how data providers can use the `check_all()` function fro
 - modify or clean the data,
 - decide automatically whether every finding is an error,
 - replace project-specific knowledge,
-- assess whether substantive descriptions are correct,
 - guarantee anonymisation or data protection compliance.
-
-> **Important:** Findings from the statistical disclosure control check should be treated as risk indicators that require further assessment.
 
 
 ---
@@ -67,7 +64,6 @@ This vignette explains how data providers can use the `check_all()` function fro
 - which variables serve as identifiers,
 - which numeric codes represent missing values,
 - which terms are used in missing-value labels,
-- which variables may be relevant for disclosure control,
 - where the corresponding codebook or documentation is stored.
 
 > **Version consistency:** The data set and documentation should refer to the same version.
@@ -77,26 +73,17 @@ This vignette explains how data providers can use the `check_all()` function fro
 
 ## Setup
 
-Install `eatFDZ` from GitHub if it is not already installed:
+Install `eatFDZ` from GitHub if it is not already installed. Then load the package.
 
 ```{r install, eval = FALSE}
 remotes::install_github("beckerbenj/eatFDZ")
-```
-
-Then load the package:
-
-```{r load-package}
 library(eatFDZ)
 ```
 
 For the examples in this vignette, we use a small artificial SPSS data set included in the package:
 
 ```{r example-path}
-sav_path <- system.file(
-  "extdata",
-  "example_data.sav",
-  package = "eatFDZ"
-)
+sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 ```
 
 The example data set contains intentionally introduced problems so that the different checks produce illustrative findings.
@@ -113,10 +100,7 @@ The example data set contains intentionally introduced problems so that the diff
 The following code runs the checks and writes the results to an Excel file:
 
 ```{r quickstart, eval = FALSE}
-sav_path <- "path/to/data.sav"
-
 out <- check_all(sav_path = sav_path)
-
 report_path <- file.path("reports", "check_report.xlsx")
 write_check_report(out, file_path = report_path)
 report_path
@@ -144,8 +128,6 @@ The `Overview` indicates whether a check:
 - found no issues,
 - produced findings that require review,
 - was not run.
-
-The exact display of these results may depend on the installed package version.
 
 > **Interpretation:** Not every reported finding is necessarily an error. Some findings may be expected because of the study design or data structure. Nevertheless, every finding should be reviewed.
 
@@ -235,7 +217,6 @@ out <- check_all(
     "omitted",
     "not reached",
     "no answer",
-    "keine angabe",
     sep = "|"
   )
 )
@@ -436,7 +417,7 @@ Check whether the value represents:
 
 Reports values within `missingRange` that are not defined as missing in the metadata.
 
-For example, the value `-99` may have the label `no response` but still be treated as a valid value.
+For example, the value `-99` may have the label `omitted` but still be treated as a valid value.
 
 First verify whether the value actually represents missing data. Missing-value definitions can then be corrected using functions such as `eatGADS::changeMissings()`.
 
@@ -572,11 +553,7 @@ Several `.sav` files can be processed in a loop. The following example writes on
 data_dir <- "path/to/sav_files"
 report_dir <- "reports"
 
-dir.create(
-  report_dir,
-  showWarnings = FALSE,
-  recursive = TRUE
-)
+dir.create(report_dir, showWarnings = FALSE)
 
 sav_files <- list.files(
   data_dir,
@@ -585,27 +562,18 @@ sav_files <- list.files(
 )
 
 for (sav_file in sav_files) {
-  report_file <- paste0(
-    tools::file_path_sans_ext(
-      basename(sav_file)
-    ),
-    "_check_report.xlsx"
+  report_file <- file.path(
+    report_dir,
+    sub("\\.sav$", "_check_report.xlsx", basename(sav_file))
   )
 
   tryCatch(
-    check_all(sav_file) |>
-      write_check_report(
-        file.path(
-          report_dir,
-          report_file
-        )
-      ),
-    error = function(e) {
-      message(
-        basename(sav_file),
-        ": ",
-        conditionMessage(e)
-      )
+    write_check_report(
+      check_all(sav_file),
+      report_file
+    ),
+    error = \(e) {
+      message(basename(sav_file), ": ", conditionMessage(e))
     }
   )
 }
@@ -620,34 +588,44 @@ Project-specific arguments such as `idVar`, `missingRange`, or `pdf_path` may di
 
 ## Troubleshooting
 
-**Start with the message shown in R and the corresponding sheet in the Excel report.**
+Start with the message shown in R and the corresponding sheet in the Excel report.
 
-### The documentation check was not run
+<details>
+<summary><strong>The documentation check was not run</strong></summary>
 
 **Possible cause:** No `pdf_path` was supplied.
 
 **Solution:** Include the path to a searchable PDF:
 
-```{r troubleshooting-docu, eval = FALSE}
+```{r troubleshooting-docu, eval=FALSE}
 check_all(
   sav_path = sav_path,
   pdf_path = "path/to/codebook.pdf"
 )
 ```
 
-### Unexpected missing or duplicate identifiers are reported
+</details>
+
+<details>
+<summary><strong>Unexpected missing or duplicate identifiers are reported</strong></summary>
 
 **Possible cause:** The wrong identifier variable was used or the finding is expected because of the hierarchical data structure.
 
 **Solution:** Specify `idVar` explicitly and review which variables or variable combinations should be unique.
 
-### Many disclosure-control findings are reported
+</details>
+
+<details>
+<summary><strong>Many disclosure-control findings are reported</strong></summary>
 
 **Possible cause:** The data set contains small samples, highly detailed categories, or variables that are not relevant for disclosure control.
 
 **Solution:** Treat the findings as risk indicators and consider restricting `sdcVars` to relevant variables.
 
-### Variable names are not found in the documentation
+</details>
+
+<details>
+<summary><strong>Variable names are not found in the documentation</strong></summary>
 
 **Possible causes:**
 
@@ -657,12 +635,16 @@ check_all(
 
 **Solution:** Verify that the PDF contains searchable text and that the data and documentation refer to the same version.
 
-### The report cannot be overwritten
+</details>
+
+<details>
+<summary><strong>The report cannot be overwritten</strong></summary>
 
 **Possible cause:** The Excel file is currently open or overwriting has not been enabled.
 
 **Solution:** Close the file and, where appropriate, use the available overwrite option of `write_check_report()`.
 
+</details>
 
 ---
 
@@ -672,5 +654,7 @@ check_all(
 
 Guidance on cleaning and preparing data with `eatGADS` and `eatFDZ` is available in:
 
-- [FDZ Data Cleaning](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
-- [Comprehensive Data Cleaning Guide](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)
+- [Data Curation at the FDZ at the IQB](https://beckerbenj.github.io/eatFDZ/articles/FDZ_Data_Cleaning.html)
+- [Data Cleaning Guide with the R package eatGADS](https://beckerbenj.github.io/eatGADS/articles/data_cleaning.html)
+
+---
