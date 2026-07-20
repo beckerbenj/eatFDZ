@@ -90,7 +90,7 @@
 #' @param replace_id Optional \code{character vector} of length 2 to replace an ID placeholder
 #'  (in the FDZ context usually: "_Antrag") with the specific ID (e.g., "2601-01a").
 #'  The first element is a \link{regex} expression to be used as \code{pattern}, and replaced by
-#'  the simple string in the second element of the vector.
+#'  the simple string in the second element of the vector. Usually only makes sense in table mode.
 #'
 #' @returns Depending on \code{create_table}, this function may return...\itemize{
 #'  \item \code{"control"} - A \code{list} of \code{data.frame}s, one for each subdirectory.
@@ -210,30 +210,23 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     }
   }
 
-  # call respective sub-function; returned content may be NULL or a table, depending on create_table
+  # call respective sub-function
   if (func_mode == "table") {
     content <- create_RM_from_tab(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
-                                  margin = margin,
-                                  col_width = col_width,
-                                  indent_per_level = indent_per_level,
-                                  max_indent = max_indent,
                                   sep = sep,
                                   replace_id = replace_id)
   } else {
     content <- create_RM_from_dir(in_path = in_path,
                                   out_path = out_path,
                                   lang = lang,
-                                  margin = margin,
-                                  col_width = col_width,
-                                  indent_per_level = indent_per_level,
-                                  max_indent = max_indent,
                                   flat_depth = flat_depth,
                                   skip_empty_base = skip_empty_base,
                                   replace_id = replace_id)
   }
 
+  # create ReadMe file text from function results and user inputs
   lines2write <- list()
   for (this_lang in lang) {
     text_file_table <- file_table_as_text(content = content$text[[this_lang]],
@@ -263,7 +256,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   }
   content$text <- lines2write
 
-  ## return file table as requested ##
+  # define return value as requested
   if (create_table == "none") return(NULL)
 
   if (create_table == "overview") return(content$files)
@@ -309,9 +302,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   }
 }
 
-create_RM_from_dir <- function(in_path, out_path, lang,
-                               margin, col_width, indent_per_level, max_indent,
-                               flat_depth, skip_empty_base, replace_id) {
+create_RM_from_dir <- function(in_path, out_path, lang, flat_depth, skip_empty_base, replace_id) {
   # list all files in the directory and all subdirectories
   file_table_deep <- create_file_table(path = in_path)
 
@@ -355,6 +346,13 @@ create_RM_from_dir <- function(in_path, out_path, lang,
                                 value = TRUE)
   file_table_flat <- file_table_flat[, !names(file_table_flat) %in% not_select_lang_names]
 
+  # replace ID if requested (usually meaningless here)
+  if (!is.null(replace_id)) {
+    file_table_flat$file_name <- gsub(x = file_table_flat$file_name,
+                                      pattern = replace_id[[1]],
+                                      replacement = replace_id[[2]])
+  }
+
   # prepare file table for text for each language
   lines2write <- list()
   for (this_lang in lang) {
@@ -373,9 +371,7 @@ create_RM_from_dir <- function(in_path, out_path, lang,
   return(out_list)
 }
 
-create_RM_from_tab <- function(in_path, out_path, lang,
-                               margin, col_width, indent_per_level, max_indent,
-                               sep, replace_id) {
+create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
   file_ext <- get_file_extension(in_path)
   if (any(!file_ext %in% c(".csv", "xlsx"))) {
     stop("Unsupported file format in file(s): '",
