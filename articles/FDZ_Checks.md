@@ -4,7 +4,7 @@
 
 This vignette explains how data providers can use the
 [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
-function from the `eatFDZ` package to review and improve their data sets
+function from the `eatFDZ` package to review and improve their datasets
 before submitting them to the [Research Data
 Centre](https://fdz.iqb.hu-berlin.de/en/) (FDZ) at the Institute for
 Educational Quality Improvement (IQB).
@@ -20,7 +20,7 @@ checks help identify common problems related to:
 - data structure,
 - potential statistical disclosure risks,
 - character variables,
-- consistency between a data set and its documentation.
+- consistency between a dataset and its documentation.
 
 > **Scope:** The function supports the technical and
 > documentation-related preparation of data for FAIR-aligned reuse by
@@ -28,7 +28,7 @@ checks help identify common problems related to:
 
 ------------------------------------------------------------------------
 
-## What `check_all()` does — and what it does not do
+### What `check_all()` does — and what it does not do
 
 [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md):
 
@@ -44,13 +44,13 @@ does not:
 - modify or clean the data,
 - decide automatically whether every finding is an error,
 - replace project-specific knowledge,
-- guarantee anonymisation or data protection compliance.
+- guarantee anonymization or data protection compliance.
 
 ------------------------------------------------------------------------
 
 ## Before you start
 
-**Before running the checks, you should know:**
+Before running the checks, you should know:
 
 - the path to the `.sav` file,
 - which variables serve as identifiers,
@@ -58,8 +58,8 @@ does not:
 - which terms are used in missing-value labels,
 - where the corresponding codebook or documentation is stored.
 
-> **Version consistency:** The data set and documentation should refer
-> to the same version.
+> **Version consistency:** The dataset and documentation should refer to
+> the same version.
 
 ------------------------------------------------------------------------
 
@@ -74,15 +74,15 @@ remotes::install_github("beckerbenj/eatFDZ")
 library(eatFDZ)
 ```
 
-For the examples in this vignette, we use a small artificial SPSS data
-set included in the package:
+For the examples in this vignette, we use a small artificial SPSS
+dataset included in the package:
 
 ``` r
 
 sav_path <- system.file("extdata", "example_data.sav", package = "eatFDZ")
 ```
 
-The example data set contains intentionally introduced problems so that
+The example dataset contains intentionally introduced problems so that
 the different checks produce illustrative findings.
 
 > **For your own data:** Replace `sav_path` with the path to your `.sav`
@@ -92,7 +92,7 @@ the different checks produce illustrative findings.
 
 ## Quickstart: create an Excel report
 
-**Use this section if you want to run the checks immediately.**
+*Use this section if you want to run the checks immediately.*
 
 The following code runs the checks and writes the results to an Excel
 file:
@@ -114,7 +114,7 @@ the `Overview` sheet.
 
 A suitable file name should:
 
-- identify the data set clearly,
+- identify the dataset clearly,
 - avoid umlauts, spaces, and problematic special characters,
 - include a comprehensible version number where appropriate.
 
@@ -149,25 +149,25 @@ The `Overview` indicates whether a check:
 7.  Run
     [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
     again.
-8.  Generate a new report for the corrected data set.
+8.  Generate a new report for the corrected dataset.
 
-The final data set, codebook, and check report should all describe the
+The final dataset, codebook, and check report should all describe the
 same version of the data.
 
 ------------------------------------------------------------------------
 
 ## Adapting the checks to your project
 
-**Use this section to adjust the checks to your data structure and
-project conventions.**
+*Use this section to adjust the checks to your data structure and
+project conventions.*
 
-The default settings may not be appropriate for every data set. The
+The default settings may not be appropriate for every dataset. The
 following arguments can be adapted to the structure and conventions of
 your project.
 
 ### Identifier variables: `idVar`
 
-By default, the first variable in the data set is used as the identifier
+By default, the first variable in the dataset is used as the identifier
 variable.
 
 If the relevant identifier is stored in another variable, specify it
@@ -183,7 +183,7 @@ out <- check_all(
 
 Interpret duplicate identifiers in relation to the intended data
 structure. For example, a school ID is expected to occur multiple times
-in a student-level data set.
+in a student-level dataset.
 
 If observations are uniquely identified only by a combination of
 variables, verify the combined key separately.
@@ -312,8 +312,8 @@ write_check_report(
 
 ## Reference: individual checks
 
-**Use this section when a result sheet contains findings and you want to
-understand what they mean.**
+*Use this section when a result sheet contains findings and you want to
+understand what they mean.*
 
 The following sections explain how the individual result tables should
 be interpreted.
@@ -430,12 +430,12 @@ available.
 
 > **Note:** Not every numeric variable requires value labels. Continuous
 > variables such as age, scores, or time measurements may remain
-> unlabelled.
+> unlabeled.
 
 For categorical variables, check whether:
 
-- all valid categories are labelled,
-- all missing codes are labelled,
+- all valid categories are labeled,
+- all missing codes are labeled,
 - the labels are understandable without additional project knowledge.
 
 Value labels can be edited using functions such as
@@ -539,7 +539,7 @@ may:
 
 - contain direct or indirect identifiers,
 - include inconsistent spellings,
-- be difficult to analyse,
+- be difficult to analyze,
 - lack structured labels.
 
 For every character variable, decide whether it:
@@ -556,7 +556,7 @@ Structured character variables can be converted using functions such as
 
 `docu_check`
 
-Compares variable names in the data set with the supplied PDF
+Compares variable names in the dataset with the supplied PDF
 documentation.
 
 The `count` column indicates how often a variable name was found:
@@ -570,7 +570,7 @@ A missing match may mean that:
 - the variable name differs between data and documentation,
 - the variable appears only in an image,
 - the PDF does not contain searchable text,
-- the codebook and data set describe different versions.
+- the codebook and dataset describe different versions.
 
 > **Limitation:** The check only determines whether a variable name was
 > found. It does not assess whether the substantive description is
@@ -578,36 +578,36 @@ A missing match may mean that:
 
 ------------------------------------------------------------------------
 
-## When is a data set ready for submission?
+## When is a dataset ready for submission?
 
-From the perspective of the automated checks, a data set is well
-prepared when:
+From the perspective of the automated checks, a dataset is well prepared
+when:
 
 - all unexpected findings have been corrected,
 - remaining findings have been reviewed and documented,
 - identifiers are complete and appropriate for the intended data
   structure,
 - categorical variables have informative variable and value labels,
-- missing codes are labelled and defined correctly,
+- missing codes are labeled and defined correctly,
 - empty and constant variables have been assessed,
 - low-frequency sensitive categories have been reviewed,
 - character variables have been checked deliberately,
 - every variable is included in the relevant documentation,
-- the data set, documentation, and report refer to the same version.
+- the dataset, documentation, and report refer to the same version.
 
 > **Good to know:** A completely passing `Overview` is a useful goal,
-> but it may not be possible or substantively appropriate for every data
-> set.
+> but it may not be possible or substantively appropriate for every
+> dataset.
 
 **The key requirement is that every reported finding has been reviewed
 and addressed in a transparent and traceable way.**
 
 ------------------------------------------------------------------------
 
-## Advanced: checking multiple data sets
+## Advanced: checking multiple datasets
 
 Several `.sav` files can be processed in a loop. The following example
-writes one Excel report per data set:
+writes one Excel report per dataset:
 
 ``` r
 
@@ -645,7 +645,7 @@ If files are stored in subfolders, add `recursive = TRUE` to
 
 Project-specific arguments such as `idVar`, `missingRange`, or
 `pdf_path` may differ between files. In that case, define the required
-settings separately for each data set.
+settings separately for each dataset.
 
 ------------------------------------------------------------------------
 
@@ -678,7 +678,7 @@ variable combinations should be unique.
 
 **Many disclosure-control findings are reported**
 
-**Possible cause:** The data set contains small samples, highly detailed
+**Possible cause:** The dataset contains small samples, highly detailed
 categories, or variables that are not relevant for disclosure control.
 
 **Solution:** Treat the findings as risk indicators and consider
@@ -710,7 +710,7 @@ overwrite option of
 
 > **Note:**
 > [`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
-> identifies potential issues but does not modify the data set.
+> identifies potential issues but does not modify the dataset.
 
 Guidance on cleaning and preparing data with `eatGADS` and `eatFDZ` is
 available in:

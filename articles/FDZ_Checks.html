@@ -71,7 +71,7 @@ Rucker</h4>
 </h2>
 <p>This vignette explains how data providers can use the
 <code><a href="../reference/check_all.html">check_all()</a></code> function from the <code>eatFDZ</code> package
-to review and improve their data sets before submitting them to the <a href="https://fdz.iqb.hu-berlin.de/en/" class="external-link">Research Data Centre</a> (FDZ)
+to review and improve their datasets before submitting them to the <a href="https://fdz.iqb.hu-berlin.de/en/" class="external-link">Research Data Centre</a> (FDZ)
 at the Institute for Educational Quality Improvement (IQB).</p>
 <p><code><a href="../reference/check_all.html">check_all()</a></code> performs automated checks of SPSS
 <code>.sav</code> files and their metadata. These checks help identify
@@ -84,7 +84,7 @@ common problems related to:</p>
 <li>data structure,</li>
 <li>potential statistical disclosure risks,</li>
 <li>character variables,</li>
-<li>consistency between a data set and its documentation.</li>
+<li>consistency between a dataset and its documentation.</li>
 </ul>
 <blockquote>
 <p><strong>Scope:</strong> The function supports the technical and
@@ -92,11 +92,10 @@ documentation-related preparation of data for FAIR-aligned reuse by
 identifying potential issues that require further review.</p>
 </blockquote>
 <hr>
-</div>
-<div class="section level2 unlisted unnumbered">
-<h2 class="unlisted unnumbered" id="what-check_all-does-and-what-it-does-not-do">What <code>check_all()</code> does — and
+<div class="section level3 unlisted unnumbered">
+<h3 class="unlisted unnumbered" id="what-check_all-does-and-what-it-does-not-do">What <code>check_all()</code> does — and
 what it does not do<a class="anchor" aria-label="anchor" href="#what-check_all-does-and-what-it-does-not-do"></a>
-</h2>
+</h3>
 <p><code><a href="../reference/check_all.html">check_all()</a></code>:</p>
 <ul>
 <li>imports an SPSS <code>.sav</code> file internally as a
@@ -111,14 +110,15 @@ what it does not do<a class="anchor" aria-label="anchor" href="#what-check_all-d
 <li>modify or clean the data,</li>
 <li>decide automatically whether every finding is an error,</li>
 <li>replace project-specific knowledge,</li>
-<li>guarantee anonymisation or data protection compliance.</li>
+<li>guarantee anonymization or data protection compliance.</li>
 </ul>
 <hr>
+</div>
 </div>
 <div class="section level2">
 <h2 id="before-you-start">Before you start<a class="anchor" aria-label="anchor" href="#before-you-start"></a>
 </h2>
-<p><strong>Before running the checks, you should know:</strong></p>
+<p>Before running the checks, you should know:</p>
 <ul>
 <li>the path to the <code>.sav</code> file,</li>
 <li>which variables serve as identifiers,</li>
@@ -127,7 +127,7 @@ what it does not do<a class="anchor" aria-label="anchor" href="#what-check_all-d
 <li>where the corresponding codebook or documentation is stored.</li>
 </ul>
 <blockquote>
-<p><strong>Version consistency:</strong> The data set and documentation
+<p><strong>Version consistency:</strong> The dataset and documentation
 should refer to the same version.</p>
 </blockquote>
 <hr>
@@ -141,10 +141,10 @@ installed. Then load the package.</p>
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"beckerbenj/eatFDZ"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://beckerbenj.github.io/eatFDZ/">eatFDZ</a></span><span class="op">)</span></span></code></pre></div>
 <p>For the examples in this vignette, we use a small artificial SPSS
-data set included in the package:</p>
+dataset included in the package:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sav_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_data.sav"</span>, package <span class="op">=</span> <span class="st">"eatFDZ"</span><span class="op">)</span></span></code></pre></div>
-<p>The example data set contains intentionally introduced problems so
+<p>The example dataset contains intentionally introduced problems so
 that the different checks produce illustrative findings.</p>
 <blockquote>
 <p><strong>For your own data:</strong> Replace <code>sav_path</code>
@@ -155,8 +155,8 @@ with the path to your <code>.sav</code> file.</p>
 <div class="section level2">
 <h2 id="quickstart-create-an-excel-report">Quickstart: create an Excel report<a class="anchor" aria-label="anchor" href="#quickstart-create-an-excel-report"></a>
 </h2>
-<p><strong>Use this section if you want to run the checks
-immediately.</strong></p>
+<p><em>Use this section if you want to run the checks
+immediately.</em></p>
 <p>The following code runs the checks and writes the results to an Excel
 file:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -174,7 +174,7 @@ error before the remaining checks are performed.</p>
 </blockquote>
 <p>A suitable file name should:</p>
 <ul>
-<li>identify the data set clearly,</li>
+<li>identify the dataset clearly,</li>
 <li>avoid umlauts, spaces, and problematic special characters,</li>
 <li>include a comprehensible version number where appropriate.</li>
 </ul>
@@ -214,26 +214,26 @@ reviewed.</p>
 <li>Correct the source data or metadata where necessary.</li>
 <li>Document findings that are intentional or cannot be changed.</li>
 <li>Run <code><a href="../reference/check_all.html">check_all()</a></code> again.</li>
-<li>Generate a new report for the corrected data set.</li>
+<li>Generate a new report for the corrected dataset.</li>
 </ol>
-<p>The final data set, codebook, and check report should all describe
-the same version of the data.</p>
+<p>The final dataset, codebook, and check report should all describe the
+same version of the data.</p>
 <hr>
 </div>
 </div>
 <div class="section level2">
 <h2 id="adapting-the-checks-to-your-project">Adapting the checks to your project<a class="anchor" aria-label="anchor" href="#adapting-the-checks-to-your-project"></a>
 </h2>
-<p><strong>Use this section to adjust the checks to your data structure
-and project conventions.</strong></p>
-<p>The default settings may not be appropriate for every data set. The
+<p><em>Use this section to adjust the checks to your data structure and
+project conventions.</em></p>
+<p>The default settings may not be appropriate for every dataset. The
 following arguments can be adapted to the structure and conventions of
 your project.</p>
 <div class="section level3 unlisted unnumbered">
 <h3 class="unlisted unnumbered" id="identifier-variables-idvar">Identifier variables:
 <code>idVar</code><a class="anchor" aria-label="anchor" href="#identifier-variables-idvar"></a>
 </h3>
-<p>By default, the first variable in the data set is used as the
+<p>By default, the first variable in the dataset is used as the
 identifier variable.</p>
 <p>If the relevant identifier is stored in another variable, specify it
 explicitly. This is also possible for multiple ID variables.</p>
@@ -244,7 +244,7 @@ explicitly. This is also possible for multiple ID variables.</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Interpret duplicate identifiers in relation to the intended data
 structure. For example, a school ID is expected to occur multiple times
-in a student-level data set.</p>
+in a student-level dataset.</p>
 <p>If observations are uniquely identified only by a combination of
 variables, verify the combined key separately.</p>
 </div>
@@ -367,8 +367,8 @@ detected.</p>
 <div class="section level2">
 <h2 id="reference-individual-checks">Reference: individual checks<a class="anchor" aria-label="anchor" href="#reference-individual-checks"></a>
 </h2>
-<p><strong>Use this section when a result sheet contains findings and
-you want to understand what they mean.</strong></p>
+<p><em>Use this section when a result sheet contains findings and you
+want to understand what they mean.</em></p>
 <p>The following sections explain how the individual result tables
 should be interpreted.</p>
 <div class="section level3">
@@ -471,12 +471,12 @@ is available.</p>
 <blockquote>
 <p><strong>Note:</strong> Not every numeric variable requires value
 labels. Continuous variables such as age, scores, or time measurements
-may remain unlabelled.</p>
+may remain unlabeled.</p>
 </blockquote>
 <p>For categorical variables, check whether:</p>
 <ul>
-<li>all valid categories are labelled,</li>
-<li>all missing codes are labelled,</li>
+<li>all valid categories are labeled,</li>
+<li>all missing codes are labeled,</li>
 <li>the labels are understandable without additional project
 knowledge.</li>
 </ul>
@@ -569,7 +569,7 @@ fields may:</p>
 <ul>
 <li>contain direct or indirect identifiers,</li>
 <li>include inconsistent spellings,</li>
-<li>be difficult to analyse,</li>
+<li>be difficult to analyze,</li>
 <li>lack structured labels.</li>
 </ul>
 <p>For every character variable, decide whether it:</p>
@@ -587,7 +587,7 @@ as <code><a href="https://beckerbenj.github.io/eatGADS/reference/multiChar2fac.h
 <h3 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h3>
 <details><summary><code>docu_check</code>
-</summary><p>Compares variable names in the data set with the supplied PDF
+</summary><p>Compares variable names in the dataset with the supplied PDF
 documentation.</p>
 <p>The <code>count</code> column indicates how often a variable name was
 found:</p>
@@ -604,7 +604,7 @@ once.</li>
 <li>the variable name differs between data and documentation,</li>
 <li>the variable appears only in an image,</li>
 <li>the PDF does not contain searchable text,</li>
-<li>the codebook and data set describe different versions.</li>
+<li>the codebook and dataset describe different versions.</li>
 </ul>
 <blockquote>
 <p><strong>Limitation:</strong> The check only determines whether a
@@ -615,9 +615,9 @@ description is complete, correct, or understandable.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="when-is-a-data-set-ready-for-submission">When is a data set ready for submission?<a class="anchor" aria-label="anchor" href="#when-is-a-data-set-ready-for-submission"></a>
+<h2 id="when-is-a-dataset-ready-for-submission">When is a dataset ready for submission?<a class="anchor" aria-label="anchor" href="#when-is-a-dataset-ready-for-submission"></a>
 </h2>
-<p>From the perspective of the automated checks, a data set is well
+<p>From the perspective of the automated checks, a dataset is well
 prepared when:</p>
 <ul>
 <li>all unexpected findings have been corrected,</li>
@@ -626,28 +626,28 @@ prepared when:</p>
 structure,</li>
 <li>categorical variables have informative variable and value
 labels,</li>
-<li>missing codes are labelled and defined correctly,</li>
+<li>missing codes are labeled and defined correctly,</li>
 <li>empty and constant variables have been assessed,</li>
 <li>low-frequency sensitive categories have been reviewed,</li>
 <li>character variables have been checked deliberately,</li>
 <li>every variable is included in the relevant documentation,</li>
-<li>the data set, documentation, and report refer to the same
+<li>the dataset, documentation, and report refer to the same
 version.</li>
 </ul>
 <blockquote>
 <p><strong>Good to know:</strong> A completely passing
 <code>Overview</code> is a useful goal, but it may not be possible or
-substantively appropriate for every data set.</p>
+substantively appropriate for every dataset.</p>
 </blockquote>
 <p><strong>The key requirement is that every reported finding has been
 reviewed and addressed in a transparent and traceable way.</strong></p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="advanced-checking-multiple-data-sets">Advanced: checking multiple data sets<a class="anchor" aria-label="anchor" href="#advanced-checking-multiple-data-sets"></a>
+<h2 id="advanced-checking-multiple-datasets">Advanced: checking multiple datasets<a class="anchor" aria-label="anchor" href="#advanced-checking-multiple-datasets"></a>
 </h2>
 <p>Several <code>.sav</code> files can be processed in a loop. The
-following example writes one Excel report per data set:</p>
+following example writes one Excel report per dataset:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data_dir</span> <span class="op">&lt;-</span> <span class="st">"path/to/sav_files"</span></span>
 <span><span class="va">report_dir</span> <span class="op">&lt;-</span> <span class="st">"reports"</span></span>
@@ -681,7 +681,7 @@ to <code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">
 <p>Project-specific arguments such as <code>idVar</code>,
 <code>missingRange</code>, or <code>pdf_path</code> may differ between
 files. In that case, define the required settings separately for each
-data set.</p>
+dataset.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -706,7 +706,7 @@ structure.</p>
 <p><strong>Solution:</strong> Specify <code>idVar</code> explicitly and
 review which variables or variable combinations should be unique.</p>
 </details><details><summary><strong>Many disclosure-control findings are reported</strong>
-</summary><p><strong>Possible cause:</strong> The data set contains small samples,
+</summary><p><strong>Possible cause:</strong> The dataset contains small samples,
 highly detailed categories, or variables that are not relevant for
 disclosure control.</p>
 <p><strong>Solution:</strong> Treat the findings as risk indicators and
@@ -732,7 +732,7 @@ the available overwrite option of <code><a href="../reference/write_check_report
 </h2>
 <blockquote>
 <p><strong>Note:</strong> <code><a href="../reference/check_all.html">check_all()</a></code> identifies potential
-issues but does not modify the data set.</p>
+issues but does not modify the dataset.</p>
 </blockquote>
 <p>Guidance on cleaning and preparing data with <code>eatGADS</code> and
 <code>eatFDZ</code> is available in:</p>
