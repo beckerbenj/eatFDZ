@@ -92,11 +92,10 @@ documentation-related preparation of data for FAIR-aligned reuse by
 identifying potential issues that require further review.</p>
 </blockquote>
 <hr>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="what-check_all-does-and-what-it-does-not-do">What <code>check_all()</code> does — and
-what it does not do<a class="anchor" aria-label="anchor" href="#what-check_all-does-and-what-it-does-not-do"></a>
+<div class="section level3">
+<h3 id="what-check_all-does-and-what-it-does-not-do">What <code>check_all()</code> does — and what it does not do<a class="anchor" aria-label="anchor" href="#what-check_all-does-and-what-it-does-not-do"></a>
 </h3>
-<p><code><a href="../reference/check_all.html">check_all()</a></code>:</p>
+<p><code><a href="../reference/check_all.html">check_all()</a></code> does:</p>
 <ul>
 <li>imports an SPSS <code>.sav</code> file internally as a
 <code>GADSdat</code> object,</li>
@@ -197,8 +196,8 @@ necessarily an error. Some findings may be expected because of the study
 design or data structure. Nevertheless, every finding should be
 reviewed.</p>
 </blockquote>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="recommended-workflow">Recommended workflow<a class="anchor" aria-label="anchor" href="#recommended-workflow"></a>
+<div class="section level3">
+<h3 id="recommended-workflow">Recommended workflow<a class="anchor" aria-label="anchor" href="#recommended-workflow"></a>
 </h3>
 <ol style="list-style-type: decimal">
 <li>Open the <code>Overview</code> sheet.</li>
@@ -229,9 +228,8 @@ project conventions.</em></p>
 <p>The default settings may not be appropriate for every dataset. The
 following arguments can be adapted to the structure and conventions of
 your project.</p>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="identifier-variables-idvar">Identifier variables:
-<code>idVar</code><a class="anchor" aria-label="anchor" href="#identifier-variables-idvar"></a>
+<div class="section level3">
+<h3 id="identifier-variables-idvar">Identifier variables: <code>idVar</code><a class="anchor" aria-label="anchor" href="#identifier-variables-idvar"></a>
 </h3>
 <p>By default, the first variable in the dataset is used as the
 identifier variable.</p>
@@ -248,9 +246,8 @@ in a student-level dataset.</p>
 <p>If observations are uniquely identified only by a combination of
 variables, verify the combined key separately.</p>
 </div>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="missing-value-range-missingrange">Missing-value range:
-<code>missingRange</code><a class="anchor" aria-label="anchor" href="#missing-value-range-missingrange"></a>
+<div class="section level3">
+<h3 id="missing-value-range-missingrange">Missing-value range: <code>missingRange</code><a class="anchor" aria-label="anchor" href="#missing-value-range-missingrange"></a>
 </h3>
 <p>Projects often use a defined numeric range for missing codes, such as
 <code>-97</code>, <code>-98</code>, and <code>-99</code>.</p>
@@ -268,9 +265,8 @@ falls within the specified range. First verify whether it represents a
 missing value or a substantively valid response.</p>
 </blockquote>
 </div>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="missing-value-labels-missingregex">Missing-value labels:
-<code>missingRegex</code><a class="anchor" aria-label="anchor" href="#missing-value-labels-missingregex"></a>
+<div class="section level3">
+<h3 id="missing-value-labels-missingregex">Missing-value labels: <code>missingRegex</code><a class="anchor" aria-label="anchor" href="#missing-value-labels-missingregex"></a>
 </h3>
 <p><code>missingRegex</code> searches value labels for terms that
 indicate missing data.</p>
@@ -293,9 +289,8 @@ project.</p>
 produce false positives.</p>
 </blockquote>
 </div>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="variables-for-disclosure-control-sdcvars">Variables for disclosure control:
-<code>sdcVars</code><a class="anchor" aria-label="anchor" href="#variables-for-disclosure-control-sdcvars"></a>
+<div class="section level3">
+<h3 id="variables-for-disclosure-control-sdcvars">Variables for disclosure control: <code>sdcVars</code><a class="anchor" aria-label="anchor" href="#variables-for-disclosure-control-sdcvars"></a>
 </h3>
 <p>By default, the statistical disclosure control check is run on all
 variables.</p>
@@ -313,9 +308,8 @@ variables.</p>
 <p>Select variables based on their sensitivity, level of detail, and
 potential contribution to identification risks.</p>
 </div>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="documentation-pdf_path">Documentation:
-<code>pdf_path</code><a class="anchor" aria-label="anchor" href="#documentation-pdf_path"></a>
+<div class="section level3">
+<h3 id="documentation-pdf_path">Documentation: <code>pdf_path</code><a class="anchor" aria-label="anchor" href="#documentation-pdf_path"></a>
 </h3>
 <p>If a searchable PDF codebook is available, it can be included in the
 checks:</p>
@@ -334,8 +328,8 @@ Variable names that appear only in images or scanned pages may not be
 detected.</p>
 </blockquote>
 </div>
-<div class="section level3 unlisted unnumbered">
-<h3 class="unlisted unnumbered" id="complete-example">Complete example<a class="anchor" aria-label="anchor" href="#complete-example"></a>
+<div class="section level3">
+<h3 id="complete-example">Complete example<a class="anchor" aria-label="anchor" href="#complete-example"></a>
 </h3>
 <p>A project-specific call may look as follows:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">

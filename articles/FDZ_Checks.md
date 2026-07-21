@@ -30,7 +30,8 @@ checks help identify common problems related to:
 
 ### What `check_all()` does — and what it does not do
 
-[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md):
+[`check_all()`](https://beckerbenj.github.io/eatFDZ/reference/check_all.md)
+does:
 
 - imports an SPSS `.sav` file internally as a `GADSdat` object,
 - runs a collection of automated checks,
