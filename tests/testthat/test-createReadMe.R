@@ -4,8 +4,8 @@ pathbase <- test_path("helper_for_ReadMe")
 studybase <- file.path(pathbase, "all_studies")
 pathstud1 <- file.path(studybase, "IQB-BT_2021_v1")
 pathstud2 <- file.path(studybase, "PISA 2006_v1")
-pathstud2_sub1 <- file.path(pathstud2, "PISA 2006-E")
-pathstud2_sub2 <- file.path(pathstud2, "PISA 2006-I")
+pathstud2_sub1 <- file.path(pathstud2, "PISA_2006-E")
+pathstud2_sub2 <- file.path(pathstud2, "PISA_2006-I")
 for (this_dir in c(pathbase, studybase, pathstud1, pathstud2, pathstud2_sub1, pathstud2_sub2)) {
   if (!dir.exists(this_dir)) dir.create(this_dir)
 }
@@ -479,3 +479,6 @@ test_that("ReadMe file formatting works as intended", {
 
   file.remove(rmfile)
 })
+
+# remove dummy directory to avoid warning from R CMD
+unlink(studybase, recursive = TRUE)
