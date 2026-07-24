@@ -55,7 +55,7 @@ if (!file.exists(template_stud1)) {
 
 template_header <- file.path(pathbase, "template_header.csv")
 single_line_header <- "Dies ist eine tolle Kopfzeile"
-multi_line_header <- c("This header", "look", "WAAAAY", "cooler!")
+multi_line_header <- c("This header", "looks", "WAAAAY", "cooler!")
 if (!file.exists(template_header)) {
   this_template <- data.frame(header_de = c(single_line_header, "", "", ""),
                               header_en = multi_line_header)
@@ -367,4 +367,25 @@ test_that("Directory mode sets flags correctly", {
   expect_identical(study_control_skip[[1]]$flag, c("header", "", "", "", ""))
   expect_identical(study_control_skip[[2]]$flag,
                    c("header", "subheader/1", "", "", "", "", "subheader/1", "", "", "", ""))
+})
+
+test_that("Table mode creates ReadMe file successfully", {
+  rmfile_onelang <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
+  rmfile_de <- file.path(pathbase, "ReadMe_IQB-BT_2021_de.txt")
+  rmfile_en <- file.path(pathbase, "ReadMe_IQB-BT_2021_en.txt")
+
+  expect_false(file.exists(rmfile_onelang))
+  expect_false(file.exists(rmfile_de))
+  expect_false(file.exists(rmfile_en))
+
+  # one language
+  expect_null(createReadMe(template_stud1, out_path = rmfile_onelang, sep = ",", lang = "de"))
+  expect_true(file.exists(rmfile_onelang))
+  file.remove(rmfile_onelang)
+
+  # two languages
+  expect_null(createReadMe(template_stud1, out_path = rmfile_onelang, sep = ","))
+  expect_true(file.exists(rmfile_de))
+  expect_true(file.exists(rmfile_en))
+  file.remove(rmfile_de, rmfile_en)
 })
