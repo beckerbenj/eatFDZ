@@ -127,6 +127,7 @@ This function serves the general purpose of creating a ReadMe that describes the
  }
 }
 \section{Formatting}{
+
  The look of the ReadMe file can be adjusted by a number of arguments.
  File names and file descriptions are set in a two-column table with a minimum \code{margin}
  between them and with the right column starting no more to the left than at \code{col_width}.
@@ -151,6 +152,30 @@ This function serves the general purpose of creating a ReadMe that describes the
   but this functionality may be added.
  \item \code{footer} - A footer section added to the very end of the file with decorative lines
   above and below. Use this to present, e.g., contact information.
+ }
+}
+
+\section{Control tables}{
+
+ This function's table mode uses "control tables" as input which have to meet certain criteria.
+ First, only \code{.csv} and \code{.xlsx} files are being supported so far. Second, each file
+ has to include at least the following three columns with the column names in the first row:
+ \itemize{
+  \item \code{file_name} - The name of the file to be described. Placeholder section may be used
+   in the file name, which could then be replaced by setting the \code{replace_id} argument.
+  \item \code{description} - The description of the file, e.g., its content or intended range of
+   use. One or more description columns are allowed to describe the same file in different
+   languages. Each description column has to end on the language acronym (e.g., \code{_de}).
+   This/these columns can also be used to set (language specific) headers instead of the folder
+   name as the header.
+  \item \code{flag} - Either empty or a formatting flag. Regular files should have an empty cell
+   here. Two flags are supported so far: \code{header} marks the section's header.
+   \code{subheader/x} marks a subheader for a subsection. In the subheader flag \code{x}
+   indicates the level of the subsection relative to the overall header as an integer number with
+   higher numbers signifying deeper levels. All files under a subheader are considered to belong
+   to this subsection. Each subsection is separated from the other subsections by empty lines.
+   If \code{indent_per_level} is > 0, each file will be indented relative to its (sub)header and
+   each subheaders will be indented relative to the overall header, which is never indented.
  }
 }
 
