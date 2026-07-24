@@ -182,6 +182,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   if (!is.null(flat_depth)) check_whole_positive(flat_depth)
   eatGADS:::check_logicalArgument(skip_empty_base)
 
+  # read section texts if file path is supplied
   for (this_arg in c("header", "content_box", "remarks", "footer")) {
     if (is.null(get(this_arg))) next
     if (length(get(this_arg)) == 1 && file.exists(get(this_arg))) {
@@ -737,6 +738,7 @@ build_ReadMe_text <- function(content, lang, header, content_box, remarks, foote
                                  section = remarks,
                                  lang = lang,
                                  width = total_width)
+  content <- crop_empty_lines(content)
 
   content <- c(content, "", "")
   content <- add_footer(text = content,
@@ -744,6 +746,7 @@ build_ReadMe_text <- function(content, lang, header, content_box, remarks, foote
                         lang = lang,
                         width = total_width)
 
+  content <- crop_empty_lines(content)
   return(content)
 }
 
@@ -845,10 +848,12 @@ add_spanning_border <- function(text, linetype, width = NULL, where = c("above",
 add_overall_head <- function(text, header, lang, width) {
   if (is.null(header)) return(text)
   if (is.list(header) && length(header) > 1) {
-    this_header <- header[grepl(x = names(header), pattern = paste0("_", lang, "$"))]
+    this_header <- unlist(header[grepl(x = names(header), pattern = paste0("_", lang, "$"))])
+    this_header <- unlist(this_header)
   } else {
     this_header <- unlist(header)
   }
+  this_header <- crop_empty_lines(this_header)
 
   text <- add_spanning_border(text = text,
                               linetype = 2,
@@ -867,17 +872,19 @@ add_overall_head <- function(text, header, lang, width) {
 add_content_box <- function(text, content, lang, width, indent = TRUE) {
   if (is.null(content)) return(text)
   if (is.list(content) && length(content) > 1) {
-    this_header <- content[grepl(x = names(content), pattern = paste0("_", lang, "$"))]
+    this_box <- unlist(content[grepl(x = names(content), pattern = paste0("_", lang, "$"))])
+    this_box <- unlist(this_box)
   } else {
-    this_header <- unlist(content)
+    this_box <- unlist(content)
   }
+  this_box <- crop_empty_lines(this_box)
 
   text <- add_spanning_border(text = text,
                               linetype = 2,
                               width = width,
                               where = "above")
-  if (indent) content <- paste0("\t", content)
-  text <- c(content, text)
+  if (indent) this_box <- paste0("\t", this_box)
+  text <- c(this_box, text)
   return(text)
 }
 
@@ -889,6 +896,7 @@ add_remarks_section <- function(text, section, lang, width) {
   } else {
     this_section <- unlist(section)
   }
+  this_section <- crop_empty_lines(this_section)
 
   text <- add_header(text = text,
                      header = paste0("default///remarks_", lang),
@@ -912,6 +920,7 @@ add_footer <- function(text, footer, lang, width) {
   } else {
     this_footer <- unlist(footer)
   }
+  this_footer <- crop_empty_lines(this_footer)
 
   text <- add_spanning_border(text = text,
                               linetype = 2,
@@ -966,6 +975,12 @@ fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
 
   out <- paste0(col1, filler, col2)
   return(out)
+}
+
+crop_empty_lines <- function(text) {
+  non_empty_lines <- which(text != "")
+  text <- text[non_empty_lines[[1]]:non_empty_lines[[length(non_empty_lines)]]]
+  return(text)
 }
 
 
