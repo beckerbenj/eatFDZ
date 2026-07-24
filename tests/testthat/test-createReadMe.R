@@ -1,5 +1,5 @@
 #### Set up dummy directoy and materials ####
-# folders
+##### folders #####
 pathbase <- test_path("helper_for_ReadMe")
 studybase <- file.path(pathbase, "all_studies")
 pathstud1 <- file.path(studybase, "IQB-BT_2021_v1")
@@ -10,7 +10,7 @@ for (this_dir in c(pathbase, studybase, pathstud1, pathstud2, pathstud2_sub1, pa
   if (!dir.exists(this_dir)) dir.create(this_dir)
 }
 
-# files
+##### files #####
 filesstud1 <- c("IQB-BT_2021_student_quest_v1_SUF_Remote_Antrag.sav",
                 "IQB-BT_2021_teacher_quest_group-specific_v1_SUF_Remote_Antrag.sav",
                 "IQB-BT_2021_v1.sha",
@@ -31,7 +31,7 @@ for (filelist in c("filesstud1", "filesstud2_sub1", "filesstud2_sub2")) {
   }
 }
 
-# control tables
+##### control tables #####
 template_stud1 <- file.path(pathbase, "template_IQB-BT_2021_v1.csv")
 if (!file.exists(template_stud1)) {
   this_template <- data.frame(file_name = c(basename(pathstud1),
@@ -67,9 +67,9 @@ if (!file.exists(template_header)) {
 
 template_contbox <- file.path(pathbase, "template_contbox.csv")
 single_line_contbox <- "IQB-Bildungstrend 2021"
-multi_line_contbox <- c("IQB Trends in Student Achievement", "PISA 2006")
+multi_line_contbox <- c("IQB Trends in Student Achievement 2021", "PISA 2006")
 if (!file.exists(template_contbox)) {
-  this_template <- data.frame(contbox_de = c(single_line_contbox, "", "", ""),
+  this_template <- data.frame(contbox_de = c(single_line_contbox, ""),
                               contbox_en = multi_line_contbox)
   write.table(x = this_template,
               file = template_contbox,
@@ -388,4 +388,94 @@ test_that("Table mode creates ReadMe file successfully", {
   expect_true(file.exists(rmfile_de))
   expect_true(file.exists(rmfile_en))
   file.remove(rmfile_de, rmfile_en)
+})
+
+test_that("ReadMe file formatting works as intended", {
+  rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
+
+  ## Basics ##
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en")
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[1]], "[ C O N T E N T S ]")
+  expect_match(rmlines[[2]], "^¯*$")
+  expect_identical(nchar(rmlines[[2]]), max(nchar(rmlines)))
+  expect_match(rmlines[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
+  expect_identical(rmlines[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
+    # 4th should be empty, but because of a workaround there are pointless blanks there
+  expect_identical(rmlines[[6]], "IQB Trends in Student Achievement 2021")
+  expect_match(rmlines[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
+
+  # without ReadMe mention
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", include_rm = FALSE)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[3]], "IQB-Bildungstrend 2021")
+
+
+  ## Headers ##
+  # one-line header
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = template_header)
+  rmlines <- readLines(rmfile)
+  expect_match(rmlines[[2]], "^¯*$")
+  expect_identical(nchar(rmlines[[2]]), max(nchar(rmlines)))
+  expect_match(rmlines[[3]], paste0("^[ \t]+", single_line_header, "[ \t]+$"))
+  expect_identical(rmlines[[1]], rmlines[[4]])
+  expect_identical(rmlines[[2]], rmlines[[5]])
+  expect_identical(rmlines[[2]], rmlines[[9]])
+  expect_identical(rmlines[1:8] == "", c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE))
+
+  # multi-line header
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en", header = template_header)
+  rmlines <- readLines(rmfile)
+  expect_match(rmlines[[3]], paste0("^[ \t]+", multi_line_header[[1]], "[ \t]+$"))
+  expect_match(rmlines[[6]], paste0("^[ \t]+", multi_line_header[[4]], "[ \t]+$"))
+  expect_identical(rmlines[[1]], rmlines[[7]])
+  expect_identical(rmlines[[2]], rmlines[[8]])
+
+
+  ## Content box ##
+  # one-line box
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
+               content_box = template_contbox)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[1]], paste0("\t", single_line_contbox))
+  expect_match(rmlines[[3]], "^¯*$")
+  expect_identical(nchar(rmlines[[3]]), max(nchar(rmlines)))
+  expect_identical(rmlines[1:6] == "", c(FALSE, FALSE, FALSE, TRUE, TRUE, FALSE))
+
+  # multi-line box
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en",
+               content_box = template_contbox)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[1]], paste0("\t", multi_line_contbox[[1]]))
+  expect_identical(rmlines[[2]], paste0("\t", multi_line_contbox[[2]]))
+  expect_identical(rmlines[[4]], rmlines[[8]])
+
+
+  ## Remarks section ##
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
+               remarks = template_remarks)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[10:13] == "", c(FALSE, TRUE, TRUE, FALSE))
+  expect_identical(rmlines[[13]], "[ H I N W E I S E ]")
+  expect_match(rmlines[[14]], "^¯*$")
+
+
+  ## Footer ##
+  # one-line footer
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", footer = template_footer)
+  rmlines <- readLines(rmfile)
+  expect_match(rmlines[[14]], "^¯*$")
+  expect_identical(rmlines[[15]], single_line_footer)
+  expect_identical(rmlines[10:16] == "", c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
+  expect_identical(rmlines[[13]], rmlines[[16]])
+  expect_identical(rmlines[[14]], rmlines[[17]])
+
+  # multi-line footer
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en", footer = template_footer)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[15]], multi_line_footer[[1]])
+  expect_identical(rmlines[[17]], multi_line_footer[[3]])
+  expect_identical(rmlines[10:16] == "", c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
+
+  file.remove(rmfile)
 })
