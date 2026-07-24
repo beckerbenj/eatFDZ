@@ -1,6 +1,6 @@
 #' Create a ReadMe file documenting directory contents
 #'
-#' List and describe the contents of a directory including all its subdirectories,
+#' List and describe the contents of a directory, including all its subdirectories,
 #'  reflecting the directory structure. Use this function to... \itemize{
 #'   \item create an overview (and, optionally, a control table for future ReadMe construction)
 #'    for an existing directory, or
@@ -8,13 +8,13 @@
 #'  }
 #'
 #' This function serves the general purpose of creating a ReadMe that describes the contents of a
-#'  folder/directory. While it can simply be used on an existing directory, its main purpose is in
-#'  creating ReadMes for data packages delivered to the Research Data Centre's data users.
-#'  The function has to modes which are selected based on the content of \code{in_path}:
+#'  folder/directory. While it can be used on an existing directory, its main purpose is to create
+#'  ReadMes for data packages delivered to the Research Data Centre's data users.
+#'  The function has two modes, which are selected based on the content of \code{in_path}:
 #'  \enumerate{
 #'  \item \strong{Directory mode}: If \code{in_path} is a single \code{file.path} that does not
 #'   lead to a (table) file, this function runs in directory mode. It will list all files in the
-#'   supplied directory as well as in all its subdirectories. While this can be used to create a
+#'   supplied directory and all its subdirectories. While this can be used to create a
 #'   simple ReadMe to give an overview of this directory, its main purpose is in creating control
 #'   tables (see the \code{create_table} argument), which may then be enhanced with more specific
 #'   file descriptions and reused by this function in table mode.
@@ -26,23 +26,24 @@
 #'  }
 #'
 #' @section Formatting:
-#'  The look of the ReadMe file can be adjusted by a number of arguments.
+#'  The appearance of the ReadMe file can be adjusted using a number of arguments.
 #'  File names and file descriptions are set in a two-column table with a minimum \code{margin}
 #'  between them and with the right column starting no more to the left than at \code{col_width}.
 #'  File names are indented by x = \code{indent_per_level} spaces/blanks under the (sub)headline of
 #'  their respective folder names, which may themselves be indented under their higher-level
-#'  folder's names by the same number of spaces per level, but no more then \code{max_indent}.
+#'  folder's names by the same number of spaces per level, but no more than \code{max_indent}.
 #'
 #'  Additional text sections may be added. For table mode, it is recommended to have one control
-#'  table per section, with each table having a column named, e.g., "header_de" for a German header,
-#'  that can be supplied to the function. Currently, the following sections are supported: \itemize{
-#'  \item \code{header} - A centrally aligned header to the whole file, for example stating the name
-#'   of the institution sending out the data package. It is added to the very top of the file.
+#'  table per section, with each table containing a column named, e.g., "header_de" for a German
+#'  header, that can be supplied to the function. Currently, the following sections are supported:
+#'  \itemize{
+#'  \item \code{header} - A centrally aligned header to the whole file, for example, stating the
+#'   name of the institution sending out the data package. It is added to the very top of the file.
 #'   Aesthetic lines will be added above and below the header. The line styles are not yet
 #'   customisable, but this functionality may be added on request.
-#'  \item \code{content_box} - A higher-level table of content, further abstracting from the
+#'  \item \code{content_box} - A higher-level table of contents, further abstracting from the
 #'   detailed file table below. It is added between the header and the main body/file table.
-#'   The contents are indented by one tab and aesthetic lines will be added above and below.
+#'   The contents are indented by one tab, and aesthetic lines will be added above and below.
 #'   It may be used to list the "intermediate" data product packages/"studies" of the overall
 #'   data package.
 #'  \item \code{remarks} - A section of additional remarks about using the data. It is added below
@@ -53,34 +54,34 @@
 #'  }
 #'
 #' @section Control tables:
-#'  This function's table mode uses "control tables" as input which have to meet certain criteria.
+#'  This function's table mode uses "control tables" as input, which have to meet certain criteria.
 #'  First, only \code{.csv} and \code{.xlsx} files are being supported so far. Second, each file
 #'  has to include at least the following three columns with the column names in the first row:
 #'  \itemize{
-#'   \item \code{file_name} - The name of the file to be described. Placeholder section may be used
+#'   \item \code{file_name} - The name of the file to be described. Placeholder sections may be used
 #'    in the file name, which could then be replaced by setting the \code{replace_id} argument.
 #'   \item \code{description} - The description of the file, e.g., its content or intended range of
 #'    use. One or more description columns are allowed to describe the same file in different
-#'    languages. Each description column has to end on the language acronym (e.g., \code{_de}).
-#'    This/these columns can also be used to set (language specific) headers instead of the folder
-#'    name as the header.
+#'    languages. Each description column has to end with the language acronym (e.g., \code{_de}).
+#'    This/these columns can also be used to set (language-specific) headers instead of the folder
+#'    name.
 #'   \item \code{flag} - Either empty or a formatting flag. Regular files should have an empty cell
 #'    here. Two flags are supported so far: \code{header} marks the section's header.
-#'    \code{subheader/x} marks a subheader for a subsection. In the subheader flag \code{x}
-#'    indicates the level of the subsection relative to the overall header as an integer number with
-#'    higher numbers signifying deeper levels. All files under a subheader are considered to belong
+#'    \code{subheader/x} marks a subheader for a subsection. In the subheader flag, \code{x}
+#'    indicates the subsection's level relative to the overall header as an integer number with
+#'    higher values signifying deeper levels. All files under a subheader are considered to belong
 #'    to this subsection. Each subsection is separated from the other subsections by empty lines.
 #'    If \code{indent_per_level} is > 0, each file will be indented relative to its (sub)header and
-#'    each subheaders will be indented relative to the overall header, which is never indented.
+#'    each subheader will be indented relative to the overall header, which is never indented.
 #'  }
 #'
 #'
-#' @param in_path Either a single directory path,
-#'  or a \code{character vector} of at least one control table path.
-#' @param out_path Optional \code{\link{file.path}} (incl. file name) for the ReadMe to be created in.
-#'  \link{writeLines} needs to be able to write a plain text ReadMe here.
-#'  If \code{NULL} (the defaul), no file is created.
-#' @param lang Which language(s) should the ReadMe be created in? Per default, German (\code{"de"})
+#' @param in_path Either a single directory path or a \code{character vector} of at least one
+#'  control table path.
+#' @param out_path Optional \code{\link{file.path}} (incl. file name) for the ReadMe to be
+#'  created in. \link{writeLines} needs to be able to write a plain-text ReadMe here.
+#'  If \code{NULL} (the default), no file is created.
+#' @param lang Which language(s) should the ReadMe be created in? By default, German (\code{"de"})
 #'  and English (\code{"en"}) are supported, esp. for directory mode (see details). In table mode,
 #'  any language acronym that matches a description column in the control tables can be selected.
 #'  If more than one language is specified and an \code{out_path} is provided, one ReadMe will be
@@ -101,9 +102,9 @@
 #' @param flat_depth Directory mode only: \code{numeric} value indicating the depth at which the
 #'  function should start pretending that all files and folders are on the same level.
 #'  If \code{NULL}, every file's depth will be represented truthfully.
-#'  Flattening the depth may prevent file tables from blowing up but you may also consider not
+#'  Flattening the depth may prevent file tables from blowing up, but you may also consider not
 #'  using the function on a very deep directory structure.
-#' @param skip_empty_base Directory mode only: Should the first level be ignored, if it contains no
+#' @param skip_empty_base Directory mode only: Should the first level be ignored if it contains no
 #'  direct files? This is useful in creating control tables over many folders at once.
 #' @param header,content_box,remarks,footer For each of these optional file sections,
 #'  either a \code{character vector} of the specific text to be added in the corresponding place
@@ -113,7 +114,8 @@
 #' @param replace_id Optional \code{character vector} of length 2 to replace an ID placeholder
 #'  (in the FDZ context usually: "_Antrag") with the specific ID (e.g., "2601-01a").
 #'  The first element is a \link{regex} expression to be used as \code{pattern}, and replaced by
-#'  the simple string in the second element of the vector. Usually only makes sense in table mode.
+#'  the simple string in the second element of the vector.
+#'  Usually, this only makes sense in table mode.
 #' @param include_rm Optional \code{logical} argument: Should the ReadMe file be included in itself?
 #'  Only applies if a file is created at \code{out_path}. If \code{NULL} (the default), a default
 #'  setting depending on the function mode will be applied: \code{FALSE} in directory mode, and
@@ -129,10 +131,10 @@
 #'  \code{flag} (formatting flags to mirror the directory structure if reused in table mode).
 #'  \item \code{"overview"} - A flat \code{data.frame} with at least four columns:
 #'  \code{file_name}, \code{description}, and \code{flag} as described for \code{"control"},
-#'  as well each file's \code{depth} and \code{group} (i.e. first level directory).
+#'  as well as each file's \code{depth} and \code{group} (i.e. first-level directory).
 #'  \item \code{"text"} - The \code{character vector} constituting the ReadMe text written to
 #'  \code{out_path} if requested. If more than one \code{lang} is specified, this returns a list
-#'  of each language's ReadMe text.
+#'  of one ReadMe text per language.
 #' }
 #'
 #' @examples
