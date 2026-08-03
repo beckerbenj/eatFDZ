@@ -1,4 +1,4 @@
-test_that("write_sdc_report erzeugt eine Excel-Datei", {
+test_that("write_sdc_report creates an Excel file.", {
 
   x <- list(
     Schueler = data.frame(
