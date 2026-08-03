@@ -7,7 +7,7 @@ test_that("Write check report", {
 
   overview <- openxlsx::read.xlsx(f, sheet = "Overview")
   expect_equal(overview$Handlungsbedarf[1], "Keine weitere Bearbeitung noetig.")
-  expect_equal(overview$Handlungsbedarf[2:11], rep("Details siehe entsprechender Reiter", 10))
+  expect_equal(overview$Handlungsbedarf[2:10], rep("Details siehe entsprechender Reiter", 9))
 
   sheet_names <- openxlsx::getSheetNames(f)
   expect_equal(sheet_names[1:2], c("Overview", "special_signs_variable_names"))

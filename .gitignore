@@ -42,3 +42,4 @@ vignettes/*.pdf
 /otherCode
 docs
 inst/doc
+.positai

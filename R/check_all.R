@@ -10,8 +10,11 @@
 #'   \item \code{\link{check_id}}: Validates the uniqueness and non-missingness of identifier variables.
 #'   \item \code{\link{check_var_labels}}: Checks for the existence of variable labels.
 #'   \item \code{\link[eatGADS]{checkMissingValLabels}}: Ensures missing value labels are correctly defined.
+#'   \item \code{\link[eatGADS]{checkEmptyValLabels}}: Identifies value labels whose corresponding values do not occur in the data.
 #'   \item \code{\link{check_missing_range}}: Validates whether values fall within a defined missing value range.
 #'   \item \code{\link{check_missing_regex}}: Identifies missing value labels based on a regular expression.
+#'   \item \code{\link{check_empty_vars}}: Identifies variables containing only missing values.
+#'   \item \code{\link{check_constant_vars}}: Identifies variables containing exactly one distinct valid value.
 #'   \item \code{\link{sdc_check}}: Performs a statistical disclosure control check for variables with low category frequencies.
 #'   \item \code{\link{check_docu}}: Verifies that all variables are referenced in external documentation (e.g., codebooks in \code{.pdf} format).
 #' }
@@ -86,11 +89,17 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
   # value labels
   # ----------------------------------------------------------
   missing_valLables <- eatGADS::checkMissingValLabels(gads, output = "data.frame")
+  empty_valLabels <- eatGADS::checkEmptyValLabels(gads, output = "data.frame")
 
   # missing tags
   # ----------------------------------------------------------
   missing_range_tags <- check_missing_range(gads, missingRange = missingRange)
   missing_regex_tags <- check_missing_regex(gads, missingRegex = missingRegex)
+
+  # empty and constant variables
+  # ----------------------------------------------------------
+  empty_vars <- check_empty_vars(gads)
+  constant_vars <- check_constant_vars(gads)
 
   # check data disclosure control
   # ----------------------------------------------------------
@@ -116,8 +125,10 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
                                  bad_encoding_var_names, bad_encoding_meta_data,
                                  missing_ids, duplicate_ids,
                                  missing_varLabels,
-                                 missing_valLables,
+                                 missing_valLables, empty_valLabels,
                                  missing_range_tags, missing_regex_tags,
+                                 empty_vars,
+                                 constant_vars,
                                  sdc_check_out,
                                  character_vars,
                                  docu_check)
@@ -126,8 +137,10 @@ check_all <- function (sav_path, pdf_path = NULL, encoding = NULL,
     "special_signs_variable_names", "special_signs_meta_data",
     "missing_IDs", "duplicate_IDs",
     "missing_variable_labels",
-    "missing_value_labels",
+    "missing_value_labels", "empty_value_labels",
     "missing_range_tags", "missing_regex_tags",
+    "empty_variables",
+    "constant_variables",
     "statistical_disclosure_control",
     "character_variables",
     "docu_check")

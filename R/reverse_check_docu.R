@@ -25,7 +25,15 @@
 #'                        pdf_path = c(pdf_path1, pdf_path2, pdf_path3))
 #'
 #'@export
-reverse_check_docu <- function(white_list = c(english_words, german_words), pdf_path, sav_path, encoding = NULL) {
+reverse_check_docu <- function(white_list = NULL, pdf_path, sav_path, encoding = NULL) {
+  if (is.null(white_list)) {
+    utils::data("english_words", package = "eatFDZ", envir = environment())
+    utils::data("german_words", package = "eatFDZ", envir = environment())
+    white_list <- c(
+      get("english_words", envir = environment()),
+      get("german_words", envir = environment())
+    )
+  }
   if(!is.character(white_list)) stop("'white_list' must be a character vector.")
   if(!is.character(sav_path) || length(sav_path) == 0) stop("'sav_path' must be a character vector of at least length 1.")
   if(!is.character(pdf_path) || length(pdf_path) == 0) stop("'pdf_path' must be a character vector of at least length 1.")
@@ -69,7 +77,7 @@ reverse_check_docu <- function(white_list = c(english_words, german_words), pdf_
 
   #print(nams)
 
-  data.frame(suspicious_words = words_not_in_data_or_whitelist_case_independent, missing_documention = "", comment = "")
+  data.frame(suspicious_words = words_not_in_data_or_whitelist_case_independent, missing_documentation = "", comment = "")
 }
 
 
