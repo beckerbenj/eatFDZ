@@ -8,8 +8,11 @@ check_meta_encoding: Ensures proper encoding in metadata.
 check_id: Validates the uniqueness and non-missingness of identifier variables.
 check_var_labels: Checks for the existence of variable labels.
 checkMissingValLabels: Ensures missing value labels are correctly defined.
+checkEmptyValLabels: Identifies value labels whose corresponding values do not occur in the data.
 check_missing_range: Validates whether values fall within a defined missing value range.
 check_missing_regex: Identifies missing value labels based on a regular expression.
+check_empty_vars: Identifies variables containing only missing values.
+check_constant_vars: Identifies variables containing exactly one distinct valid value.
 sdc_check: Performs a statistical disclosure control check for variables with low category frequencies.
 check_docu: Verifies that all variables are referenced in external documentation (e.g., codebooks in .pdf format).
 
@@ -22,8 +25,11 @@ check_meta_encoding: Ensures proper encoding in metadata.
 check_id: Validates the uniqueness and non-missingness of identifier variables.
 check_var_labels: Checks for the existence of variable labels.
 checkMissingValLabels: Ensures missing value labels are correctly defined.
+checkEmptyValLabels: Identifies value labels whose corresponding values do not occur in the data.
 check_missing_range: Validates whether values fall within a defined missing value range.
 check_missing_regex: Identifies missing value labels based on a regular expression.
+check_empty_vars: Identifies variables containing only missing values.
+check_constant_vars: Identifies variables containing exactly one distinct valid value.
 sdc_check: Performs a statistical disclosure control check for variables with low category frequencies.
 check_docu: Verifies that all variables are referenced in external documentation (e.g., codebooks in .pdf format).
 
@@ -73,8 +79,11 @@ of the dataset. The checks include:</p><ul><li><p><code><a href="check_file_name
 <li><p><code><a href="check_id.html">check_id</a></code>: Validates the uniqueness and non-missingness of identifier variables.</p></li>
 <li><p><code><a href="check_var_labels.html">check_var_labels</a></code>: Checks for the existence of variable labels.</p></li>
 <li><p><code><a href="https://beckerbenj.github.io/eatGADS/reference/checkEmptyValLabels.html" class="external-link">checkMissingValLabels</a></code>: Ensures missing value labels are correctly defined.</p></li>
+<li><p><code><a href="https://beckerbenj.github.io/eatGADS/reference/checkEmptyValLabels.html" class="external-link">checkEmptyValLabels</a></code>: Identifies value labels whose corresponding values do not occur in the data.</p></li>
 <li><p><code><a href="check_missing_range.html">check_missing_range</a></code>: Validates whether values fall within a defined missing value range.</p></li>
 <li><p><code><a href="check_missing_regex.html">check_missing_regex</a></code>: Identifies missing value labels based on a regular expression.</p></li>
+<li><p><code><a href="check_empty_vars.html">check_empty_vars</a></code>: Identifies variables containing only missing values.</p></li>
+<li><p><code><a href="check_constant_vars.html">check_constant_vars</a></code>: Identifies variables containing exactly one distinct valid value.</p></li>
 <li><p><code><a href="sdc_check.html">sdc_check</a></code>: Performs a statistical disclosure control check for variables with low category frequencies.</p></li>
 <li><p><code><a href="check_docu.html">check_docu</a></code>: Verifies that all variables are referenced in external documentation (e.g., codebooks in <code>.pdf</code> format).</p></li>
 </ul></div>
@@ -156,11 +165,14 @@ It outputs a summary of detected issues as well as detailed reports for each ind
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5                   duplicate_IDs Issues detected</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6         missing_variable_labels Issues detected</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7            missing_value_labels Issues detected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8              missing_range_tags Issues detected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9              missing_regex_tags Issues detected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 statistical_disclosure_control Issues detected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11            character_variables Issues detected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12                     docu_check      Not tested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8              empty_value_labels Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9              missing_range_tags Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10             missing_regex_tags Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                empty_variables         passing</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12             constant_variables         passing</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 statistical_disclosure_control Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14            character_variables Issues detected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15                     docu_check      Not tested</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

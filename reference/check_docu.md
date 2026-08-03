@@ -44,9 +44,9 @@ check_docu(
 
 ## Value
 
-A `data.frame` with the variable names, count of mentions in the `pdf`
-(`count`), words after the variable names (`post`) and the name of the
-data set in which the variable occurs (`data_set`).
+A `data.frame` with the variable names, variable labels, count of
+mentions in the `pdf` (`count`), words after the variable names (`post`)
+and the name of the data set in which the variable occurs (`data_set`).
 
 ## Details
 

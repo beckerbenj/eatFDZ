@@ -72,9 +72,10 @@ If the file name is valid, no output is returned.</p>
 <span class="r-in"><span><span class="fu">check_file_name</span><span class="op">(</span><span class="va">valid_path</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example of an invalid file name (this will throw an error)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">invalid_path</span> <span class="op">&lt;-</span> <span class="st">"invalid file name.sav"</span></span></span>
 <span class="r-in"><span><span class="fu">check_file_name</span><span class="op">(</span><span class="va">invalid_path</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in check_file_name(invalid_path):</span> File name contains special characters or spaces.</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

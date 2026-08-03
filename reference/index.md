@@ -6,16 +6,22 @@
   : Run all data checks for a GADSdat object
 - [`check_character_vars()`](https://beckerbenj.github.io/eatFDZ/reference/check_character_vars.md)
   : Check for the existence of character variables
+- [`check_constant_vars()`](https://beckerbenj.github.io/eatFDZ/reference/check_constant_vars.md)
+  : Check for constant variables
 - [`check_docu()`](https://beckerbenj.github.io/eatFDZ/reference/check_docu.md)
   : Check documentation of data sets.
 - [`check_docu_excel()`](https://beckerbenj.github.io/eatFDZ/reference/check_docu_excel.md)
   : Check documentation of data sets.
 - [`check_docu_mez()`](https://beckerbenj.github.io/eatFDZ/reference/check_docu_mez.md)
   : Check documentation of data sets.
+- [`check_empty_vars()`](https://beckerbenj.github.io/eatFDZ/reference/check_empty_vars.md)
+  : Check for empty variables
 - [`check_file_name()`](https://beckerbenj.github.io/eatFDZ/reference/check_file_name.md)
   : Check and validate a file name
 - [`check_id()`](https://beckerbenj.github.io/eatFDZ/reference/check_id.md)
   : Check for uniqueness and non-missingness in an identifier variable
+- [`check_id_overlap()`](https://beckerbenj.github.io/eatFDZ/reference/check_id_overlap.md)
+  : Check ID overlaps across datasets
 - [`check_meta_encoding()`](https://beckerbenj.github.io/eatFDZ/reference/check_meta_encoding.md)
   : Check encoding issues in meta data
 - [`check_missing_range()`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_range.md)
@@ -36,10 +42,6 @@
   sets.
 - [`data_clean()`](https://beckerbenj.github.io/eatFDZ/reference/data_clean.md)
   : Data clean.
-- [`download_fdz()`](https://beckerbenj.github.io/eatFDZ/reference/download_fdz.md)
-  : Download and import an empty FDZ file.
-- [`download_pisa()`](https://beckerbenj.github.io/eatFDZ/reference/download_pisa.md)
-  : Download and import an empty PISA public use file.
 - [`english_words`](https://beckerbenj.github.io/eatFDZ/reference/english_words.md)
   : English Language Corpus
 - [`german_words`](https://beckerbenj.github.io/eatFDZ/reference/german_words.md)
@@ -50,3 +52,5 @@
   : Create a Statistical Disclosure Control Report
 - [`write_check_report()`](https://beckerbenj.github.io/eatFDZ/reference/write_check_report.md)
   : Write a check report.
+- [`write_sdc_report()`](https://beckerbenj.github.io/eatFDZ/reference/write_sdc_report.md)
+  : Write formatted disclosure control reports

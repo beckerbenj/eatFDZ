@@ -46,10 +46,13 @@ out <- check_all(dataset)
 #> 5                   duplicate_IDs Issues detected
 #> 6         missing_variable_labels Issues detected
 #> 7            missing_value_labels Issues detected
-#> 8              missing_range_tags Issues detected
-#> 9              missing_regex_tags Issues detected
-#> 10 statistical_disclosure_control Issues detected
-#> 11            character_variables Issues detected
-#> 12                     docu_check      Not tested
+#> 8              empty_value_labels Issues detected
+#> 9              missing_range_tags Issues detected
+#> 10             missing_regex_tags Issues detected
+#> 11                empty_variables         passing
+#> 12             constant_variables         passing
+#> 13 statistical_disclosure_control Issues detected
+#> 14            character_variables Issues detected
+#> 15                     docu_check      Not tested
 write_check_report(out, file_path = tempfile())
 ```

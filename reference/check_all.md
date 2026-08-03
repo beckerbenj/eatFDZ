@@ -23,11 +23,21 @@ documentation of the dataset. The checks include:
 - [`checkMissingValLabels`](https://beckerbenj.github.io/eatGADS/reference/checkEmptyValLabels.html):
   Ensures missing value labels are correctly defined.
 
+- [`checkEmptyValLabels`](https://beckerbenj.github.io/eatGADS/reference/checkEmptyValLabels.html):
+  Identifies value labels whose corresponding values do not occur in the
+  data.
+
 - [`check_missing_range`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_range.md):
   Validates whether values fall within a defined missing value range.
 
 - [`check_missing_regex`](https://beckerbenj.github.io/eatFDZ/reference/check_missing_regex.md):
   Identifies missing value labels based on a regular expression.
+
+- [`check_empty_vars`](https://beckerbenj.github.io/eatFDZ/reference/check_empty_vars.md):
+  Identifies variables containing only missing values.
+
+- [`check_constant_vars`](https://beckerbenj.github.io/eatFDZ/reference/check_constant_vars.md):
+  Identifies variables containing exactly one distinct valid value.
 
 - [`sdc_check`](https://beckerbenj.github.io/eatFDZ/reference/sdc_check.md):
   Performs a statistical disclosure control check for variables with low
@@ -126,9 +136,12 @@ check_results <- check_all(sav_path = sav_path)
 #> 5                   duplicate_IDs Issues detected
 #> 6         missing_variable_labels Issues detected
 #> 7            missing_value_labels Issues detected
-#> 8              missing_range_tags Issues detected
-#> 9              missing_regex_tags Issues detected
-#> 10 statistical_disclosure_control Issues detected
-#> 11            character_variables Issues detected
-#> 12                     docu_check      Not tested
+#> 8              empty_value_labels Issues detected
+#> 9              missing_range_tags Issues detected
+#> 10             missing_regex_tags Issues detected
+#> 11                empty_variables         passing
+#> 12             constant_variables         passing
+#> 13 statistical_disclosure_control Issues detected
+#> 14            character_variables Issues detected
+#> 15                     docu_check      Not tested
 ```

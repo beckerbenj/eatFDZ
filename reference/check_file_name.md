@@ -31,7 +31,8 @@ valid_path <- system.file("extdata", "example_data2.sav", package = "eatFDZ")
 check_file_name(valid_path)
 
 # Example of an invalid file name (this will throw an error)
+if (FALSE) { # \dontrun{
 invalid_path <- "invalid file name.sav"
 check_file_name(invalid_path)
-#> Error in check_file_name(invalid_path): File name contains special characters or spaces.
+} # }
 ```

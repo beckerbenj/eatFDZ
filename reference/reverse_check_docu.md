@@ -8,12 +8,7 @@ as variables in the documentation but not in the data set.
 ## Usage
 
 ``` r
-reverse_check_docu(
-  white_list = c(english_words, german_words),
-  pdf_path,
-  sav_path,
-  encoding = NULL
-)
+reverse_check_docu(white_list = NULL, pdf_path, sav_path, encoding = NULL)
 ```
 
 ## Arguments
