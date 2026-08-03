@@ -2,27 +2,37 @@
 % Please edit documentation in R/check_var_names.R
 \name{check_var_names}
 \alias{check_var_names}
-\title{Check variable names.}
+\title{Check variable names for encoding issues and dots}
 \usage{
 check_var_names(GADSdat)
 }
 \arguments{
-\item{GADSdat}{\code{GADSdat} object.}
+\item{GADSdat}{A \code{GADSdat} object containing the data whose variable names are to be checked.}
 }
 \value{
-Returns the test report.
+A \code{data.frame} containing variable names that failed the checks.
+If all variable names meet the requirements, the function returns an empty \code{data.frame}.
 }
 \description{
-Check variable names of variables in a \code{GADSdat}.
+This function checks whether variable names in a \code{GADSdat} object contain specific formatting issues,
+focusing on:
+\itemize{
+  \item Encoding problems: Variables with non-ASCII characters, such as \code{"Umlaute"} or other special characters.
+  \item The presence of dots (\code{"."}) in variable names.
+}
 }
 \details{
-Checks in variable names include
-\itemize{
-\item special signs such as \code{Umlaute}
-\item column names with a \code{"."} in it.
-}
+These checks help detect and report variable naming issues that may cause compatibility problems with certain tools or systems (e.g., Stata or databases with strict naming conventions).
 }
 \examples{
-# tbd
+# Example usage:
+# Load example GADSdat object
+GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
+
+# Check for problematic variable names
+problematic_var_names <- check_var_names(GADSdat)
+
+# Print the result
+print(problematic_var_names)#'
 
 }

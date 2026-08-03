@@ -2,26 +2,34 @@
 % Please edit documentation in R/check_var_labels.R
 \name{check_var_labels}
 \alias{check_var_labels}
-\title{Check existence of variable labels.}
+\title{Check for missing variable labels}
 \usage{
 check_var_labels(GADSdat)
 }
 \arguments{
-\item{GADSdat}{\code{GADSdat} object.}
+\item{GADSdat}{A \code{GADSdat} object containing the data for which variable labels should be checked.}
 }
 \value{
-Returns the test report.
+A \code{data.frame} with the names of variables that lack variable labels:
+\itemize{
+  \item \code{varName}: The name of the variable without a label.
+}
+If all variables have labels, the function returns an empty \code{data.frame}.
 }
 \description{
-Check the existence of variable labels for all variables in a \code{GADSdat}.
-}
-\details{
-Checks include
-\itemize{
-\item Have variable labels been assigned?
-}
+This function checks whether all variables in a \code{GADSdat} object have been assigned a variable label.
+Missing variable labels can indicate poorly documented data and may lead to issues in data analysis or reporting.
 }
 \examples{
-# tbd
+# Example usage
+
+# Load example GADSdat object
+GADSdat <- eatGADS::import_spss(system.file("extdata", "example_data2.sav", package = "eatFDZ"))
+
+# Check for variables missing labels
+missing_labels <- check_var_labels(GADSdat)
+
+# Print the result
+print(missing_labels)
 
 }

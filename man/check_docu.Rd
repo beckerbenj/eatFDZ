@@ -24,7 +24,7 @@ check_docu(
 \item{encoding}{Optional: The character encoding used for reading the \code{.sav} file. The default, \code{NULL}, uses the encoding specified in the file, but sometimes this value is incorrect and it is useful to be able to override it.}
 }
 \value{
-A \code{data.frame} with the variable names, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
+A \code{data.frame} with the variable names, variable labels, count of mentions in the \code{pdf} (\code{count}), words after the variable names (\code{post}) and the name of the data set in which the variable occurs (\code{data_set}).
 }
 \description{
 Check if all variables of one or multiple data sets saved as \code{sav} are included in the \code{pdf} documentation.

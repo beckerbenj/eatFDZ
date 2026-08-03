@@ -11,7 +11,8 @@ Description: Check and validate data sets and their documentation. This includes
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: eatGADS (>= 1.2.0), readtext, quanteda, eatTools, readxl, stringi, openxlsx, plyr, haven, zip, utils
+Imports: eatGADS (>= 1.2.0), readtext, quanteda, eatTools, readxl, stringi, openxlsx, plyr, openxlsx2, eulerr
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown,
