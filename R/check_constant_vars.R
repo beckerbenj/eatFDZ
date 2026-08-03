@@ -16,12 +16,14 @@ check_constant_vars <- function(GADSdat) {
   constant_vars <- names(valid_values)[lengths(valid_values) == 1L]
 
   meta <- unique(
-    eatGADS::extractMeta(GADSdat)[, c("varName", "varLabel")]
+    eatGADS::extractMeta(
+      GADSdat,
+      vars = constant_vars
+    )[, c("varName", "varLabel")]
   )
 
   data.frame(
-    varName = constant_vars,
-    varLabel = meta$varLabel[match(constant_vars, meta$varName)],
+    meta,
     value = vapply(
       valid_values[constant_vars],
       function(x) as.character(x[[1]]),

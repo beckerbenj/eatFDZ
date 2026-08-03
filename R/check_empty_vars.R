@@ -18,12 +18,14 @@ check_empty_vars <- function(GADSdat) {
   ]
 
   meta <- unique(
-    eatGADS::extractMeta(GADSdat)[, c("varName", "varLabel")]
+    eatGADS::extractMeta(
+      GADSdat,
+      vars = empty_vars
+    )[, c("varName", "varLabel")]
   )
 
   data.frame(
-    varName = empty_vars,
-    varLabel = meta$varLabel[match(empty_vars, meta$varName)],
+    meta,
     row.names = NULL
   )
 }
