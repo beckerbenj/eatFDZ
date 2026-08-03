@@ -4,7 +4,7 @@ test_that("One pdf, one .sav data set", {
   #out <- check_docu(sav_path = "tests/testthat/helper_spss.sav", pdf_path = "tests/testthat/helper_codebook.pdf")
   out <- check_docu(sav_path = "helper_spss.sav",
              pdf_path = "helper_codebook.pdf")
-  expect_true(all(c("variable","count","post","data_set") %in% names(out)))
+  expect_true(all(c("variable", "count", "post", "data_set") %in% names(out)))
   expect_equal(out[out$variable == "ID", "count"], 1)
   expect_equal(out[2, "count"], 2)
   expect_equal(out[out$variable == "Var3", "count"], 0)
