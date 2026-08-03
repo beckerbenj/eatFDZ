@@ -54,11 +54,16 @@ check_id_overlap <- function(sav_paths, id_vars, plot = TRUE) {
       next
     }
 
+
     if (n_datasets > 5L) {
       warning(
         "More than five datasets contain non-missing values for '",
-        id, "'. The check is skipped.",
-        call. = FALSE)
+        id,
+        "'. The check is skipped because Venn diagrams can only be ",
+        "created for up to five datasets. Re-run check_id_overlap() ",
+        "with a subset of no more than five relevant datasets.",
+        call. = FALSE
+      )
       next
     }
 
