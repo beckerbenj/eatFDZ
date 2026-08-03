@@ -3,7 +3,7 @@
 #' Writes disclosure control results to the Excel template included in
 #' `eatFDZ`. A separate worksheet is created for each dataset.
 #'
-#' @param x A named list of data frames returned by [sdc_check()].
+#' @param x A named list of data frames returned by \link{sdc_check}.
 #' @param file_path Path of the Excel file to be created.
 #' @param overwrite Logical. Should an existing file be overwritten?
 #'
