@@ -28,7 +28,7 @@ test_that("One pdf, one .sav data set", {
 test_that("One pdf, mulitple .sav data set", {
   out <- check_docu(sav_path = c("helper_spss_p1.sav", "helper_spss_p2.sav"),
                     pdf_path = "helper_codebook.pdf")
-  expect_true(all(c("variable","count","post","data_set") %in% names(out)))
+  expect_true(all(c("variable", "count", "post", "data_set") %in% names(out)))
   expect_equal(out[out$variable == "ID", "count"], c(1, 1))
   expect_equal(out[3, "count"], 2)
   expect_equal(out[out$variable == "Var3", "count"], 0)
