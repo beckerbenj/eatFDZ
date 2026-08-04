@@ -393,38 +393,48 @@ test_that("Table mode creates ReadMe file successfully", {
 
 rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
 test_that("Basic formatting of the ReadMe file works as intended", {
+  rmname_en <- sub(x = rmfile, pattern = "\\.txt", replacement = "_en.txt")
+  rmname_de <- sub(x = rmfile, pattern = "\\.txt", replacement = "_de.txt")
+
   # table mode with ReadMe file mention
-  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en")
-  rmlines1 <- readLines(rmfile)
+  createReadMe(template_stud1, out_path = rmfile, sep = ",")
+  rmlines1_en <- readLines(rmname_en)
+  rmlines1_de <- readLines(rmname_de)
+  file.remove(rmname_en)
+  file.remove(rmname_de)
+
   # directory mode without max_indent
   createReadMe(pathstud2, out_path = rmfile, sep = ",", lang = "en")
   rmlines2 <- readLines(rmfile)
+
   # directory mode with max_indent
   createReadMe(pathstud2, out_path = rmfile, sep = ",", lang = "de", max_indent = 2)
   rmlines3 <- readLines(rmfile)
+
   # table mode without ReadMe file mention
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", include_rm = FALSE)
   rmlines4 <- readLines(rmfile)
 
   # Section header
-  expect_identical(rmlines1[[1]], "[ C O N T E N T S ]")
-  expect_match(rmlines1[[2]], "^¯*$")
-  expect_identical(nchar(rmlines1[[2]]), max(nchar(rmlines1)))
+  expect_identical(rmlines1_en[[1]], "[ C O N T E N T S ]")
+  expect_match(rmlines1_en[[2]], "^¯*$")
+  expect_identical(nchar(rmlines1_en[[2]]), max(nchar(rmlines1_en)))
 
   # ReadMe file mention
-  expect_match(rmlines1[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
+  expect_match(rmlines1_en[[3]], paste0("^", basename(rmname_en), "[ \t]+- this file$"))
+  expect_match(rmlines1_de[[3]], paste0("^", basename(rmname_de), "[ \t]+- diese Datei$"))
   expect_no_match(rmlines2, paste0("^", basename(rmfile), "[ \t]+- this file$"))
   expect_no_match(rmlines4, paste0("^", basename(rmfile), "[ \t]+- diese Datei$"))
 
   # specific lines
-  expect_identical(rmlines1[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
+  expect_identical(rmlines1_en[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
     # 4th should be empty, but because of a workaround there are pointless blanks there
-  expect_identical(rmlines1[[6]], "IQB Trends in Student Achievement 2021")
-  expect_match(rmlines1[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
+  expect_identical(rmlines1_en[[6]], "IQB Trends in Student Achievement 2021")
+  expect_match(rmlines1_en[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
 
   # indentation from table mode
-  rmlines1_without_leading_spaces <- gsub(x = rmlines1, pattern = "^[[:blank:]]*", replacement = "")
-  n_leading_spaces1 <- nchar(rmlines1) - nchar(rmlines1_without_leading_spaces)
+  rmlines1_without_leading_spaces <- gsub(x = rmlines1_en, pattern = "^[[:blank:]]*", replacement = "")
+  n_leading_spaces1 <- nchar(rmlines1_en) - nchar(rmlines1_without_leading_spaces)
   expect_equal(n_leading_spaces1[6:10], c(0, 2, 2, 2, 2))
 
   # indentation from directory mode without max_indent
