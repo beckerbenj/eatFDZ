@@ -264,6 +264,15 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   # create ReadMe file text from function results and user inputs
   lines2write <- list()
   for (this_lang in lang) {
+    # set ReadMe file name/path
+    this_out_path <- out_path
+    if (!is.null(out_path) && length(lang) > 1) {
+      out_ext <- get_file_extension(out_path)
+      this_out_path <- sub(x = out_path,
+                           pattern = "\\.[[:alnum:]]{2,4}$",
+                           replacement = paste0("_", this_lang, out_ext))
+    }
+
     # include ReadMe if requested
     if (include_rm) {
       # set default description
@@ -277,7 +286,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
         description_default <- rm_description_defaults$en
       }
       # put ReadMe on top if the file list
-      this_content <- rbind(data.frame(file_name = c(basename(out_path), ""),
+      this_content <- rbind(data.frame(file_name = c(basename(this_out_path), ""),
                                        description = c(description_default, ""),
                                        depth = c(0, 0),
                                        group = rep("function_default_ThisReadMeFile", 2)),
@@ -298,14 +307,6 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
                                                   footer = footer)
     # write ReadMe if requested via out_path
     if (!is.null(out_path)) {
-      if (length(lang) > 1) {
-        out_ext <- get_file_extension(out_path)
-        this_out_path <- sub(x = out_path,
-                             pattern = "\\.[[:alnum:]]{2,4}$",
-                             replacement = paste0("_", this_lang, out_ext))
-      } else {
-        this_out_path <- out_path
-      }
       writeLines(text = lines2write[[this_lang]],
                  con = this_out_path)
     }
