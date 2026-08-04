@@ -676,8 +676,10 @@ file_table_as_text <- function(content, margin, col_width, prefix = "- ",
     these_indentations <- this_group$depth * indent_per_level
     if (header && length(these_indentations) > 1) { # increase body indentation against header if requested
       these_indentations[2:length(these_indentations)] <-
-        (these_indentations[2:length(these_indentations)] + 1) * indent_per_level
+        these_indentations[2:length(these_indentations)]  + indent_per_level
     }
+    
+    these_indentations[these_indentations > max_indent] <- max_indent
     this_section <- these_filenames <- sapply(seq_along(this_group$file_name), function(x) {
       paste0(paste0(rep(" ", these_indentations[[x]]), collapse = ""),
              this_group$file_name[[x]])
