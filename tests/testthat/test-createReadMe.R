@@ -390,28 +390,55 @@ test_that("Table mode creates ReadMe file successfully", {
   file.remove(rmfile_de, rmfile_en)
 })
 
-test_that("ReadMe file formatting works as intended", {
-  rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
 
-  ## Basics ##
+rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
+test_that("Basic formatting of the ReadMe file works as intended", {
+  # table mode with ReadMe file mention
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en")
-  rmlines <- readLines(rmfile)
-  expect_identical(rmlines[[1]], "[ C O N T E N T S ]")
-  expect_match(rmlines[[2]], "^¯*$")
-  expect_identical(nchar(rmlines[[2]]), max(nchar(rmlines)))
-  expect_match(rmlines[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
-  expect_identical(rmlines[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
-    # 4th should be empty, but because of a workaround there are pointless blanks there
-  expect_identical(rmlines[[6]], "IQB Trends in Student Achievement 2021")
-  expect_match(rmlines[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
-
-  # without ReadMe mention
+  rmlines1 <- readLines(rmfile)
+  # directory mode without max_indent
+  createReadMe(pathstud2, out_path = rmfile, sep = ",", lang = "en")
+  rmlines2 <- readLines(rmfile)
+  # directory mode with max_indent
+  createReadMe(pathstud2, out_path = rmfile, sep = ",", lang = "de", max_indent = 2)
+  rmlines3 <- readLines(rmfile)
+  # table mode without ReadMe file mention
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", include_rm = FALSE)
-  rmlines <- readLines(rmfile)
-  expect_identical(rmlines[[3]], "IQB-Bildungstrend 2021")
+  rmlines4 <- readLines(rmfile)
 
+  # Section header
+  expect_identical(rmlines1[[1]], "[ C O N T E N T S ]")
+  expect_match(rmlines1[[2]], "^¯*$")
+  expect_identical(nchar(rmlines1[[2]]), max(nchar(rmlines1)))
 
-  ## Headers ##
+  # ReadMe file mention
+  expect_match(rmlines1[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
+  expect_no_match(rmlines2, paste0("^", basename(rmfile), "[ \t]+- this file$"))
+  expect_no_match(rmlines4, paste0("^", basename(rmfile), "[ \t]+- diese Datei$"))
+
+  # specific lines
+  expect_identical(rmlines1[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
+    # 4th should be empty, but because of a workaround there are pointless blanks there
+  expect_identical(rmlines1[[6]], "IQB Trends in Student Achievement 2021")
+  expect_match(rmlines1[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
+
+  # indentation from table mode
+  rmlines1_without_leading_spaces <- gsub(x = rmlines1, pattern = "^[[:blank:]]*", replacement = "")
+  n_leading_spaces1 <- nchar(rmlines1) - nchar(rmlines1_without_leading_spaces)
+  expect_equal(n_leading_spaces1[6:10], c(0, 2, 2, 2, 2))
+
+  # indentation from directory mode without max_indent
+  rmlines2_without_leading_spaces <- gsub(x = rmlines2, pattern = "^[[:blank:]]*", replacement = "")
+  n_leading_spaces2 <- nchar(rmlines2) - nchar(rmlines2_without_leading_spaces)
+  expect_equal(n_leading_spaces2[3:11], c(0, 2, 4, 4, 4, 4, 0, 2, 4))
+
+  # indentation from directory mode with max_indent
+  rmlines3_without_leading_spaces <- gsub(x = rmlines3, pattern = "^[[:blank:]]*", replacement = "")
+  n_leading_spaces3 <- nchar(rmlines3) - nchar(rmlines3_without_leading_spaces)
+  expect_equal(n_leading_spaces3[3:11], c(0, 2, 2, 2, 2, 2, 0, 2, 2))
+})
+
+test_that("Formatting of the overall header in the ReadMe file works as intended", {
   # one-line header
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = template_header)
   rmlines <- readLines(rmfile)
@@ -430,9 +457,9 @@ test_that("ReadMe file formatting works as intended", {
   expect_match(rmlines[[6]], paste0("^[ \t]+", multi_line_header[[4]], "[ \t]+$"))
   expect_identical(rmlines[[1]], rmlines[[7]])
   expect_identical(rmlines[[2]], rmlines[[8]])
+})
 
-
-  ## Content box ##
+test_that("Formatting of the content box in the ReadMe file works as intended", {
   # one-line box
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
                content_box = template_contbox)
@@ -449,18 +476,18 @@ test_that("ReadMe file formatting works as intended", {
   expect_identical(rmlines[[1]], paste0("\t", multi_line_contbox[[1]]))
   expect_identical(rmlines[[2]], paste0("\t", multi_line_contbox[[2]]))
   expect_identical(rmlines[[4]], rmlines[[8]])
+})
 
-
-  ## Remarks section ##
+test_that("Formatting of the remarks section in the ReadMe file works as intended", {
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
                remarks = template_remarks)
   rmlines <- readLines(rmfile)
   expect_identical(rmlines[10:13] == "", c(FALSE, TRUE, TRUE, FALSE))
   expect_identical(rmlines[[13]], "[ H I N W E I S E ]")
   expect_match(rmlines[[14]], "^¯*$")
+})
 
-
-  ## Footer ##
+test_that("Formatting of the overall footer in the ReadMe file works as intended", {
   # one-line footer
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", footer = template_footer)
   rmlines <- readLines(rmfile)
@@ -476,9 +503,8 @@ test_that("ReadMe file formatting works as intended", {
   expect_identical(rmlines[[15]], multi_line_footer[[1]])
   expect_identical(rmlines[[17]], multi_line_footer[[3]])
   expect_identical(rmlines[10:16] == "", c(FALSE, TRUE, TRUE, FALSE, FALSE, FALSE, FALSE))
-
-  file.remove(rmfile)
 })
+file.remove(rmfile)
 
 # remove dummy directory to avoid warning from R CMD
 unlink(studybase, recursive = TRUE)
