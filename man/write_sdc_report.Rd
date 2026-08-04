@@ -7,7 +7,7 @@
 write_sdc_report(x, file_path, overwrite = FALSE)
 }
 \arguments{
-\item{x}{A named list of data frames returned by [sdc_check()].}
+\item{x}{A named list of data frames returned by \link{sdc_check}.}
 
 \item{file_path}{Path of the Excel file to be created.}
 

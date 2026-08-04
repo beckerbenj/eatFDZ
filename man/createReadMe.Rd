@@ -85,6 +85,7 @@ setting depending on the function mode will be applied: \code{FALSE} in director
 }
 \value{
 Depending on \code{create_table}, this function may return...\itemize{
+ \item \code{"none"} - By default, \code{NULL} will be returned.
  \item \code{"control"} - A \code{list} of \code{data.frame}s, one for each subdirectory.
  These \code{data.frame}s may be saved as individual control table files that could be used
  as input for this function's table mode. Each \code{data.frame} consists of at least three
@@ -93,11 +94,10 @@ Depending on \code{create_table}, this function may return...\itemize{
  \code{description} (default descriptions of each file; one column per \code{lang}), and
  \code{flag} (formatting flags to mirror the directory structure if reused in table mode).
  \item \code{"overview"} - A flat \code{data.frame} with at least four columns:
- \code{file_name}, \code{description}, and \code{flag} as described for \code{"control"},
- as well as each file's \code{depth} and \code{group} (i.e. first-level directory).
- \item \code{"text"} - The \code{character vector} constituting the ReadMe text written to
- \code{out_path} if requested. If more than one \code{lang} is specified, this returns a list
- of one ReadMe text per language.
+ \code{file_name}, \code{description}, as well as each file's \code{depth} and \code{group}
+  (i.e. first-level directory).
+ \item \code{"text"} - A \code{list} of one \code{character vector} per \code{lang} constituting
+  the ReadMe text written to \code{out_path} if requested.
 }
 }
 \description{
@@ -190,7 +190,7 @@ dir.create(file.path(somedir, "data"))
 file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
 file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_Schipolowski_2026.pdf"))
 
-# Direcory mode
+# Directory mode
 createReadMe(somedir, lang = "en", create_table = "overview")
 
 control_table <- createReadMe(somedir, lang = "en", create_table = "control")

@@ -122,6 +122,7 @@
 #'  \code{TRUE} in table mode.
 #'
 #' @returns Depending on \code{create_table}, this function may return...\itemize{
+#'  \item \code{"none"} - By default, \code{NULL} will be returned.
 #'  \item \code{"control"} - A \code{list} of \code{data.frame}s, one for each subdirectory.
 #'  These \code{data.frame}s may be saved as individual control table files that could be used
 #'  as input for this function's table mode. Each \code{data.frame} consists of at least three
@@ -130,11 +131,10 @@
 #'  \code{description} (default descriptions of each file; one column per \code{lang}), and
 #'  \code{flag} (formatting flags to mirror the directory structure if reused in table mode).
 #'  \item \code{"overview"} - A flat \code{data.frame} with at least four columns:
-#'  \code{file_name}, \code{description}, and \code{flag} as described for \code{"control"},
-#'  as well as each file's \code{depth} and \code{group} (i.e. first-level directory).
-#'  \item \code{"text"} - The \code{character vector} constituting the ReadMe text written to
-#'  \code{out_path} if requested. If more than one \code{lang} is specified, this returns a list
-#'  of one ReadMe text per language.
+#'  \code{file_name}, \code{description}, as well as each file's \code{depth} and \code{group}
+#'   (i.e. first-level directory).
+#'  \item \code{"text"} - A \code{list} of one \code{character vector} per \code{lang} constituting
+#'   the ReadMe text written to \code{out_path} if requested.
 #' }
 #'
 #' @examples
@@ -679,7 +679,7 @@ file_table_as_text <- function(content, margin, col_width, prefix = "- ",
       these_indentations[2:length(these_indentations)] <-
         these_indentations[2:length(these_indentations)]  + indent_per_level
     }
-    
+
     these_indentations[these_indentations > max_indent] <- max_indent
     this_section <- these_filenames <- sapply(seq_along(this_group$file_name), function(x) {
       paste0(paste0(rep(" ", these_indentations[[x]]), collapse = ""),
