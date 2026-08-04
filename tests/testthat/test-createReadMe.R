@@ -388,6 +388,15 @@ test_that("Table mode creates ReadMe file successfully", {
   expect_true(file.exists(rmfile_de))
   expect_true(file.exists(rmfile_en))
   file.remove(rmfile_de, rmfile_en)
+
+  # from Excel file
+  excel_name <- sub(x = template_stud1, pattern = "\\.csv$", replacement = ".xlsx")
+  csv_content <- read.table(template_stud1, sep = ",", header = TRUE)
+  write.xlsx(x = csv_content, file = excel_name)
+  expect_null(createReadMe(excel_name, out_path = rmfile_onelang, sep = ",", lang = "de"))
+  expect_true(file.exists(rmfile_onelang))
+  file.remove(rmfile_onelang)
+  file.remove(excel_name)
 })
 
 

@@ -1,7 +1,7 @@
 Package: eatFDZ
 Type: Package
 Title: Data checking and validation
-Version: 0.7.1
+Version: 0.7.2
 Authors@R: c(
     person("Benjamin", "Becker", email = "b.becker@iqb.hu-berlin.de", role = c("aut", "cre")),
     person("Annegret", "Rucker", role = c("aut", "ctb")),
@@ -11,7 +11,7 @@ Description: Check and validate data sets and their documentation. This includes
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Imports: eatGADS (>= 1.2.0), readtext, quanteda, eatTools, readxl, stringi, openxlsx, plyr, openxlsx2, eulerr
+Imports: eatGADS (>= 1.2.0), readtext, quanteda, eatTools, readxl, stringi, openxlsx, openxlsx2, plyr, eulerr
 RoxygenNote: 7.3.2
 Suggests: 
     knitr,
