@@ -146,7 +146,7 @@
 #' file.create(file.path(somedir, "data", c("a_text.txt", "my_data.csv")))
 #' file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_Schipolowski_2026.pdf"))
 #'
-#' # Direcory mode
+#' # Directory mode
 #' createReadMe(somedir, lang = "en", create_table = "overview")
 #'
 #' control_table <- createReadMe(somedir, lang = "en", create_table = "control")
@@ -189,7 +189,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
     if (is.null(get(this_arg))) next
     if (length(get(this_arg)) == 1 && file.exists(get(this_arg))) {
       file_ext <- get_file_extension(get(this_arg))
-      if (!file_ext %in% c(".csv", "xlsx")) {
+      if (!file_ext %in% c(".csv", ".xlsx")) {
         stop("Unsupported file format in file: '", get(this_arg), "'",
              call. = FALSE)
       }
@@ -429,9 +429,9 @@ create_RM_from_dir <- function(in_path, out_path, lang, flat_depth, skip_empty_b
 
 create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
   file_ext <- get_file_extension(in_path)
-  if (any(!file_ext %in% c(".csv", "xlsx"))) {
+  if (any(!file_ext %in% c(".csv", ".xlsx"))) {
     stop("Unsupported file format in file(s): '",
-         paste0(in_path[!file_ext %in% c(".csv", "xlsx")], collapse = "', '"),
+         paste0(in_path[!file_ext %in% c(".csv", ".xlsx")], collapse = "', '"),
          "'",
          call. = FALSE)
   }
