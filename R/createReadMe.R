@@ -774,12 +774,12 @@ add_header <- function(text, header, width,
     if (!any(grepl(x = names(default_headers), pattern = header))) {
       old_header <- header
       revert_to_english <- FALSE
-      if (grepl(x = header, pattern = "^default///content_")) {
-        header <- "default///content_en"
+      if (grepl(x = header, pattern = "^content_")) {
+        header <- "content_en"
         revert_to_english <- TRUE
       }
-      if (grepl(x = header, pattern = "^default///remarks_")) {
-        header <- "default///remarks_en"
+      if (grepl(x = header, pattern = "^remarks_")) {
+        header <- "remarks_en"
         revert_to_english <- TRUE
       }
       if (revert_to_english) {
@@ -788,8 +788,6 @@ add_header <- function(text, header, width,
                                                        pattern = "_.*$"),
                        2, 3),
                 "'. Reverting to English.")
-      } else {
-        stop("Could not apply default header. Please report this as an issue.")
       }
     }
     header <- default_headers[[header]]

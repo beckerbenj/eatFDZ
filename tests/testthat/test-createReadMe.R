@@ -487,6 +487,31 @@ test_that("Basic ReadMe formatting (indentation, section header, recursive menti
   expect_equal(n_leading_spaces3[3:11], c(0, 2, 2, 2, 2, 2, 0, 2, 2))
 })
 
+test_that("Default sections revert to English if requested language is not implemented", {
+  french_descriptions <- c("IQB Tendances en matiere de Resultats Scolaires",
+                           "donnees sur les eleves",
+                           "donnees sur les enseignants avec un nom de fichier tres long",
+                           "Nous remercions l'IA pour cette traduction",
+                           "article exceptionnel sur les donnees")
+  alternative_name <- sub(x = template_stud1, pattern = "\\.csv$", replacement = "_fr.csv")
+  csv_content <- read.table(template_stud1, sep = ",", header = TRUE)
+  csv_content$description_fr <- french_descriptions
+  write.table(x = csv_content,
+              file = alternative_name,
+              sep = ",",
+              row.names = FALSE)
+
+  expect_warning(createReadMe(alternative_name, out_path = rmfile, sep = ",", lang = "fr"),
+                 regexp = "^No default content.* Reverting to English\\.$")
+  expect_warning(createReadMe(alternative_name, out_path = rmfile, sep = ",", lang = "fr"),
+                 regexp = "^No default ReadMe.* Reverting to English\\.$")
+  expect_true(file.exists(rmfile))
+  rmlines <- readLines(rmfile)
+  expect_match(rmlines[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
+  expect_identical(rmlines[[6]], french_descriptions[[1]])
+  file.remove(alternative_name)
+})
+
 test_that("Formatting of the overall header is correct + an Excel table is accepted", {
   # one-line header
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = template_header)
