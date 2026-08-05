@@ -962,11 +962,12 @@ blanks_to_tabs <- function(text) {
 
 fill_with_blanks <- function(col1, col2, width, use_tabs = TRUE) {
   if (length(col1) != length(col2)) {
+    # ensure both columns have identical lengths/number of rows
     length_diff <- length(col1) - length(col2)
     if (length_diff > 0) {
       col2 <- c(col2, rep("", length_diff))
     } else {
-      col1 <- c(col1, rep("", length_diff))
+      col1 <- c(col1, rep("", abs(length_diff)))
     }
   }
 

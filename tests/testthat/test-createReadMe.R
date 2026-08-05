@@ -639,3 +639,11 @@ test_that("Bracing headers would work for the future", {
   expect_match(rmlines[[9]], paste0("^\u2502[ \t]*", multi_line_header[[2]], "[ \t]*\u2502$"))
   expect_match(rmlines[[10]], paste0("^\u2514[ \t]*", multi_line_header[[3]], "[ \t]*\u2518$"))
 })
+
+test_that("Filling with blanks works for columns of different lengths", {
+  short_col <- c("hi", "bye")
+  long_col <- c("The cake", "is", "a lie")
+  short_first <- eatFDZ:::fill_with_blanks(short_col, long_col, width = 10)
+  long_first <- eatFDZ:::fill_with_blanks(long_col, short_col, width = 10)
+  expect_identical(length(short_first), length(long_first))
+})
