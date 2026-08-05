@@ -774,17 +774,17 @@ add_header <- function(text, header, width,
     # check if there is a default for this language and subheader
     if (!any(grepl(x = names(default_headers), pattern = header))) {
       old_header <- header
-      revert_to_english <- FALSE
+      revert_to_english <- ""
       if (grepl(x = header, pattern = "^content_")) {
         header <- "content_en"
-        revert_to_english <- TRUE
+        revert_to_english <- "content"
       }
       if (grepl(x = header, pattern = "^remarks_")) {
         header <- "remarks_en"
-        revert_to_english <- TRUE
+        revert_to_english <- "remarks"
       }
-      if (revert_to_english) {
-        warning("No default content subheader found for language '",
+      if (revert_to_english != "") {
+        warning("No default ", revert_to_english," subheader found for language '",
                 substr(stringi::stri_extract_all_regex(str = old_header,
                                                        pattern = "_.*$"),
                        2, 3),

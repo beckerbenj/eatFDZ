@@ -511,10 +511,14 @@ test_that("Default sections revert to English if requested language is not imple
                  regexp = "^No default content.* Reverting to English\\.$")
   expect_warning(createReadMe(alternative_name, out_path = rmfile, sep = ",", lang = "fr"),
                  regexp = "^No default ReadMe.* Reverting to English\\.$")
+  expect_warning(createReadMe(alternative_name, out_path = rmfile, sep = ",", lang = "fr",
+                              remarks = "Ne me pose pas de questions en francais, s'il vous plait"),
+                 regexp = "^No default remarks.* Reverting to English\\.$")
   expect_true(file.exists(rmfile))
   rmlines <- readLines(rmfile)
   expect_match(rmlines[[3]], paste0("^", basename(rmfile), "[ \t]+- this file$"))
   expect_identical(rmlines[[6]], french_descriptions[[1]])
+  expect_identical(rmlines[[13]], "[ A D D I T I O N A L   R E M A R K S ]")
   file.remove(alternative_name)
 })
 
