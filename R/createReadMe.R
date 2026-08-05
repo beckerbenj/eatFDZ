@@ -362,7 +362,8 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 create_RM_from_dir <- function(in_path, out_path, lang, flat_depth, skip_empty_base, replace_id) {
   # list all files in the directory and all subdirectories
   file_table_deep <- create_file_table(path = in_path)
-
+  if (is.null(file_table_deep)) stop("There are no files or subdirectories in 'in_path'.",
+                                     .call = FALSE)
   # flatten the file table for easier use
   file_table_flat <- flatten_file_table(dirname = basename(in_path),
                                         file_table = file_table_deep,
@@ -710,7 +711,7 @@ file_table_as_text <- function(content, margin, col_width, prefix = "- ",
     return(this_section)
   })
   full_lines <- unlist(full_lines)
-  attr(full_lines, "total_width") <- col_width + nchar(prefix) +max(nchar(descriptions))
+  attr(full_lines, "total_width") <- col_width + nchar(prefix) + max(nchar(descriptions))
   return(full_lines)
 }
 

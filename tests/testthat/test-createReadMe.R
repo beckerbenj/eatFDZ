@@ -107,6 +107,12 @@ if (!file.exists(template_footer)) {
 
 #### Actual tests ####
 test_that("Invalid inputs are rejected", {
+  empty_path <- file.path(pathstud1, "empty")
+  dir.create(empty_path)
+  expect_error(createReadMe(empty_path, create_table = "overview"),
+               "^There are no")
+  unlink(empty_path)
+
   expect_error(createReadMe(1:5),
                "^'in_path'")
   expect_error(createReadMe(file.path(pathbase, "SUF_Remote")),
