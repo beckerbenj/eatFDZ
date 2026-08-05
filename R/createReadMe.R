@@ -607,11 +607,15 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
                               depth = depth,
                               group = dirname))
       if (length(file_table) == 1) {
-        return(out) # no further subdirectories
+        return(out) # base case of the recursion: no further subdirectories
       } else {
-        start_col <- 2 # otherwise 2nd col will have the first subdir
+        # Use 2nd entry (which holds the first subdir, if there are also files in this dir)
+        #  as input for the next recursive step.
+        start_col <- 2
       }
     } else {
+      # Use the 1st entry (which holds the first subdir, if there are NO files in this dir)
+      #  as input for the next recursive step.
       start_col <- 1
     }
   }

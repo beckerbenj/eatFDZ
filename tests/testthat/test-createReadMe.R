@@ -355,6 +355,35 @@ test_that("Directory mode sets depth and group correctly", {
                          length(filesstud2_sub2) + 1)))
 })
 
+test_that("Directory mode flattens depth and issues the appropriate warning", {
+  long_subdir_list <- c("this", "directory", "is", "way", "too", "deep",
+                        "and", "should", "therefore", "really", "be", "flattened")
+  very_deep_base <- file.path(pathbase, long_subdir_list[[1]])
+  very_deep_dir <- pathbase
+  for (subdir in long_subdir_list) {
+    very_deep_dir <- file.path(very_deep_dir, subdir)
+    dir.create(very_deep_dir)
+    file.create(file.path(very_deep_dir, "any_file.txt"))
+  }
+
+  expect_warning(overview_deep_noflat <- createReadMe(very_deep_base, create_table = "overview"),
+                 regexp = "^This directory has")
+  expect_identical(overview_deep_noflat$depth[[24]], 11)
+
+  expect_no_warning(overview_deep_flat_high <- createReadMe(very_deep_base,
+                                                            create_table = "overview",
+                                                            flat_depth = 15))
+  expect_identical(overview_deep_noflat, overview_deep_flat_high)
+
+  expect_no_warning(overview_deep_flat_low <- createReadMe(very_deep_base,
+                                                           create_table = "overview",
+                                                           flat_depth = 3))
+  expect_equal(overview_deep_flat_low$depth,
+               c(rep(0, 2), rep(1, 2), rep(2, 2), rep(3, 18)))
+
+  unlink(very_deep_base, recursive = TRUE)
+})
+
 test_that("Directory mode sets flags correctly", {
   # dont skip base
   study_control_noskip <- createReadMe(studybase, create_table = "control", lang = "en")
