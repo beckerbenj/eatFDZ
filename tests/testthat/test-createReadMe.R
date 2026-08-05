@@ -434,6 +434,15 @@ test_that("Table mode creates ReadMe file successfully", {
   file.remove(excel_name)
 })
 
+test_that("Table mode interprets flags correctly", {
+  tab_overview_replace <- createReadMe(template_stud1, sep = ",", lang = "de",
+                                       create_table = "overview")
+  expect_equal(tab_overview_replace$depth,
+               c(0, rep(0, length(filesstud1))))
+  expect_identical(tab_overview_replace$group,
+                   rep(file.path(basename(pathstud1)), length(filesstud1) + 1))
+})
+
 
 rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
 test_that("Basic ReadMe formatting (indentation, section header, recursive mention) is correct", {
