@@ -533,16 +533,20 @@ test_that("Default sections revert to English if requested language is not imple
 
 test_that("Pattern replacement in file names works correctly", {
   # directory mode
-  study_overview_replace <- createReadMe(studybase, create_table = "overview",
-                                         skip_empty_base = TRUE, replace_id = c("_Remote_Antrag",
-                                                                                "_2608-05a"))
-  expect_equal(sum(grepl(x = study_overview_replace$file_name, pattern = "_Remote_Antrag")), 0)
-  expect_equal(sum(grepl(x = study_overview_replace$file_name, pattern = "_2608-05a")),
+  dir_overview_replace <- createReadMe(studybase, create_table = "overview",
+                                       skip_empty_base = TRUE, replace_id = c("_Remote_Antrag",
+                                                                              "_2608-05a"))
+  expect_equal(sum(grepl(x = dir_overview_replace$file_name, pattern = "_Remote_Antrag")), 0)
+  expect_equal(sum(grepl(x = dir_overview_replace$file_name, pattern = "_2608-05a")),
                length(list.files(studybase, pattern = "_Remote_Antrag", recursive = TRUE)))
 
   # table mode
-  createReadMe(pathstud1, out_path = rmfile, sep = ",", lang = "de",
-               replace_id = c("_Remote_Antrag", "_2608-05a"))
+  tab_overview_replace <- createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
+                                       create_table = "overview", replace_id = c("_Remote_Antrag",
+                                                                                 "_2608-05a"))
+  expect_equal(sum(grepl(x = tab_overview_replace$file_name, pattern = "_Remote_Antrag")), 0)
+  expect_equal(sum(grepl(x = tab_overview_replace$file_name, pattern = "_2608-05a")),
+               length(list.files(pathstud1, pattern = "_Remote_Antrag", recursive = TRUE)))
   rmlines <- readLines(rmfile)
   expect_equal(sum(grepl(x = rmlines, pattern = "_Remote_Antrag")), 0)
   expect_equal(sum(grepl(x = rmlines, pattern = "_2608-05a")),
