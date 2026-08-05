@@ -627,3 +627,15 @@ file.remove(rmfile)
 
 # remove dummy directory to avoid warning from R CMD
 unlink(studybase, recursive = TRUE)
+
+
+#### Auxiliary ####
+test_that("Bracing headers would work for the future", {
+  rmlines <- createReadMe(template_stud1, sep = ",", lang = "de", create_table = "text")
+  multi_line_header <- c("Multi-Line", "Subheaders", "Are the future")
+  rmlines <- eatFDZ:::add_header(rmlines[[1]], multi_line_header, width = 50,
+                                 brace = TRUE, where = "below")
+  expect_match(rmlines[[8]], paste0("^\u250c[ \t]*", multi_line_header[[1]], "[ \t]*\u2510$"))
+  expect_match(rmlines[[9]], paste0("^\u2502[ \t]*", multi_line_header[[2]], "[ \t]*\u2502$"))
+  expect_match(rmlines[[10]], paste0("^\u2514[ \t]*", multi_line_header[[3]], "[ \t]*\u2518$"))
+})

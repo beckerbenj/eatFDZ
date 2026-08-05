@@ -797,7 +797,7 @@ add_header <- function(text, header, width,
   nline <- length(header)
 
   if (center) {
-    header <- sapply(unlist(header), function(header_line) {
+    header <- sapply(header, function(header_line) {
       width_header <- nchar(header_line)
       if (width_header >= width) return(header_line)
 
@@ -811,15 +811,16 @@ add_header <- function(text, header, width,
   }
 
   if (brace) {
-    if (center) header <- sapply(unlist(header), function(header_line) {
+    if (center) header <- sapply(header, function(header_line) {
       substr(x = header_line, start = 1, stop = nchar(header) - 1)
     })
+
     nline <- length(header)
     if (nline == 1) {
       header <- paste0("[", header, "]")
     } else {
       header[[1]] <- paste0("\u250c", header[[1]], "\u2510")
-      header[[length(header)]] <- paste0("\u2514", header[[1]], "\u2518")
+      header[[length(header)]] <- paste0("\u2514", header[[length(header)]], "\u2518")
       if (nline > 2) {
         header[2:(length(header) - 1)] <- paste0("\u2502", header[2:(length(header) - 1)], "\u2502")
       }
