@@ -37,6 +37,13 @@ write_sdc_report <- function(x, file_path, overwrite = FALSE) {
 
   sheet_names <- substr(gsub("[\\\\/:*?\\[\\]]", "_", basename(dataset_names)), 1L, 31L)
 
+  if (anyDuplicated(tolower(sheet_names))) {
+    stop(
+      "Dataset names must result in unique worksheet names after shortening to 31 characters.",
+      call. = FALSE
+    )
+  }
+
   for (i in seq_along(x)) {
     dat <- x[[i]]
     sheet <- sheet_names[[i]]
