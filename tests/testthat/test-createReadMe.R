@@ -548,6 +548,12 @@ test_that("Formatting of the overall header is correct + an Excel table is accep
   expect_identical(rmlines[[2]], rmlines[[9]])
   expect_identical(rmlines[1:8] == "", c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE))
 
+  # very wide one-line header
+  wide_header <- paste0("This is a w", paste0(rep("i", 150), collapse = ""), "de header")
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = wide_header)
+  rmlines <- readLines(rmfile)
+  expect_identical(rmlines[[3]], wide_header)
+
   # multi-line header
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en", header = template_header)
   rmlines <- readLines(rmfile)
