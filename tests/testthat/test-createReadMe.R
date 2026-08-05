@@ -430,7 +430,7 @@ test_that("Table mode creates ReadMe file successfully", {
 
 
 rmfile <- file.path(pathbase, "ReadMe_IQB-BT_2021.txt")
-test_that("Basic formatting of the ReadMe file works as intended", {
+test_that("Basic ReadMe formatting (indentation, section header, recursive mention) is correct", {
   rmname_en <- sub(x = rmfile, pattern = "\\.txt", replacement = "_en.txt")
   rmname_de <- sub(x = rmfile, pattern = "\\.txt", replacement = "_de.txt")
 
@@ -471,7 +471,8 @@ test_that("Basic formatting of the ReadMe file works as intended", {
   expect_match(rmlines1_en[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
 
   # indentation from table mode
-  rmlines1_without_leading_spaces <- gsub(x = rmlines1_en, pattern = "^[[:blank:]]*", replacement = "")
+  rmlines1_without_leading_spaces <- gsub(x = rmlines1_en, pattern = "^[[:blank:]]*",
+                                          replacement = "")
   n_leading_spaces1 <- nchar(rmlines1_en) - nchar(rmlines1_without_leading_spaces)
   expect_equal(n_leading_spaces1[6:10], c(0, 2, 2, 2, 2))
 
@@ -486,7 +487,7 @@ test_that("Basic formatting of the ReadMe file works as intended", {
   expect_equal(n_leading_spaces3[3:11], c(0, 2, 2, 2, 2, 2, 0, 2, 2))
 })
 
-test_that("Formatting of the overall header in the ReadMe file works as intended", {
+test_that("Formatting of the overall header is correct + an Excel table is accepted", {
   # one-line header
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = template_header)
   rmlines <- readLines(rmfile)
@@ -505,9 +506,20 @@ test_that("Formatting of the overall header in the ReadMe file works as intended
   expect_match(rmlines[[6]], paste0("^[ \t]+", multi_line_header[[4]], "[ \t]+$"))
   expect_identical(rmlines[[1]], rmlines[[7]])
   expect_identical(rmlines[[2]], rmlines[[8]])
+
+
+  # from Excel file
+  excel_name <- sub(x = template_header, pattern = "\\.csv$", replacement = ".xlsx")
+  csv_content <- read.table(template_header, sep = ",", header = TRUE)
+  openxlsx::write.xlsx(x = csv_content, file = excel_name)
+  expect_no_message(createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en",
+                                 header = excel_name))
+  rmlines_excel <- readLines(rmfile)
+  expect_identical(rmlines, rmlines_excel)
+  file.remove(excel_name)
 })
 
-test_that("Formatting of the content box in the ReadMe file works as intended", {
+test_that("Formatting of the content box is correct", {
   # one-line box
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
                content_box = template_contbox)
@@ -526,7 +538,7 @@ test_that("Formatting of the content box in the ReadMe file works as intended", 
   expect_identical(rmlines[[4]], rmlines[[8]])
 })
 
-test_that("Formatting of the remarks section in the ReadMe file works as intended", {
+test_that("Formatting of the remarks section is correct", {
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
                remarks = template_remarks)
   rmlines <- readLines(rmfile)
@@ -535,7 +547,7 @@ test_that("Formatting of the remarks section in the ReadMe file works as intende
   expect_match(rmlines[[14]], "^¯*$")
 })
 
-test_that("Formatting of the overall footer in the ReadMe file works as intended", {
+test_that("Formatting of the overall footer is correct", {
   # one-line footer
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", footer = template_footer)
   rmlines <- readLines(rmfile)
