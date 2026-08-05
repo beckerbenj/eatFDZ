@@ -512,6 +512,24 @@ test_that("Default sections revert to English if requested language is not imple
   file.remove(alternative_name)
 })
 
+test_that("Pattern replacement in file names works correctly", {
+  # directory mode
+  study_overview_replace <- createReadMe(studybase, create_table = "overview",
+                                         skip_empty_base = TRUE, replace_id = c("_Remote_Antrag",
+                                                                                "_2608-05a"))
+  expect_equal(sum(grepl(x = study_overview_replace$file_name, pattern = "_Remote_Antrag")), 0)
+  expect_equal(sum(grepl(x = study_overview_replace$file_name, pattern = "_2608-05a")),
+               length(list.files(studybase, pattern = "_Remote_Antrag", recursive = TRUE)))
+
+  # table mode
+  createReadMe(pathstud1, out_path = rmfile, sep = ",", lang = "de",
+               replace_id = c("_Remote_Antrag", "_2608-05a"))
+  rmlines <- readLines(rmfile)
+  expect_equal(sum(grepl(x = rmlines, pattern = "_Remote_Antrag")), 0)
+  expect_equal(sum(grepl(x = rmlines, pattern = "_2608-05a")),
+               length(list.files(pathstud1, pattern = "_Remote_Antrag", recursive = TRUE)))
+})
+
 test_that("Formatting of the overall header is correct + an Excel table is accepted", {
   # one-line header
   createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de", header = template_header)
