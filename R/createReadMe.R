@@ -835,7 +835,9 @@ add_header <- function(text, header, width,
 }
 
 add_spanning_border <- function(text, linetype, width = NULL, where = c("above", "below")) {
-  if (is.null(width)) width <- nchar(tabs_to_blanks(text), type = "char")
+  # only needed if more customisation options would be implemented for this
+  # if (is.null(width)) width <- nchar(tabs_to_blanks(text), type = "char")
+
   # double full width lower: \u2017
   # single full width lower: \u005f
   # single full width upper: \u203e
@@ -856,11 +858,10 @@ add_spanning_border <- function(text, linetype, width = NULL, where = c("above",
 add_overall_head <- function(text, header, lang, width) {
   if (is.null(header)) return(text)
   if (is.list(header) && length(header) > 1) {
-    this_header <- unlist(header[grepl(x = names(header), pattern = paste0("_", lang, "$"))])
-    this_header <- unlist(this_header)
-  } else {
-    this_header <- unlist(header)
+    header <- header[grepl(x = names(header), pattern = paste0("_", lang, "$"))]
   }
+  this_header <- unlist(header)
+
   this_header <- crop_empty_lines(this_header)
 
   text <- add_spanning_border(text = text,
@@ -880,11 +881,9 @@ add_overall_head <- function(text, header, lang, width) {
 add_content_box <- function(text, content, lang, width, indent = TRUE) {
   if (is.null(content)) return(text)
   if (is.list(content) && length(content) > 1) {
-    this_box <- unlist(content[grepl(x = names(content), pattern = paste0("_", lang, "$"))])
-    this_box <- unlist(this_box)
-  } else {
-    this_box <- unlist(content)
+    content <- content[grepl(x = names(content), pattern = paste0("_", lang, "$"))]
   }
+  this_box <- unlist(content)
   this_box <- crop_empty_lines(this_box)
 
   text <- add_spanning_border(text = text,
@@ -899,11 +898,9 @@ add_content_box <- function(text, content, lang, width, indent = TRUE) {
 add_remarks_section <- function(text, section, lang, width) {
   if (is.null(section)) return(text)
   if (is.list(section) && length(section) > 1) {
-    this_section <- section[grepl(x = names(section), pattern = paste0("_", lang, "$"))]
-    this_section <- unlist(this_section)
-  } else {
-    this_section <- unlist(section)
+    section <- section[grepl(x = names(section), pattern = paste0("_", lang, "$"))]
   }
+  this_section <- unlist(section)
   this_section <- crop_empty_lines(this_section)
 
   text <- add_header(text = text,
@@ -923,11 +920,9 @@ add_remarks_section <- function(text, section, lang, width) {
 add_footer <- function(text, footer, lang, width) {
   if (is.null(footer)) return(text)
   if (is.list(footer) && length(footer) > 1) {
-    this_footer <- footer[grepl(x = names(footer), pattern = paste0("_", lang, "$"))]
-    this_footer <- unlist(this_footer)
-  } else {
-    this_footer <- unlist(footer)
+    footer <- footer[grepl(x = names(footer), pattern = paste0("_", lang, "$"))]
   }
+  this_footer <- unlist(footer)
   this_footer <- crop_empty_lines(this_footer)
 
   text <- add_spanning_border(text = text,
