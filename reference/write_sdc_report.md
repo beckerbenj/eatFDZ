@@ -13,7 +13,8 @@ write_sdc_report(x, file_path, overwrite = FALSE)
 
 - x:
 
-  A named list of data frames returned by \[sdc_check()\].
+  A named list of data frames returned by
+  [sdc_check](https://beckerbenj.github.io/eatFDZ/reference/sdc_check.md).
 
 - file_path:
 

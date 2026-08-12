@@ -40,6 +40,8 @@
 - [`compare_data()`](https://beckerbenj.github.io/eatFDZ/reference/compare_data.md)
   : Compare existing variables and meta data structure between two data
   sets.
+- [`createReadMe()`](https://beckerbenj.github.io/eatFDZ/reference/createReadMe.md)
+  : Create a ReadMe file documenting directory contents
 - [`data_clean()`](https://beckerbenj.github.io/eatFDZ/reference/data_clean.md)
   : Data clean.
 - [`english_words`](https://beckerbenj.github.io/eatFDZ/reference/english_words.md)
