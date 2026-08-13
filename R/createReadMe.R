@@ -362,7 +362,7 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
 create_RM_from_dir <- function(in_path, out_path, lang, flat_depth, skip_empty_base, replace_id) {
   # list all files in the directory and all subdirectories
   file_table_deep <- create_file_table(path = in_path)
-  if (is.null(file_table_deep)) stop("There are no files or subdirectories in 'in_path'.",
+  if (is.null(file_table_deep)) stop("There are no files in 'in_path'.",
                                      .call = FALSE)
   # flatten the file table for easier use
   file_table_flat <- flatten_file_table(dirname = basename(in_path),
@@ -531,7 +531,7 @@ create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
 
 #### auxiliary: substantive ####
 create_file_table <- function(path, prev_depth = 0) {
-  # list all files in a directory by going through subdirectories recursively
+  # list all files in a directory by recursively going through subdirectories
   out <- list()
 
   all_files <- list.files(path = path,
@@ -566,6 +566,7 @@ create_file_table <- function(path, prev_depth = 0) {
     out[[1]] <- file_tab
     names(out)[1] <- "files"
   } else {
+    # base case B (irregular) of recursion: no files and no subdirectories
     if (length(all_sub_dirs) == 0) return()
   }
 
@@ -577,10 +578,11 @@ create_file_table <- function(path, prev_depth = 0) {
       out[[pointer]] <- sub_content
       names(out)[[pointer]] <- basename(subdir)
     }
-  } else {
-    return(out)
+    # bubble up irregular base case of file-less directory
+    if (length(out) == 0) return()
   }
 
+  # base case A (regular) of recursion: all files and subdirectories listed
   return(out)
 }
 
@@ -608,7 +610,7 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
                               depth = depth,
                               group = dirname))
       if (length(file_table) == 1) {
-        return(out) # base case of the recursion: no further subdirectories
+        return(out) # base case of the recursion: files but no further subdirectories
       } else {
         # Use 2nd entry (which holds the first subdir, if there are also files in this dir)
         #  as input for the next recursive step.
@@ -650,6 +652,7 @@ flatten_file_table <- function(dirname, file_table, flat_depth, depth = 0, warni
                                   depth = depth,
                                   warning_issued = warning_issued,
                                   skip_empty_base = FALSE)
+    # create or append output
     if (!exists("out")) {
       out <- new_row
     } else {
