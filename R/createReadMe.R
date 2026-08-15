@@ -499,11 +499,13 @@ create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
                                    pattern = paste0("description_", this_lang),
                                    replacement = "description")
 
-    # move description information to column file_name for printing
-    header_lines <- which(grepl(x = file_table2write$flag,
-                                pattern = "(header)|(subheader)"))
-    file_table2write$file_name[header_lines] <- file_table2write$description[header_lines]
-    file_table2write$description[header_lines] <- ""
+    # move description information to column file_name for printing if available
+    header_lines <- grepl(x = file_table2write$flag, pattern = "(header)|(subheader)")
+    non_empty_description <- file_table2write$description != ""
+    header_replace <- which(header_lines & non_empty_description)
+
+    file_table2write$file_name[header_replace] <- file_table2write$description[header_replace]
+    file_table2write$description[header_replace] <- ""
     file_table2write <- file_table2write[, names(file_table2write) != "flag"]
 
     lines2write[[this_lang]] <- file_table2write
