@@ -108,10 +108,13 @@ if (!file.exists(template_footer)) {
 #### Actual tests ####
 test_that("Invalid inputs are rejected", {
   empty_path <- file.path(pathstud1, "empty")
-  dir.create(empty_path)
+  deeper_empty_path <- file.path(empty_path, "emptier", "emptiest")
+  dir.create(deeper_empty_path, recursive = TRUE)
   expect_error(createReadMe(empty_path, create_table = "overview"),
                "^There are no")
-  unlink(empty_path)
+  expect_error(createReadMe(deeper_empty_path, create_table = "overview"),
+               "^There are no")
+  unlink(empty_path, recursive = TRUE)
 
   expect_error(createReadMe(1:5),
                "^'in_path'")
@@ -482,7 +485,6 @@ test_that("Basic ReadMe formatting (indentation, section header, recursive menti
   # specific lines
   expect_identical(rmlines1_en[1:6] == "", c(FALSE, FALSE, FALSE, FALSE, TRUE, FALSE))
     # 4th should be empty, but because of a workaround there are pointless blanks there
-  expect_identical(rmlines1_en[[6]], "IQB Trends in Student Achievement 2021")
   expect_match(rmlines1_en[[7]], "^  IQB-BT_2021.+\\.sav[ \t]+- student data$")
 
   # indentation from table mode
@@ -500,6 +502,26 @@ test_that("Basic ReadMe formatting (indentation, section header, recursive menti
   rmlines3_without_leading_spaces <- gsub(x = rmlines3, pattern = "^[[:blank:]]*", replacement = "")
   n_leading_spaces3 <- nchar(rmlines3) - nchar(rmlines3_without_leading_spaces)
   expect_equal(n_leading_spaces3[3:11], c(0, 2, 2, 2, 2, 2, 0, 2, 2))
+})
+
+test_that("Subsection headers are created correctly", {
+  # header text in description (average case)
+  createReadMe(template_stud1, out_path = rmfile, lang = "en", sep = ",")
+  rmlines1 <- readLines(rmfile)
+  expect_identical(rmlines1[[6]], "IQB Trends in Student Achievement 2021")
+
+  # no header text in description (worse case)
+  alternative_name <- sub(x = template_stud1, pattern = "\\.csv$", replacement = "_2.csv")
+  csv_content <- read.table(template_stud1, sep = ",", header = TRUE)
+  csv_content$description_de[[1]] <- ""
+  write.table(x = csv_content,
+              file = alternative_name,
+              sep = ",",
+              row.names = FALSE)
+  createReadMe(alternative_name, out_path = rmfile, lang = "de", sep = ",")
+  rmlines2 <- readLines(rmfile)
+  expect_identical(rmlines2[[6]], csv_content$file_name[[1]])
+  file.remove(alternative_name)
 })
 
 test_that("Default sections revert to English if requested language is not implemented", {
