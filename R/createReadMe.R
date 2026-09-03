@@ -188,16 +188,8 @@ createReadMe <- function(in_path, out_path = NULL, lang = c("de", "en"),
   for (this_arg in c("header", "content_box", "remarks", "footer")) {
     if (is.null(get(this_arg))) next
     if (length(get(this_arg)) == 1 && file.exists(get(this_arg))) {
-      file_ext <- get_file_extension(get(this_arg))
-      if (!file_ext %in% c(".csv", ".xlsx")) {
-        stop("Unsupported file format in file: '", get(this_arg), "'",
-             call. = FALSE)
-      }
-      if (file_ext == ".csv") {
-        assign(this_arg, utils::read.csv(file = get(this_arg), sep = sep, blank.lines.skip = FALSE))
-      } else {
-        assign(this_arg, openxlsx::read.xlsx(xlsxFile = get(this_arg), sheet = 1, skipEmptyRows = FALSE))
-      }
+      assign(this_arg, read_table_guess_encoding(path = get(this_arg),
+                                                 sep = sep))
 
       sapply(lang, function(this_lang) {
         matching <- grepl(x = names(get(this_arg)),
@@ -430,23 +422,10 @@ create_RM_from_dir <- function(in_path, out_path, lang, flat_depth, skip_empty_b
 }
 
 create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
-  file_ext <- get_file_extension(in_path)
-  if (any(!file_ext %in% c(".csv", ".xlsx"))) {
-    stop("Unsupported file format in file(s): '",
-         paste0(in_path[!file_ext %in% c(".csv", ".xlsx")], collapse = "', '"),
-         "'",
-         call. = FALSE)
-  }
-
   # read files and transform into flat file table with formatting options
   content_list <- lapply(seq_along(in_path), function(path_index) {
-    if (file_ext[[path_index]] == ".csv") {
-      this_content <- utils::read.csv(file = in_path[[path_index]],
-                                      sep = sep)
-    } else {
-      this_content <- openxlsx::read.xlsx(xlsxFile = in_path[[path_index]],
-                                          sheet = 1)
-    }
+    this_content <- read_table_guess_encoding(path = in_path[[path_index]],
+                                              sep = sep)
     sapply(lang, function(this_lang) {
       matching <- grepl(x = names(this_content),
                         pattern = paste0("_", this_lang, "$"))
@@ -532,6 +511,36 @@ create_RM_from_tab <- function(in_path, out_path, lang, sep, replace_id) {
 }
 
 #### auxiliary: substantive ####
+read_table_guess_encoding <- function(path, extension = NULL, sep) {
+  if (is.null(extension)) extension <- get_file_extension(path)
+
+  if (!extension %in% c(".csv", ".xlsx")) {
+    stop("Unsupported file format in file: '", path, "'",
+         call. = FALSE)
+  }
+
+  # option 1: xlsx file - encoding is guessed by openxlsx
+  if (extension == ".xlsx") {
+    content <- openxlsx::read.xlsx(xlsxFile = path,
+                                   sheet = 1,
+                                   skipEmptyRows = FALSE)
+    return(content)
+  }
+
+  # option 2: csv file - guess encoding ourselves
+  raw_text <- readBin(path, what = "raw",
+                      n = file.info(path)$size)
+  converted_text <- rawToChar(raw_text)
+  if (isTRUE(stringi::stri_enc_isutf8(converted_text))) {
+    probable_encoding <- "UTF-8"
+  } else {
+    probable_encoding <- stringi::stri_enc_detect(converted_text)[[1]][1, 1]
+  }
+  content <- utils::read.csv(file = path, sep = sep, blank.lines.skip = FALSE,
+                             fileEncoding = probable_encoding)
+  return(content)
+}
+
 create_file_table <- function(path, prev_depth = 0) {
   # list all files in a directory by recursively going through subdirectories
   out <- list()
@@ -945,7 +954,6 @@ add_footer <- function(text, footer, lang, width) {
 
 
 #### auxiliary: text transformation ####
-
 get_file_extension <- function(path) {
   stringi::stri_extract_last_regex(str = path, pattern = "\\.[[:alnum:]]{2,4}$")
 }
@@ -995,7 +1003,6 @@ crop_empty_lines <- function(text) {
 
 
 #### auxiliary: checks ####
-
 check_file_path_or_null <- function(arg, argName) {
   if (missing(argName)) {
     argName <- deparse(substitute(arg))

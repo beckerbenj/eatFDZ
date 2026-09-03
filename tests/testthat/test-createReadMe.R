@@ -426,15 +426,6 @@ test_that("Table mode creates ReadMe file successfully", {
   expect_true(file.exists(rmfile_de))
   expect_true(file.exists(rmfile_en))
   file.remove(rmfile_de, rmfile_en)
-
-  # from Excel file
-  excel_name <- sub(x = template_stud1, pattern = "\\.csv$", replacement = ".xlsx")
-  csv_content <- read.table(template_stud1, sep = ",", header = TRUE)
-  openxlsx::write.xlsx(x = csv_content, file = excel_name)
-  expect_null(createReadMe(excel_name, out_path = rmfile_onelang, sep = ",", lang = "de"))
-  expect_true(file.exists(rmfile_onelang))
-  file.remove(rmfile_onelang)
-  file.remove(excel_name)
 })
 
 test_that("Table mode interprets flags correctly", {
@@ -600,17 +591,6 @@ test_that("Formatting of the overall header is correct + an Excel table is accep
   expect_match(rmlines[[6]], paste0("^[ \t]+", multi_line_header[[4]], "[ \t]+$"))
   expect_identical(rmlines[[1]], rmlines[[7]])
   expect_identical(rmlines[[2]], rmlines[[8]])
-
-
-  # from Excel file
-  excel_name <- sub(x = template_header, pattern = "\\.csv$", replacement = ".xlsx")
-  csv_content <- read.table(template_header, sep = ",", header = TRUE)
-  openxlsx::write.xlsx(x = csv_content, file = excel_name)
-  expect_no_message(createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en",
-                                 header = excel_name))
-  rmlines_excel <- readLines(rmfile)
-  expect_identical(rmlines, rmlines_excel)
-  file.remove(excel_name)
 })
 
 test_that("Formatting of the content box is correct", {
@@ -660,9 +640,6 @@ test_that("Formatting of the overall footer is correct", {
 })
 file.remove(rmfile)
 
-# remove dummy directory to avoid warning from R CMD
-unlink(studybase, recursive = TRUE)
-
 
 #### Auxiliary ####
 test_that("Bracing headers would work for the future", {
@@ -682,3 +659,34 @@ test_that("Filling with blanks works for columns of different lengths", {
   long_first <- eatFDZ:::fill_with_blanks(long_col, short_col, width = 10)
   expect_identical(length(short_first), length(long_first))
 })
+
+test_that("Tables are always read correctly", {
+  # XLSX vs CSV
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en", header = template_header)
+  rmlines <- readLines(rmfile)
+
+  excel_name <- sub(x = template_header, pattern = "\\.csv$", replacement = ".xlsx")
+  csv_content <- read.table(template_header, sep = ",", header = TRUE)
+  openxlsx::write.xlsx(x = csv_content, file = excel_name)
+  expect_no_message(createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "en",
+                                 header = excel_name))
+  rmlines_excel <- readLines(rmfile)
+  expect_identical(rmlines, rmlines_excel)
+
+  # UTF-8 vs Latin1
+  latin_name <- sub(x = template_header, pattern = "header", replacement = "header_latin")
+  csv_content$header_de[[1]] <- "Diese Kopfzeile ist großartig"
+  write.csv(x = csv_content, file = latin_name, fileEncoding = "latin1")
+  createReadMe(template_stud1, out_path = rmfile, sep = ",", lang = "de",
+               header = latin_name)
+  rmlines_latin <- readLines(rmfile)
+  expect_match(rmlines_latin[[3]], csv_content$header_de[[1]])
+
+  file.remove(excel_name)
+  file.remove(latin_name)
+  file.remove(rmfile)
+})
+
+
+##### remove dummy directory ####
+unlink(studybase, recursive = TRUE)
