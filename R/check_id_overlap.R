@@ -103,8 +103,47 @@ check_id_overlap <- function(sav_paths, id_vars, plot = TRUE) {
     results[[id]] <- result
 
     if (plot) {
-      print(graphics::plot(result,main = paste("Overlap for", id)))
+      font_size <- min(10, 14 - n_datasets)
+      plot_labels <- names(id_values)
+
+      # Split long labels near the middle, preferably at a separator
+      for (i in which(nchar(plot_labels) > 16)) {
+        label <- plot_labels[i]
+        split_at <- ceiling(nchar(label) / 2)
+        separators <- gregexpr("[_ -]", label)[[1]]
+
+        if (separators[1] > 0) {
+          split_at <- separators[which.min(abs(separators - split_at))]
+        }
+
+        plot_labels[i] <- paste(
+          substr(label, 1, split_at),
+          substring(label, split_at + 1),
+          sep = "\n"
+        )
+      }
+
+      # Draw the diagram with labels beside the ellipses
+      print(graphics::plot(
+        result,
+        labels = list(
+          labels = plot_labels,
+          position = "outside",
+          fontsize = font_size,
+          font = 1,
+          lineheight = 1
+        ),
+        quantities = list(fontsize = font_size),
+        fills = "grey95",
+        edges = "grey35",
+        main = list(
+          label = paste("Overlap for", id),
+          fontsize = 14,
+          cex = 1
+        )
+      ))
     }
+
     print(result$original.values)
   }
   invisible(results)
