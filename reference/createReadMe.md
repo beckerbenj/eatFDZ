@@ -266,29 +266,29 @@ file.create(file.path(somedir, "literature", "Rucker_Weigt_Burblies_Schipolowski
 # Directory mode
 createReadMe(somedir, lang = "en", create_table = "overview")
 #>                                     file_name              description_en depth
-#> 1                         example1c87128797ca                                 0
-#> 2                    example1c87128797ca/data                                 1
+#> 1                         example1a00181b5e8e                                 0
+#> 2                    example1a00181b5e8e/data                                 1
 #> 3                                  a_text.txt              ReadMe in data     1
 #> 4                                 my_data.csv             Dataset in data     1
-#> 5              example1c87128797ca/literature                                 1
+#> 5              example1a00181b5e8e/literature                                 1
 #> 6 Rucker_Weigt_Burblies_Schipolowski_2026.pdf Documentation in literature     1
 #>                            group
-#> 1            example1c87128797ca
-#> 2       example1c87128797ca/data
-#> 3       example1c87128797ca/data
-#> 4       example1c87128797ca/data
-#> 5 example1c87128797ca/literature
-#> 6 example1c87128797ca/literature
+#> 1            example1a00181b5e8e
+#> 2       example1a00181b5e8e/data
+#> 3       example1a00181b5e8e/data
+#> 4       example1a00181b5e8e/data
+#> 5 example1a00181b5e8e/literature
+#> 6 example1a00181b5e8e/literature
 
 control_table <- createReadMe(somedir, lang = "en", create_table = "control")
 control_table
-#> $example1c87128797ca
+#> $example1a00181b5e8e
 #>                                     file_name              description_en
-#> 1                         example1c87128797ca                            
-#> 2                    example1c87128797ca/data                            
+#> 1                         example1a00181b5e8e                            
+#> 2                    example1a00181b5e8e/data                            
 #> 3                                  a_text.txt              ReadMe in data
 #> 4                                 my_data.csv             Dataset in data
-#> 5              example1c87128797ca/literature                            
+#> 5              example1a00181b5e8e/literature                            
 #> 6 Rucker_Weigt_Burblies_Schipolowski_2026.pdf Documentation in literature
 #>          flag
 #> 1      header
@@ -304,11 +304,11 @@ write.table(control_table, file.path(somedir, "ReadMeControl.csv"), sep = ",",
 # Table mode
 read.csv(file.path(somedir, "ReadMeControl.csv"))
 #>                                     file_name              description_en
-#> 1                         example1c87128797ca                            
-#> 2                    example1c87128797ca/data                            
+#> 1                         example1a00181b5e8e                            
+#> 2                    example1a00181b5e8e/data                            
 #> 3                                  a_text.txt              ReadMe in data
 #> 4                                 my_data.csv             Dataset in data
-#> 5              example1c87128797ca/literature                            
+#> 5              example1a00181b5e8e/literature                            
 #> 6 Rucker_Weigt_Burblies_Schipolowski_2026.pdf Documentation in literature
 #>          flag
 #> 1      header
@@ -343,9 +343,9 @@ createReadMe(file.path(somedir, "ReadMeControl.csv"), lang = "en", create_table 
 #>                                                                                                                           
 #> "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯" 
 #>                                                                                                                           
-#>                                                                                                     "example1c87128797ca" 
+#>                                                                                                     "example1a00181b5e8e" 
 #>                                                                                                                           
-#>                                                                                              "  example1c87128797ca/data" 
+#>                                                                                              "  example1a00181b5e8e/data" 
 #>                                                                                                                           
 #>                                                                    "    a_text.txt    \t\t\t\t\t\t\t\t\t- ReadMe in data" 
 #>                                                                                                                           
@@ -353,7 +353,7 @@ createReadMe(file.path(somedir, "ReadMeControl.csv"), lang = "en", create_table 
 #>                                                                                                                           
 #>                                                                                                                        "" 
 #>                                                                                                                           
-#>                                                                                        "  example1c87128797ca/literature" 
+#>                                                                                        "  example1a00181b5e8e/literature" 
 #>                                                                                                                           
 #>                               "    Rucker_Weigt_Burblies_Schipolowski_2026.pdf   \t\t\t\t\t- Documentation in literature" 
 #> 
